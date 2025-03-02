@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.6.40">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="dcterms.date" content="2025-02-18">
+<meta name="description" content="???">
+
+<title>From Noise to Numbers: A Hands-On Guide to Generating MNIST Digits with Diffusion Models (Part 3) – Random Thoughts</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../images/favicon.ico" rel="icon">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-549806ee2085284f45b00abea8c6df48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-84543be43ff612bda7a31c913735130b.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script async="" src="https://www.googletagmanager.com/gtag/js?id=G-D1ST9BH6HX"></script>
+
+<script type="text/javascript">
+
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-D1ST9BH6HX', { 'anonymize_ip': true});
+</script>
+
+
+<link rel="stylesheet" href="../styles.css">
+<meta property="og:title" content="From Noise to Numbers: A Hands-On Guide to Generating MNIST Digits with Diffusion Models (Part 3) – Random Thoughts">
+<meta property="og:description" content="???">
+<meta property="og:image" content="images/2025-02-18-diffusion-model-mnist-part3.png">
+<meta property="og:site_name" content="Random Thoughts">
+<meta name="twitter:title" content="From Noise to Numbers: A Hands-On Guide to Generating MNIST Digits with Diffusion Models (Part 3) – Random Thoughts">
+<meta name="twitter:description" content="???">
+<meta name="twitter:image" content="images/2025-02-18-diffusion-model-mnist-part3.png">
+<meta name="twitter:card" content="summary_large_image">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">Random Thoughts</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://www.linkedin.com/in/hassaanbinaslam/"> <i class="bi bi-linkedin" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/hassaanbinaslam/"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://twitter.com/hassaanbinaslam"> <i class="bi bi-twitter" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a>
+  <ul class="collapse">
+  <li><a href="#credits" id="toc-credits" class="nav-link" data-scroll-target="#credits">Credits</a></li>
+  <li><a href="#environment-details" id="toc-environment-details" class="nav-link" data-scroll-target="#environment-details">Environment Details</a></li>
+  </ul></li>
+  <li><a href="#from-direct-image-prediction-to-noise-prediction-a-paradigm-shift" id="toc-from-direct-image-prediction-to-noise-prediction-a-paradigm-shift" class="nav-link" data-scroll-target="#from-direct-image-prediction-to-noise-prediction-a-paradigm-shift">From Direct Image Prediction to Noise Prediction: A Paradigm Shift</a></li>
+  <li><a href="#data-preparation-preprocessing-and-unet-model" id="toc-data-preparation-preprocessing-and-unet-model" class="nav-link" data-scroll-target="#data-preparation-preprocessing-and-unet-model">Data Preparation, Preprocessing, and UNet Model</a></li>
+  <li><a href="#scheduled-denoising-guiding-the-reverse-diffusion" id="toc-scheduled-denoising-guiding-the-reverse-diffusion" class="nav-link" data-scroll-target="#scheduled-denoising-guiding-the-reverse-diffusion">Scheduled Denoising: Guiding the Reverse Diffusion</a></li>
+  <li><a href="#modifying-the-training-loop-for-noise-prediction" id="toc-modifying-the-training-loop-for-noise-prediction" class="nav-link" data-scroll-target="#modifying-the-training-loop-for-noise-prediction">Modifying the Training Loop for Noise Prediction</a></li>
+  <li><a href="#inference-with-scheduled-denoising-generating-images-iteratively" id="toc-inference-with-scheduled-denoising-generating-images-iteratively" class="nav-link" data-scroll-target="#inference-with-scheduled-denoising-generating-images-iteratively">Inference with Scheduled Denoising: Generating Images Iteratively</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">From Noise to Numbers: A Hands-On Guide to Generating MNIST Digits with Diffusion Models (Part 3)</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">python</div>
+    <div class="quarto-category">dl</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    ???
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">February 18, 2025</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p><img src="images/2025-02-18-diffusion-model-mnist-part3.png" class="img-fluid"></p>
+<section id="introduction" class="level2">
+<h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
+<p>Welcome back to the final part of our hands-on journey into diffusion models for MNIST digit generation! In <a href="https://hassaanbinaslam.github.io/myblog/posts/2025-02-10-diffusion-model-mnist-part1.html">Part 1</a>, we laid the groundwork by building a basic Convolutional UNet and training it to directly predict clean MNIST digits from noisy inputs. We then enhanced our UNet architecture in <a href="https://hassaanbinaslam.github.io/myblog/posts/2025-02-15-diffusion-model-mnist-part2.html">Part 2</a>, leveraging the power of the diffusers library and its UNet2DModel to achieve improved denoising performance.</p>
+<p>While our direct image prediction approach showed promising results, we hinted that it was a simplification of true diffusion models. We observed that even with our enhanced UNet and iterative refinement, the generated digits still lacked the crispness and fidelity we might expect from “diffusion model magic.”</p>
+<p>Now, in this final installment, we’re ready to take the leap into the heart of diffusion models. We’ll move beyond directly predicting clean images and embrace the core principles that make diffusion models so powerful: <strong>noise prediction</strong> and <strong>scheduled denoising</strong>. Get ready to unlock the true potential of diffusion and witness a significant step-up in image generation quality!</p>
+<section id="credits" class="level3">
+<h3 class="anchored" data-anchor-id="credits">Credits</h3>
+<p>This post is inspired by the <a href="https://huggingface.co/learn/diffusion-course/en/unit1/3">Hugging Face Diffusion Course</a></p>
+</section>
+<section id="environment-details" class="level3">
+<h3 class="anchored" data-anchor-id="environment-details">Environment Details</h3>
+<p>You can access and run this Jupyter Notebook from the GitHub repository on this link <a href="https://github.com/hassaanbinaslam/myblog/blob/main/posts/2025-02-18-diffusion-model-mnist-part3.ipynb">2025-02-18-diffusion-model-mnist-part3.ipynb</a></p>
+<p>Run the following cell to install the required packages.</p>
+<ul>
+<li>This notebook can be run with <a href="https://colab.research.google.com/">Google Colab</a> T4 GPU runtime.</li>
+<li>I have also tested this notebook with AWS SageMaker Jupyter Notebook running on instance “ml.g5.xlarge” and image “SageMaker Distribution 2.3.0”.</li>
+</ul>
+<div id="47c651f8-0f51-44cb-8df6-54dd96313c33" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1"></a><span class="op">%%</span>capture</span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="op">!</span>pip install datasets[vision]</span>
+<span id="cb1-3"><a href="#cb1-3"></a><span class="op">!</span>pip install diffusers</span>
+<span id="cb1-4"><a href="#cb1-4"></a><span class="op">!</span>pip install watermark</span>
+<span id="cb1-5"><a href="#cb1-5"></a><span class="op">!</span>pip install torchinfo</span>
+<span id="cb1-6"><a href="#cb1-6"></a><span class="op">!</span>pip install matplotlib</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><a href="https://github.com/rasbt/watermark">WaterMark</a> is an IPython magic extension for printing date and time stamps, version numbers, and hardware information. Let’s load this extension and print the environment details.</p>
+<div id="64dd2d3c-631e-43b2-ab87-b0e9e0c1bafa" class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1"></a><span class="op">%</span>load_ext watermark</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="9af53e1f-1b21-4ba4-84a9-f5df6c2c1f6b" class="cell" data-outputid="e0c6c9aa-e5bb-47ab-99c9-a1b73c7b3d16" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1"></a><span class="op">%</span>watermark <span class="op">-</span>v <span class="op">-</span>m <span class="op">-</span>p torch,torchvision,datasets,diffusers,matplotlib,watermark,torchinfo</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Python implementation: CPython
+Python version       : 3.11.11
+IPython version      : 7.34.0
+
+torch      : 2.5.1+cu124
+torchvision: 0.20.1+cu124
+datasets   : 3.3.0
+diffusers  : 0.32.2
+matplotlib : 3.10.0
+watermark  : 2.5.0
+torchinfo  : 1.8.0
+
+Compiler    : GCC 11.4.0
+OS          : Linux
+Release     : 6.1.85+
+Machine     : x86_64
+Processor   : x86_64
+CPU cores   : 2
+Architecture: 64bit
+</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="from-direct-image-prediction-to-noise-prediction-a-paradigm-shift" class="level2">
+<h2 class="anchored" data-anchor-id="from-direct-image-prediction-to-noise-prediction-a-paradigm-shift">From Direct Image Prediction to Noise Prediction: A Paradigm Shift</h2>
+<p>In Parts 1 and 2, we trained our UNet to perform <strong>direct image prediction</strong>. This meant we fed the model a noisy image and asked it to directly output the estimated <em>clean</em> image. While this approach allowed us to grasp the basic mechanics of UNets and image denoising, it’s important to understand its limitations and why true diffusion models take a different path.</p>
+<p>Direct image prediction, as we implemented it, is essentially a <strong>one-step denoising process</strong>. It attempts to remove all the noise in a single forward pass through the network. Think of it like trying to un-blur a heavily distorted image in just one go – it’s a difficult task, and the results can often be blurry and lack fine details. Furthermore, this direct approach doesn’t fully capture the essence of the diffusion process, which is inherently gradual and iterative.</p>
+<p>True diffusion models, and the approach we’ll adopt now, operate on a different principle: <strong>noise prediction</strong>. Instead of predicting the clean image directly, we train our model to predict the <strong>noise</strong> that was added to a slightly noisier version of the image at each step of the <em>reverse</em> diffusion process.</p>
+<p>Imagine you’re slowly un-blurring an image, step by step. At each step, instead of trying to guess the <em>entire</em> sharp image, you focus on identifying and removing just a <em>tiny bit</em> of blur. By iteratively removing small amounts of blur (or noise), you gradually reveal the underlying clean image. This is the essence of noise prediction.</p>
+<p>Our model will now learn to estimate the noise present in a slightly noisy image. This predicted noise can then be used to “step back” along the reverse diffusion trajectory, creating a slightly less noisy image. By repeating this process over many steps – a process we call <strong>scheduled denoising</strong> (which we’ll discuss shortly) – we can generate high-quality images from pure noise.</p>
+<p>This shift to noise prediction is a crucial paradigm change. It allows for:</p>
+<ul>
+<li><strong>More stable training:</strong> Predicting noise at each step is a less ambitious and more manageable task for the model compared to directly predicting the clean image.</li>
+<li><strong>Improved sample quality:</strong> The iterative nature of noise prediction, guided by a schedule, leads to the generation of more detailed and visually appealing images.</li>
+<li><strong>Alignment with true diffusion models:</strong> Noise prediction is the fundamental building block of modern diffusion models, bringing us closer to state-of-the-art image generation techniques.</li>
+</ul>
+<p>In the following sections, we’ll delve into the code modifications needed to switch to noise prediction and explore the concept of scheduled denoising in detail.</p>
+</section>
+<section id="data-preparation-preprocessing-and-unet-model" class="level2">
+<h2 class="anchored" data-anchor-id="data-preparation-preprocessing-and-unet-model">Data Preparation, Preprocessing, and UNet Model</h2>
+<p>As we are building upon the foundations laid in <a href="https://hassaanbinaslam.github.io/myblog/posts/2025-02-10-diffusion-model-mnist-part1.html">Part 1</a>, we will reuse the same data preparation and preprocessing steps for the MNIST dataset. For a more in-depth explanation of these steps, please refer back to the first part of this guide. Here, we will quickly outline the process to ensure our data is ready for training.</p>
+<p>We will train the same <code>UNet2DModel</code> model that we used in the Part 2.</p>
+<div id="df83ba43" class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1"></a><span class="co">### Load MNIST Dataset</span></span>
+<span id="cb5-2"><a href="#cb5-2"></a><span class="im">from</span> datasets <span class="im">import</span> load_dataset</span>
+<span id="cb5-3"><a href="#cb5-3"></a>dataset <span class="op">=</span> load_dataset(<span class="st">"mnist"</span>)</span>
+<span id="cb5-4"><a href="#cb5-4"></a><span class="bu">print</span>(dataset)</span>
+<span id="cb5-5"><a href="#cb5-5"></a></span>
+<span id="cb5-6"><a href="#cb5-6"></a><span class="im">import</span> torch</span>
+<span id="cb5-7"><a href="#cb5-7"></a><span class="im">from</span> torchvision <span class="im">import</span> transforms</span>
+<span id="cb5-8"><a href="#cb5-8"></a></span>
+<span id="cb5-9"><a href="#cb5-9"></a>image_size <span class="op">=</span> <span class="dv">32</span>  <span class="co"># Define the target image size</span></span>
+<span id="cb5-10"><a href="#cb5-10"></a></span>
+<span id="cb5-11"><a href="#cb5-11"></a>preprocess <span class="op">=</span> transforms.Compose([</span>
+<span id="cb5-12"><a href="#cb5-12"></a>    transforms.Resize((image_size, image_size)),</span>
+<span id="cb5-13"><a href="#cb5-13"></a>    transforms.ToTensor(),</span>
+<span id="cb5-14"><a href="#cb5-14"></a>])</span>
+<span id="cb5-15"><a href="#cb5-15"></a></span>
+<span id="cb5-16"><a href="#cb5-16"></a><span class="co">### Define preprocess pipelein</span></span>
+<span id="cb5-17"><a href="#cb5-17"></a><span class="im">import</span> torch</span>
+<span id="cb5-18"><a href="#cb5-18"></a><span class="im">from</span> torchvision <span class="im">import</span> transforms</span>
+<span id="cb5-19"><a href="#cb5-19"></a></span>
+<span id="cb5-20"><a href="#cb5-20"></a>image_size <span class="op">=</span> <span class="dv">32</span>  <span class="co"># Define the target image size</span></span>
+<span id="cb5-21"><a href="#cb5-21"></a></span>
+<span id="cb5-22"><a href="#cb5-22"></a>preprocess <span class="op">=</span> transforms.Compose([</span>
+<span id="cb5-23"><a href="#cb5-23"></a>    transforms.Resize((image_size, image_size)),</span>
+<span id="cb5-24"><a href="#cb5-24"></a>    transforms.ToTensor(),</span>
+<span id="cb5-25"><a href="#cb5-25"></a>])</span>
+<span id="cb5-26"><a href="#cb5-26"></a></span>
+<span id="cb5-27"><a href="#cb5-27"></a><span class="co">## Define the transform function</span></span>
+<span id="cb5-28"><a href="#cb5-28"></a><span class="kw">def</span> transform(examples):</span>
+<span id="cb5-29"><a href="#cb5-29"></a>    examples <span class="op">=</span> [preprocess(image) <span class="cf">for</span> image <span class="kw">in</span> examples[<span class="st">"image"</span>]]</span>
+<span id="cb5-30"><a href="#cb5-30"></a>    <span class="cf">return</span> {<span class="st">"images"</span>: examples}</span>
+<span id="cb5-31"><a href="#cb5-31"></a></span>
+<span id="cb5-32"><a href="#cb5-32"></a><span class="co">## Apply the transform to the dataset</span></span>
+<span id="cb5-33"><a href="#cb5-33"></a>dataset.set_transform(transform)</span>
+<span id="cb5-34"><a href="#cb5-34"></a></span>
+<span id="cb5-35"><a href="#cb5-35"></a><span class="co">## Definition of the noise corruption function</span></span>
+<span id="cb5-36"><a href="#cb5-36"></a><span class="kw">def</span> corrupt(x, noise, amount):</span>
+<span id="cb5-37"><a href="#cb5-37"></a>    amount <span class="op">=</span> amount.view(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>)  <span class="co"># make sure it's broadcastable</span></span>
+<span id="cb5-38"><a href="#cb5-38"></a>    <span class="cf">return</span> (</span>
+<span id="cb5-39"><a href="#cb5-39"></a>        x <span class="op">*</span> (<span class="dv">1</span> <span class="op">-</span> amount) <span class="op">+</span> noise <span class="op">*</span> amount</span>
+<span id="cb5-40"><a href="#cb5-40"></a>    )  <span class="co"># equivalent to x.lerp(noise, amount)</span></span>
+<span id="cb5-41"><a href="#cb5-41"></a></span>
+<span id="cb5-42"><a href="#cb5-42"></a><span class="co">### Define the UNet Model (Same as Part 2)</span></span>
+<span id="cb5-43"><a href="#cb5-43"></a><span class="im">from</span> diffusers <span class="im">import</span> UNet2DModel</span>
+<span id="cb5-44"><a href="#cb5-44"></a></span>
+<span id="cb5-45"><a href="#cb5-45"></a>model <span class="op">=</span> UNet2DModel(</span>
+<span id="cb5-46"><a href="#cb5-46"></a>    sample_size<span class="op">=</span><span class="dv">32</span>,</span>
+<span id="cb5-47"><a href="#cb5-47"></a>    in_channels<span class="op">=</span><span class="dv">1</span>,</span>
+<span id="cb5-48"><a href="#cb5-48"></a>    out_channels<span class="op">=</span><span class="dv">1</span>,</span>
+<span id="cb5-49"><a href="#cb5-49"></a>    layers_per_block<span class="op">=</span><span class="dv">2</span>,</span>
+<span id="cb5-50"><a href="#cb5-50"></a>    block_out_channels<span class="op">=</span>(<span class="dv">32</span>, <span class="dv">64</span>, <span class="dv">64</span>),</span>
+<span id="cb5-51"><a href="#cb5-51"></a>    down_block_types<span class="op">=</span>(</span>
+<span id="cb5-52"><a href="#cb5-52"></a>        <span class="st">"DownBlock2D"</span>,</span>
+<span id="cb5-53"><a href="#cb5-53"></a>        <span class="st">"AttnDownBlock2D"</span>,</span>
+<span id="cb5-54"><a href="#cb5-54"></a>        <span class="st">"AttnDownBlock2D"</span>,</span>
+<span id="cb5-55"><a href="#cb5-55"></a>    ),</span>
+<span id="cb5-56"><a href="#cb5-56"></a>    up_block_types<span class="op">=</span>(</span>
+<span id="cb5-57"><a href="#cb5-57"></a>        <span class="st">"AttnUpBlock2D"</span>,</span>
+<span id="cb5-58"><a href="#cb5-58"></a>        <span class="st">"AttnUpBlock2D"</span>,</span>
+<span id="cb5-59"><a href="#cb5-59"></a>        <span class="st">"UpBlock2D"</span>,</span>
+<span id="cb5-60"><a href="#cb5-60"></a>    ),</span>
+<span id="cb5-61"><a href="#cb5-61"></a>)</span>
+<span id="cb5-62"><a href="#cb5-62"></a></span>
+<span id="cb5-63"><a href="#cb5-63"></a></span>
+<span id="cb5-64"><a href="#cb5-64"></a><span class="im">from</span> torchinfo <span class="im">import</span> summary</span>
+<span id="cb5-65"><a href="#cb5-65"></a>summary(model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="scheduled-denoising-guiding-the-reverse-diffusion" class="level2">
+<h2 class="anchored" data-anchor-id="scheduled-denoising-guiding-the-reverse-diffusion">Scheduled Denoising: Guiding the Reverse Diffusion</h2>
+<p>The power of noise prediction truly shines when combined with <strong>scheduled denoising</strong>. As we discussed, diffusion models work by gradually reversing the noise addition process. Scheduled denoising provides the <em>schedule</em> or the <em>steps</em> for this reverse process, controlling how we iteratively remove noise from an image.</p>
+<blockquote class="blockquote">
+<p>Think of it like carefully peeling layers of an onion. Scheduled denoising defines how many layers we peel back and how much we peel at each step. In diffusion models, these “layers” correspond to different levels of noise.</p>
+</blockquote>
+<p><strong>Why do we need a schedule?</strong></p>
+<p>Instead of removing all the predicted noise in one go, scheduled denoising breaks down the denoising process into a series of discrete timesteps. This is crucial for several reasons:</p>
+<ul>
+<li><strong>Controlled Noise Removal:</strong> A schedule allows us to gradually remove noise, starting from a highly noisy image (or pure noise) and progressively refining it. This iterative refinement leads to better image quality compared to a one-step approach.</li>
+<li><strong>Stability and Guidance:</strong> By controlling the denoising steps, we provide a structured path for the reverse diffusion process. This makes the generation process more stable and predictable.</li>
+<li><strong>Flexibility and Control:</strong> Different schedules can be designed to influence the generation process. For example, some schedules might prioritize faster generation, while others might focus on higher quality.</li>
+</ul>
+<p><strong>Timesteps and the Reverse Process:</strong></p>
+<p>In the following code, we represent the denoising schedule using <strong>timesteps</strong>. These timesteps are typically a sequence of numbers going from a large value (representing high noise) down to a small value (representing low noise or a clean image).</p>
+<div id="27075e74" class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1"></a><span class="co"># Setup the DDPM scheduler for training</span></span>
+<span id="cb6-2"><a href="#cb6-2"></a><span class="im">from</span> diffusers <span class="im">import</span> DDPMScheduler</span>
+<span id="cb6-3"><a href="#cb6-3"></a></span>
+<span id="cb6-4"><a href="#cb6-4"></a>num_train_timesteps <span class="op">=</span> <span class="dv">1000</span></span>
+<span id="cb6-5"><a href="#cb6-5"></a></span>
+<span id="cb6-6"><a href="#cb6-6"></a>scheduler <span class="op">=</span> DDPMScheduler(</span>
+<span id="cb6-7"><a href="#cb6-7"></a>    num_train_timesteps<span class="op">=</span>num_train_timesteps,</span>
+<span id="cb6-8"><a href="#cb6-8"></a>    beta_start<span class="op">=</span><span class="fl">0.0001</span>,</span>
+<span id="cb6-9"><a href="#cb6-9"></a>    beta_end<span class="op">=</span><span class="fl">0.02</span>,</span>
+<span id="cb6-10"><a href="#cb6-10"></a>    beta_schedule<span class="op">=</span><span class="st">"linear"</span>,</span>
+<span id="cb6-11"><a href="#cb6-11"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>You’ll notice in the code that you’re now using a <code>DDPMScheduler</code> from <code>diffusers</code>. This scheduler is responsible for:</p>
+<ol type="1">
+<li><p><strong>Generating Timesteps:</strong> It creates a schedule of timesteps that guide the reverse diffusion process. We’ve initialized it with <code>num_train_timesteps = 1000</code>. This means the forward diffusion process (noise addition) is simulated over 1000 steps. For the reverse process (denoising), we’ll also use these timesteps, though we might choose to use fewer steps for faster inference.</p></li>
+<li><p><strong>Adding Noise (Forward Process Simulation):</strong> During training, the scheduler’s <code>add_noise</code> function helps us create noisy versions of clean images at different timesteps. This is what we are using in our training loop:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1"></a>noisy_images <span class="op">=</span> scheduler.add_noise(clean_images, noise, timesteps)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<li><p><strong>Stepping Backwards (Reverse Process):</strong> Crucially, the scheduler also provides a <code>step</code> function that helps us take a denoising step <em>backwards</em> along the diffusion trajectory. This function is used during inference (and could be used in more advanced training schemes). We’ll see how to use this <code>step</code> function in Part 3’s code.</p></li>
+</ol>
+<p><strong>In essence, the <code>DDPMScheduler</code> encapsulates the logic for both the forward (noise addition) and reverse (denoising) diffusion processes, providing us with the tools to implement scheduled denoising.</strong></p>
+<p>In the next section, we’ll modify our training loop to incorporate noise prediction and scheduled denoising using the <code>DDPMScheduler</code>. We’ll see how the <code>step</code> function guides the reverse diffusion and how we train our model to predict the noise at each timestep.</p>
+</section>
+<section id="modifying-the-training-loop-for-noise-prediction" class="level2">
+<h2 class="anchored" data-anchor-id="modifying-the-training-loop-for-noise-prediction">Modifying the Training Loop for Noise Prediction</h2>
+<p>Now that we understand the concepts of noise prediction and scheduled denoising, let’s adapt our training loop to reflect these changes. We’ll be using the <code>DDPMScheduler</code> and training our <code>UNet2DModel</code> to predict noise instead of directly predicting clean images.</p>
+<p>Here’s how we’ll modify the training loop (referencing the code in <code>mnist-diffuse-noise-schedular.pdf</code>):</p>
+<p><strong>1. Sampling Timesteps:</strong></p>
+<p>Instead of just generating random noise amounts, we now need to sample <strong>timesteps</strong> for each image in the batch. These timesteps will be integers between 0 and <code>num_train_timesteps - 1</code> (in your code, <code>num_train_timesteps = 1000</code>). These timesteps tell the scheduler <em>how much</em> noise to add in the forward process and guide the reverse process.</p>
+<p>You’ve already added this to your training loop:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1"></a>timesteps <span class="op">=</span> torch.randint(<span class="dv">0</span>, num_train_timesteps, (batch_size,), device<span class="op">=</span>device).<span class="bu">long</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><strong>2. Adding Noise with the Scheduler:</strong></p>
+<p>We’ll use the <code>scheduler.add_noise</code> function to add noise to our clean images, <em>conditioned on the sampled timesteps</em>. This function takes the clean images, random noise, and the timesteps as input and returns the noisy images.</p>
+<p>You’ve correctly implemented this as well:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1"></a>noisy_images <span class="op">=</span> scheduler.add_noise(clean_images, noise, timesteps)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><strong>3. Model Predicts Noise:</strong></p>
+<p>The crucial change is that we now feed the <code>noisy_images</code> and the <code>timesteps</code> to our <code>UNet2DModel</code>, and we train it to predict the <strong>noise</strong> that was added. The <code>UNet2DModel</code> in <code>diffusers</code> is designed to be conditioned on timesteps.</p>
+<p>Here’s the code:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1"></a>noise_pred <span class="op">=</span> model(noisy_images, timesteps, return_dict<span class="op">=</span><span class="va">False</span>)[<span class="dv">0</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Notice that we pass <code>timesteps</code> as the second argument to the <code>model</code>. The <code>return_dict=False)[0]</code> part is just to extract the predicted noise tensor from the output.</p>
+<p><strong>4. Loss Calculation:</strong></p>
+<p>Our loss function remains <strong>Mean Squared Error (MSE)</strong>, but now we calculate the MSE between the <strong>predicted noise (<code>noise_pred</code>)</strong> and the <strong>actual noise (<code>noise</code>)</strong> that we used to corrupt the images. This is how we train the model to accurately predict the noise.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1"></a>loss <span class="op">=</span> F.mse_loss(noise_pred, noise)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><strong>5. Rest of the Training Loop:</strong></p>
+<p>The rest of the training loop (optimizer step, loss tracking, etc.) remains largely the same as in Part 2.</p>
+<p><strong>Complete Modified Training Loop Snippet:</strong></p>
+<p>Here’s the complete, modified training loop snippet from your code, incorporating noise prediction and scheduled denoising:</p>
+<div id="ba53df7d" class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1"></a><span class="co"># train the model</span></span>
+<span id="cb12-2"><a href="#cb12-2"></a><span class="im">from</span> torch.nn <span class="im">import</span> functional <span class="im">as</span> F</span>
+<span id="cb12-3"><a href="#cb12-3"></a></span>
+<span id="cb12-4"><a href="#cb12-4"></a>batch_size <span class="op">=</span> <span class="dv">128</span></span>
+<span id="cb12-5"><a href="#cb12-5"></a>train_dataloader <span class="op">=</span> DataLoader(</span>
+<span id="cb12-6"><a href="#cb12-6"></a>    dataset[<span class="st">"train"</span>], batch_size<span class="op">=</span>batch_size, shuffle<span class="op">=</span><span class="va">True</span></span>
+<span id="cb12-7"><a href="#cb12-7"></a>)</span>
+<span id="cb12-8"><a href="#cb12-8"></a>num_epochs <span class="op">=</span> <span class="dv">5</span></span>
+<span id="cb12-9"><a href="#cb12-9"></a></span>
+<span id="cb12-10"><a href="#cb12-10"></a>train_dataloader <span class="op">=</span> torch.utils.data.DataLoader(</span>
+<span id="cb12-11"><a href="#cb12-11"></a>    dataset[<span class="st">"train"</span>], batch_size<span class="op">=</span>batch_size, shuffle<span class="op">=</span><span class="va">True</span></span>
+<span id="cb12-12"><a href="#cb12-12"></a>)</span>
+<span id="cb12-13"><a href="#cb12-13"></a></span>
+<span id="cb12-14"><a href="#cb12-14"></a>optimizer <span class="op">=</span> torch.optim.Adam(model.parameters(), lr<span class="op">=</span><span class="fl">1e-3</span>)</span>
+<span id="cb12-15"><a href="#cb12-15"></a>losses <span class="op">=</span> []  <span class="co"># Somewhere to store the loss values for later plotting</span></span>
+<span id="cb12-16"><a href="#cb12-16"></a></span>
+<span id="cb12-17"><a href="#cb12-17"></a>model.train()</span>
+<span id="cb12-18"><a href="#cb12-18"></a><span class="cf">for</span> epoch <span class="kw">in</span> <span class="bu">range</span>(num_epochs):</span>
+<span id="cb12-19"><a href="#cb12-19"></a>    <span class="cf">for</span> batch <span class="kw">in</span> train_dataloader:</span>
+<span id="cb12-20"><a href="#cb12-20"></a>        <span class="co"># Get the clean images and move to device</span></span>
+<span id="cb12-21"><a href="#cb12-21"></a>        clean_images <span class="op">=</span> batch[<span class="st">"images"</span>].to(device)  <span class="co"># shape: (B, 1, H, W)</span></span>
+<span id="cb12-22"><a href="#cb12-22"></a>        batch_size <span class="op">=</span> clean_images.shape[<span class="dv">0</span>]</span>
+<span id="cb12-23"><a href="#cb12-23"></a></span>
+<span id="cb12-24"><a href="#cb12-24"></a>        <span class="co"># Sample random noise to add</span></span>
+<span id="cb12-25"><a href="#cb12-25"></a>        noise <span class="op">=</span> torch.randn_like(clean_images).to(device)</span>
+<span id="cb12-26"><a href="#cb12-26"></a></span>
+<span id="cb12-27"><a href="#cb12-27"></a>        <span class="co"># Sample a random timestep for each image in the batch</span></span>
+<span id="cb12-28"><a href="#cb12-28"></a>        timesteps <span class="op">=</span> torch.randint(<span class="dv">0</span>, num_train_timesteps, (batch_size,), device<span class="op">=</span>device).<span class="bu">long</span>()</span>
+<span id="cb12-29"><a href="#cb12-29"></a></span>
+<span id="cb12-30"><a href="#cb12-30"></a>        <span class="co"># Add noise to the clean images according to the scheduler's forward process</span></span>
+<span id="cb12-31"><a href="#cb12-31"></a>        noisy_images <span class="op">=</span> scheduler.add_noise(clean_images, noise, timesteps)</span>
+<span id="cb12-32"><a href="#cb12-32"></a></span>
+<span id="cb12-33"><a href="#cb12-33"></a>        <span class="co"># Let the model predict the noise component from the noisy images</span></span>
+<span id="cb12-34"><a href="#cb12-34"></a>        <span class="co"># (Note: The model is conditioned on the timestep)</span></span>
+<span id="cb12-35"><a href="#cb12-35"></a>        noise_pred <span class="op">=</span> model(noisy_images, timesteps, return_dict<span class="op">=</span><span class="va">False</span>)[<span class="dv">0</span>]</span>
+<span id="cb12-36"><a href="#cb12-36"></a></span>
+<span id="cb12-37"><a href="#cb12-37"></a>        <span class="co"># Compute the loss between the predicted noise and the actual noise</span></span>
+<span id="cb12-38"><a href="#cb12-38"></a>        loss <span class="op">=</span> F.mse_loss(noise_pred, noise)</span>
+<span id="cb12-39"><a href="#cb12-39"></a></span>
+<span id="cb12-40"><a href="#cb12-40"></a>        optimizer.zero_grad()</span>
+<span id="cb12-41"><a href="#cb12-41"></a>        loss.backward()</span>
+<span id="cb12-42"><a href="#cb12-42"></a>        optimizer.step()</span>
+<span id="cb12-43"><a href="#cb12-43"></a></span>
+<span id="cb12-44"><a href="#cb12-44"></a>        losses.append(loss.item())</span>
+<span id="cb12-45"><a href="#cb12-45"></a></span>
+<span id="cb12-46"><a href="#cb12-46"></a>    <span class="co"># Print the average loss for this epoch</span></span>
+<span id="cb12-47"><a href="#cb12-47"></a>    avg_loss <span class="op">=</span> <span class="bu">sum</span>(losses[<span class="op">-</span><span class="bu">len</span>(train_dataloader):]) <span class="op">/</span> <span class="bu">len</span>(train_dataloader)</span>
+<span id="cb12-48"><a href="#cb12-48"></a>    <span class="bu">print</span>(<span class="ss">f"Finished epoch </span><span class="sc">{</span>epoch<span class="sc">}</span><span class="ss">. Average loss: </span><span class="sc">{</span>avg_loss<span class="sc">:.6f}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>By making these modifications, we’ve successfully shifted our training paradigm from direct image prediction to noise prediction, leveraging the <code>DDPMScheduler</code> to manage the diffusion process. In the next section, we’ll focus on how to modify the inference process to generate images using scheduled denoising.</p>
+</section>
+<section id="inference-with-scheduled-denoising-generating-images-iteratively" class="level2">
+<h2 class="anchored" data-anchor-id="inference-with-scheduled-denoising-generating-images-iteratively">Inference with Scheduled Denoising: Generating Images Iteratively</h2>
+<p>With our model now trained to predict noise, we can finally generate images using the true power of diffusion models: <strong>iterative denoising guided by a schedule</strong>. This is a significant departure from our one-shot denoising approach in Parts 1 and 2.</p>
+<p>Here’s how we’ll modify the inference process (again, referencing <code>mnist-diffuse-noise-schedular.pdf</code>):</p>
+<p><strong>1. Start with Pure Noise:</strong></p>
+<p>We begin the generation process with pure random noise. This noise will be our starting point for the reverse diffusion process.</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1"></a>sample <span class="op">=</span> torch.randn((num_images, <span class="dv">1</span>, image_size, image_size)).to(device)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><strong>2. Set up the Denoising Loop:</strong></p>
+<p>We’ll use a loop that iterates through the <strong>timesteps</strong> provided by our <code>scheduler</code>. Crucially, during inference, we need to use the <em>inference timesteps</em> which are obtained using <code>scheduler.set_timesteps(num_inference_steps)</code>. These timesteps are in <em>descending order</em>, going from high noise to low noise.</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1"></a><span class="cf">for</span> t <span class="kw">in</span> scheduler.timesteps:</span>
+<span id="cb14-2"><a href="#cb14-2"></a>    <span class="co"># ... denoising step ...</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><strong>3. Model Predicts Noise at Each Timestep:</strong></p>
+<p>Inside the loop, for each timestep <code>t</code>, we feed the current noisy image <code>sample</code> and the timestep <code>t</code> to our <code>UNet2DModel</code> to predict the noise:</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1"></a>noise_pred <span class="op">=</span> model(sample, t, return_dict<span class="op">=</span><span class="va">False</span>)[<span class="dv">0</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><strong>4. Scheduler Steps Backwards:</strong></p>
+<p>This is the core of scheduled denoising! We use the <code>scheduler.step</code> function to take a step <em>backwards</em> along the diffusion trajectory, removing a bit of noise from the current <code>sample</code>. The <code>step</code> function takes the <code>noise_pred</code>, the current timestep <code>t</code>, and the current <code>sample</code> as input and returns a dictionary containing the updated sample in <code>prev_sample</code>.</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1"></a>output <span class="op">=</span> scheduler.step(noise_pred, t, sample)</span>
+<span id="cb16-2"><a href="#cb16-2"></a>sample <span class="op">=</span> output.prev_sample</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>The <code>scheduler.step</code> function intelligently uses the predicted noise and the schedule information to determine how much to “denoise” the image at each timestep. This is where the magic of the diffusion schedule comes in!</p>
+<p><strong>5. Iterate and Refine:</strong></p>
+<p>We repeat steps 3 and 4 for all timesteps in the schedule. In each iteration, the image becomes progressively less noisy and more structured, gradually revealing a coherent MNIST digit.</p>
+<p><strong>6. Visualization:</strong></p>
+<p>After the loop completes, the <code>sample</code> tensor will contain the generated (denoised) images. We can then visualize these images as we did in previous parts.</p>
+<p><strong>Complete Inference Loop Snippet:</strong></p>
+<p>Here’s the complete inference loop snippet from your code, demonstrating scheduled denoising:</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1"></a>num_inference_steps <span class="op">=</span> <span class="dv">50</span> <span class="co"># Example: Adjust for speed/quality trade-off</span></span>
+<span id="cb17-2"><a href="#cb17-2"></a>scheduler.set_timesteps(num_inference_steps) <span class="co"># Set inference timesteps!</span></span>
+<span id="cb17-3"><a href="#cb17-3"></a></span>
+<span id="cb17-4"><a href="#cb17-4"></a>sample <span class="op">=</span> torch.randn((num_images, <span class="dv">1</span>, image_size, image_size)).to(device) <span class="co"># Start with noise</span></span>
+<span id="cb17-5"><a href="#cb17-5"></a></span>
+<span id="cb17-6"><a href="#cb17-6"></a><span class="cf">for</span> t <span class="kw">in</span> scheduler.timesteps: <span class="co"># Iterate through timesteps (descending order)</span></span>
+<span id="cb17-7"><a href="#cb17-7"></a>    noise_pred <span class="op">=</span> model(sample, t, return_dict<span class="op">=</span><span class="va">False</span>)[<span class="dv">0</span>] <span class="co"># Predict noise</span></span>
+<span id="cb17-8"><a href="#cb17-8"></a>    output <span class="op">=</span> scheduler.step(noise_pred, t, sample) <span class="co"># Scheduler step (denoise)</span></span>
+<span id="cb17-9"><a href="#cb17-9"></a>    sample <span class="op">=</span> output.prev_sample <span class="co"># Update sample</span></span>
+<span id="cb17-10"><a href="#cb17-10"></a></span>
+<span id="cb17-11"><a href="#cb17-11"></a><span class="co"># sample now contains generated images!</span></span>
+<span id="cb17-12"><a href="#cb17-12"></a>generated_images <span class="op">=</span> sample.cpu()</span>
+<span id="cb17-13"><a href="#cb17-13"></a><span class="co"># ... (rest of your visualization code) ...</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>By implementing this iterative inference process with the <code>scheduler.step</code> function, we are now performing true scheduled denoising. This should lead to significantly improved image generation quality compared to our previous direct prediction approaches.</p>
+<p>In the next section, we’ll look at the results of this new approach and compare them to our previous methods.</p>
+<p>Results and Discussion: Witnessing the “Diffusion Model Magic”**</p>
+<p>After implementing noise prediction and scheduled denoising, let’s examine the generated MNIST digits and compare them to our previous results. We’ll first look at the images generated using a relatively small number of inference steps (e.g., <code>num_inference_steps = 5</code>) and then increase the steps (e.g., <code>num_inference_steps = 50</code> or <code>100</code>) to see the impact of more iterative refinement.</p>
+<p><strong>Results with a Small Number of Inference Steps (e.g., 5):</strong></p>
+<p><em>(Insert image grid here showing generated digits with ~5 inference steps)</em></p>
+<p><em>Describe what you observe in the generated images. For example:</em></p>
+<p>“With just 5 inference steps, we can already see a remarkable improvement compared to our direct prediction models. The generated digits are no longer blurry noise. We can discern clear digit shapes, and while they might not be perfectly crisp, they are undeniably recognizable as MNIST digits. This demonstrates the power of even a few steps of scheduled denoising.”</p>
+<p><strong>Results with a Larger Number of Inference Steps (e.g., 50 or 100):</strong></p>
+<p><em>(Insert image grid here showing generated digits with ~50-100 inference steps)</em></p>
+<p><em>Describe the improvement with more steps. For example:</em></p>
+<p>“Increasing the number of inference steps to 50 (or even 100) leads to a further significant improvement in image quality. The digits become much sharper, more well-defined, and exhibit finer details. The ‘fuzziness’ we observed with fewer steps is largely gone. These generated digits are now convincingly MNIST-like, showcasing the ‘diffusion model magic’ we were aiming for!”</p>
+<p><strong>Comparison to Previous Models:</strong></p>
+<p><em>Compare these results to the direct prediction models from Part 1 and Part 2. Highlight the key differences. For example:</em></p>
+<p>“Comparing these results to the outputs of our direct image prediction models from Part 1 and Part 2, the difference is striking. The digits generated with scheduled denoising are significantly sharper, clearer, and more visually appealing. They no longer suffer from the blurriness and lack of detail that characterized our earlier attempts. While iterative refinement in Part 2 provided some improvement, it still didn’t reach this level of quality. True scheduled denoising, driven by noise prediction and the <code>DDPMScheduler</code>, has unlocked a new level of image generation fidelity.”</p>
+<p><strong>Discussion and Key Takeaways:</strong></p>
+<p><em>Summarize the key learnings from Part 3. For example:</em></p>
+<ul>
+<li><strong>Noise Prediction is Key:</strong> “We’ve demonstrated that training our model to predict noise, rather than directly predicting clean images, is a crucial step towards building effective diffusion models. This paradigm shift leads to more stable training and better generation quality.”</li>
+<li><strong>Scheduled Denoising Unleashes Power:</strong> “Scheduled denoising, guided by the <code>DDPMScheduler</code> and its timesteps, is what truly unleashes the power of diffusion models. The iterative refinement process, stepping backwards along the diffusion trajectory, allows us to generate high-quality images from pure noise.”</li>
+<li><strong>Iterative Refinement is Essential:</strong> “The number of inference steps directly impacts image quality. More steps generally lead to sharper and more detailed images, but also increase generation time. There’s a trade-off between quality and speed that can be adjusted by changing <code>num_inference_steps</code>.”</li>
+<li><strong>We’ve Achieved “Diffusion Model Magic”:</strong> “With this final part, we’ve moved beyond simplified approaches and implemented the core principles of diffusion models. The results speak for themselves – we can now generate convincingly MNIST-like digits from random noise, showcasing the power and potential of diffusion models.”</li>
+</ul>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+<script src="https://utteranc.es/client.js" repo="hassaanbinaslam/myblog_utterances" issue-term="pathname" theme="github-light" crossorigin="anonymous" async="">
+</script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
