@@ -2,6 +2,7 @@
   {
     "listing": "/index.html",
     "items": [
+      "/posts/2025-02-18-diffusion-model-mnist-part3.html",
       "/posts/2025-02-15-diffusion-model-mnist-part2.html",
       "/posts/2025-02-10-diffusion-model-mnist-part1.html",
       "/posts/2025-01-29-pure-python-web-server.html",
