@@ -120,11 +120,11 @@ gtag('config', 'G-D1ST9BH6HX', { 'anonymize_ip': true});
 
 <link rel="stylesheet" href="../styles.css">
 <meta property="og:title" content="From Noise to Numbers: A Hands-On Guide to Generating MNIST Digits with Diffusion Models (Part 3) – Random Thoughts">
-<meta property="og:description" content="???">
+<meta property="og:description" content="Part 3 dives deep into the core of diffusion models: noise prediction and scheduled denoising. Discover how these crucial techniques enable iterative image generation, starting from random noise. Get hands-on experience and see the impressive results as we finally achieve high-quality MNIST digit synthesis.">
 <meta property="og:image" content="images/2025-02-18-diffusion-model-mnist-part3.png">
 <meta property="og:site_name" content="Random Thoughts">
 <meta name="twitter:title" content="From Noise to Numbers: A Hands-On Guide to Generating MNIST Digits with Diffusion Models (Part 3) – Random Thoughts">
-<meta name="twitter:description" content="???">
+<meta name="twitter:description" content="Part 3 dives deep into the core of diffusion models: noise prediction and scheduled denoising. Discover how these crucial techniques enable iterative image generation, starting from random noise. Get hands-on experience and see the impressive results as we finally achieve high-quality MNIST digit synthesis.">
 <meta name="twitter:image" content="images/2025-02-18-diffusion-model-mnist-part3.png">
 <meta name="twitter:card" content="summary_large_image">
 </head>
@@ -922,14 +922,7 @@ Note
 </div>
 <p>The image above visualizes the iterative refinement process. Let’s examine each column:</p>
 <ul>
-<li><p><strong>Left Column: “x (model input)” - Image at Each Refinement Step:</strong> This column shows the evolving image at each step of the refinement process. Starting from the top row with pure random noise, we can trace the gradual transformation over 5 steps.</p>
-<ul>
-<li><strong>Step 1 (Top Row):</strong> We begin with unstructured random noise. There’s no discernible digit shape or coherent structure.</li>
-<li><strong>Step 2:</strong> After the first refinement step, faint, blurry blobs begin to appear within the noise. These are very rudimentary hints of potential digit structures, but still largely dominated by noise.</li>
-<li><strong>Step 3:</strong> The blobs become more organized and digit-like. We can start to vaguely perceive shapes resembling digits, though they remain very unclear and noisy.</li>
-<li><strong>Step 4:</strong> The digit shapes become more pronounced and sharper. We can now more confidently identify potential digits emerging, such as ‘3’, ‘6’, and ‘8’ in the examples. The background noise is also reducing.</li>
-<li><strong>Step 5 (Bottom Row):</strong> After 5 refinement steps, recognizable MNIST digits have emerged from the initial pure noise! While they might not be perfectly crisp or high-resolution, they are undeniably digit-like. We can clearly discern different digits across the batch, showcasing the model’s ability to generate structure from randomness through iterative refinement.</li>
-</ul></li>
+<li><p><strong>Left Column: “x (model input)” - Image at Each Refinement Step:</strong> This column shows the evolving image at each step of the refinement process. Starting from the top row with pure random noise, we can trace the gradual transformation over 5 steps.</p></li>
 <li><p><strong>Right Column: “model prediction” - Model’s Direct Prediction at Each Step:</strong> This column displays the direct output of the <code>UNet2DModel</code> at each step. It represents what the model <em>predicts</em> should be the next, less noisy image in the sequence. Observing this column, we can see that the model consistently predicts images that are slightly less noisy and more digit-like than the current input image in the left column, guiding the refinement process.</p></li>
 </ul>
 </section>
