@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="dcterms.date" content="2025-02-18">
-<meta name="description" content="???">
+<meta name="description" content="Part 3 dives deep into the core of diffusion models: noise prediction and scheduled denoising. Discover how these crucial techniques enable iterative image generation, starting from random noise. Get hands-on experience and see the impressive results as we finally achieve high-quality MNIST digit synthesis.">
 
 <title>From Noise to Numbers: A Hands-On Guide to Generating MNIST Digits with Diffusion Models (Part 3) – Random Thoughts</title>
 <style>
@@ -59,7 +59,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </style>
 
 
-<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script><script src="../site_libs/quarto-nav/quarto-nav.js"></script>
 <script src="../site_libs/quarto-nav/headroom.min.js"></script>
 <script src="../site_libs/clipboard/clipboard.min.js"></script>
 <script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
@@ -112,6 +112,10 @@ function gtag(){dataLayer.push(arguments);}
 gtag('js', new Date());
 gtag('config', 'G-D1ST9BH6HX', { 'anonymize_ip': true});
 </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+<script src="https://unpkg.com/@jupyter-widgets/html-manager@*/dist/embed-amd.js" crossorigin="anonymous"></script>
 
 
 <link rel="stylesheet" href="../styles.css">
@@ -186,9 +190,15 @@ gtag('config', 'G-D1ST9BH6HX', { 'anonymize_ip': true});
   </ul></li>
   <li><a href="#from-direct-image-prediction-to-noise-prediction-a-paradigm-shift" id="toc-from-direct-image-prediction-to-noise-prediction-a-paradigm-shift" class="nav-link" data-scroll-target="#from-direct-image-prediction-to-noise-prediction-a-paradigm-shift">From Direct Image Prediction to Noise Prediction: A Paradigm Shift</a></li>
   <li><a href="#data-preparation-preprocessing-and-unet-model" id="toc-data-preparation-preprocessing-and-unet-model" class="nav-link" data-scroll-target="#data-preparation-preprocessing-and-unet-model">Data Preparation, Preprocessing, and UNet Model</a></li>
-  <li><a href="#scheduled-denoising-guiding-the-reverse-diffusion" id="toc-scheduled-denoising-guiding-the-reverse-diffusion" class="nav-link" data-scroll-target="#scheduled-denoising-guiding-the-reverse-diffusion">Scheduled Denoising: Guiding the Reverse Diffusion</a></li>
+  <li><a href="#scheduled-denoising-guiding-the-reverse-diffusion" id="toc-scheduled-denoising-guiding-the-reverse-diffusion" class="nav-link" data-scroll-target="#scheduled-denoising-guiding-the-reverse-diffusion">Scheduled Denoising: Guiding the Reverse Diffusion</a>
+  <ul class="collapse">
   <li><a href="#modifying-the-training-loop-for-noise-prediction" id="toc-modifying-the-training-loop-for-noise-prediction" class="nav-link" data-scroll-target="#modifying-the-training-loop-for-noise-prediction">Modifying the Training Loop for Noise Prediction</a></li>
+  </ul></li>
   <li><a href="#inference-with-scheduled-denoising-generating-images-iteratively" id="toc-inference-with-scheduled-denoising-generating-images-iteratively" class="nav-link" data-scroll-target="#inference-with-scheduled-denoising-generating-images-iteratively">Inference with Scheduled Denoising: Generating Images Iteratively</a></li>
+  <li><a href="#iterative-denoising-with-varying-inference-steps" id="toc-iterative-denoising-with-varying-inference-steps" class="nav-link" data-scroll-target="#iterative-denoising-with-varying-inference-steps">Iterative Denoising with Varying Inference Steps</a></li>
+  <li><a href="#iterative-refinement-from-pure-noise" id="toc-iterative-refinement-from-pure-noise" class="nav-link" data-scroll-target="#iterative-refinement-from-pure-noise">Iterative Refinement from Pure Noise</a></li>
+  <li><a href="#long-term-iterative-generation-50-steps" id="toc-long-term-iterative-generation-50-steps" class="nav-link" data-scroll-target="#long-term-iterative-generation-50-steps">Long-Term Iterative Generation (50 Steps)</a></li>
+  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion">Conclusion</a></li>
   </ul>
 </nav>
     </div>
@@ -206,7 +216,7 @@ gtag('config', 'G-D1ST9BH6HX', { 'anonymize_ip': true});
 
 <div>
   <div class="description">
-    ???
+    Part 3 dives deep into the core of diffusion models: noise prediction and scheduled denoising. Discover how these crucial techniques enable iterative image generation, starting from random noise. Get hands-on experience and see the impressive results as we finally achieve high-quality MNIST digit synthesis.
   </div>
 </div>
 
@@ -259,7 +269,7 @@ gtag('config', 'G-D1ST9BH6HX', { 'anonymize_ip': true});
 <div id="64dd2d3c-631e-43b2-ab87-b0e9e0c1bafa" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1"></a><span class="op">%</span>load_ext watermark</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div id="9af53e1f-1b21-4ba4-84a9-f5df6c2c1f6b" class="cell" data-outputid="e0c6c9aa-e5bb-47ab-99c9-a1b73c7b3d16" data-execution_count="3">
+<div id="9af53e1f-1b21-4ba4-84a9-f5df6c2c1f6b" class="cell" data-outputid="10c903b1-5d59-499a-b257-782d1cee7508" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1"></a><span class="op">%</span>watermark <span class="op">-</span>v <span class="op">-</span>m <span class="op">-</span>p torch,torchvision,datasets,diffusers,matplotlib,watermark,torchinfo</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Python implementation: CPython
@@ -268,7 +278,7 @@ IPython version      : 7.34.0
 
 torch      : 2.5.1+cu124
 torchvision: 0.20.1+cu124
-datasets   : 3.3.0
+datasets   : 3.3.2
 diffusers  : 0.32.2
 matplotlib : 3.10.0
 watermark  : 2.5.0
@@ -305,7 +315,7 @@ Architecture: 64bit
 <h2 class="anchored" data-anchor-id="data-preparation-preprocessing-and-unet-model">Data Preparation, Preprocessing, and UNet Model</h2>
 <p>As we are building upon the foundations laid in <a href="https://hassaanbinaslam.github.io/myblog/posts/2025-02-10-diffusion-model-mnist-part1.html">Part 1</a>, we will reuse the same data preparation and preprocessing steps for the MNIST dataset. For a more in-depth explanation of these steps, please refer back to the first part of this guide. Here, we will quickly outline the process to ensure our data is ready for training.</p>
 <p>We will train the same <code>UNet2DModel</code> model that we used in the Part 2.</p>
-<div id="df83ba43" class="cell">
+<div id="df83ba43" class="cell" data-outputid="1db3d61b-068f-4a48-e65e-8445bad8dad6" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1"></a><span class="co">### Load MNIST Dataset</span></span>
 <span id="cb5-2"><a href="#cb5-2"></a><span class="im">from</span> datasets <span class="im">import</span> load_dataset</span>
 <span id="cb5-3"><a href="#cb5-3"></a>dataset <span class="op">=</span> load_dataset(<span class="st">"mnist"</span>)</span>
@@ -371,6 +381,106 @@ Architecture: 64bit
 <span id="cb5-63"><a href="#cb5-63"></a></span>
 <span id="cb5-64"><a href="#cb5-64"></a><span class="im">from</span> torchinfo <span class="im">import</span> summary</span>
 <span id="cb5-65"><a href="#cb5-65"></a>summary(model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>/usr/local/lib/python3.11/dist-packages/huggingface_hub/utils/_auth.py:104: UserWarning: 
+Error while fetching `HF_TOKEN` secret value from your vault: 'Requesting secret HF_TOKEN timed out. Secrets can only be fetched when running from the Colab UI.'.
+You are not authenticated with the Hugging Face Hub in this notebook.
+If the error persists, please let us know by opening an issue on GitHub (https://github.com/huggingface/huggingface_hub/issues/new).
+  warnings.warn(</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<script type="application/vnd.jupyter.widget-view+json">
+{"model_id":"088574b7f3234860a167ebe9e8adb5fc","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
+</script>
+</div>
+<div class="cell-output cell-output-display">
+<script type="application/vnd.jupyter.widget-view+json">
+{"model_id":"0f939dbf54244cff9de3f8ce2082409d","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
+</script>
+</div>
+<div class="cell-output cell-output-display">
+<script type="application/vnd.jupyter.widget-view+json">
+{"model_id":"9f35f431f1d8438ab954383cf0dcc29e","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
+</script>
+</div>
+<div class="cell-output cell-output-display">
+<script type="application/vnd.jupyter.widget-view+json">
+{"model_id":"e43eaaf9674d4c998f69ccd1b6fe6bea","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
+</script>
+</div>
+<div class="cell-output cell-output-display">
+<script type="application/vnd.jupyter.widget-view+json">
+{"model_id":"be88e3cfe42b45a488ca29e80f5ae1fd","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
+</script>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>DatasetDict({
+    train: Dataset({
+        features: ['image', 'label'],
+        num_rows: 60000
+    })
+    test: Dataset({
+        features: ['image', 'label'],
+        num_rows: 10000
+    })
+})</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The cache for model files in Transformers v4.22.0 has been updated. Migrating your old cache. This is a one-time only operation. You can interrupt this and resume the migration later on by calling `transformers.utils.move_cache()`.</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<script type="application/vnd.jupyter.widget-view+json">
+{"model_id":"7c4a6c81df9f4bd2946e38a586fb1c02","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
+</script>
+</div>
+<div class="cell-output cell-output-display" data-execution_count="4">
+<pre><code>======================================================================
+Layer (type:depth-idx)                        Param #
+======================================================================
+UNet2DModel                                   --
+├─Conv2d: 1-1                                 320
+├─Timesteps: 1-2                              --
+├─TimestepEmbedding: 1-3                      --
+│    └─Linear: 2-1                            4,224
+│    └─SiLU: 2-2                              --
+│    └─Linear: 2-3                            16,512
+├─ModuleList: 1-4                             --
+│    └─DownBlock2D: 2-4                       --
+│    │    └─ModuleList: 3-1                   45,504
+│    │    └─ModuleList: 3-2                   9,248
+│    └─AttnDownBlock2D: 2-5                   --
+│    │    └─ModuleList: 3-3                   33,536
+│    │    └─ModuleList: 3-4                   148,352
+│    │    └─ModuleList: 3-5                   36,928
+│    └─AttnDownBlock2D: 2-6                   --
+│    │    └─ModuleList: 3-6                   33,536
+│    │    └─ModuleList: 3-7                   164,736
+├─ModuleList: 1-5                             --
+│    └─AttnUpBlock2D: 2-7                     --
+│    │    └─ModuleList: 3-8                   50,304
+│    │    └─ModuleList: 3-9                   382,848
+│    │    └─ModuleList: 3-10                  36,928
+│    └─AttnUpBlock2D: 2-8                     --
+│    │    └─ModuleList: 3-11                  50,304
+│    │    └─ModuleList: 3-12                  362,304
+│    │    └─ModuleList: 3-13                  36,928
+│    └─UpBlock2D: 2-9                         --
+│    │    └─ModuleList: 3-14                  112,640
+├─UNetMidBlock2D: 1-6                         --
+│    └─ModuleList: 2-10                       --
+│    │    └─Attention: 3-15                   16,768
+│    └─ModuleList: 2-11                       --
+│    │    └─ResnetBlock2D: 3-16               82,368
+│    │    └─ResnetBlock2D: 3-17               82,368
+├─GroupNorm: 1-7                              64
+├─SiLU: 1-8                                   --
+├─Conv2d: 1-9                                 289
+======================================================================
+Total params: 1,707,009
+Trainable params: 1,707,009
+Non-trainable params: 0
+======================================================================</code></pre>
+</div>
 </div>
 </section>
 <section id="scheduled-denoising-guiding-the-reverse-diffusion" class="level2">
@@ -387,124 +497,151 @@ Architecture: 64bit
 <li><strong>Flexibility and Control:</strong> Different schedules can be designed to influence the generation process. For example, some schedules might prioritize faster generation, while others might focus on higher quality.</li>
 </ul>
 <p><strong>Timesteps and the Reverse Process:</strong></p>
-<p>In the following code, we represent the denoising schedule using <strong>timesteps</strong>. These timesteps are typically a sequence of numbers going from a large value (representing high noise) down to a small value (representing low noise or a clean image).</p>
-<div id="27075e74" class="cell">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1"></a><span class="co"># Setup the DDPM scheduler for training</span></span>
-<span id="cb6-2"><a href="#cb6-2"></a><span class="im">from</span> diffusers <span class="im">import</span> DDPMScheduler</span>
-<span id="cb6-3"><a href="#cb6-3"></a></span>
-<span id="cb6-4"><a href="#cb6-4"></a>num_train_timesteps <span class="op">=</span> <span class="dv">1000</span></span>
-<span id="cb6-5"><a href="#cb6-5"></a></span>
-<span id="cb6-6"><a href="#cb6-6"></a>scheduler <span class="op">=</span> DDPMScheduler(</span>
-<span id="cb6-7"><a href="#cb6-7"></a>    num_train_timesteps<span class="op">=</span>num_train_timesteps,</span>
-<span id="cb6-8"><a href="#cb6-8"></a>    beta_start<span class="op">=</span><span class="fl">0.0001</span>,</span>
-<span id="cb6-9"><a href="#cb6-9"></a>    beta_end<span class="op">=</span><span class="fl">0.02</span>,</span>
-<span id="cb6-10"><a href="#cb6-10"></a>    beta_schedule<span class="op">=</span><span class="st">"linear"</span>,</span>
-<span id="cb6-11"><a href="#cb6-11"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>The following code represents the denoising schedule using <strong>timesteps</strong>. These timesteps are typically a sequence of numbers going from a large value (representing high noise) down to a small value (representing low noise or a clean image).</p>
+<div id="27075e74" class="cell" data-execution_count="5">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1"></a><span class="co"># Setup the DDPM scheduler for training</span></span>
+<span id="cb10-2"><a href="#cb10-2"></a><span class="im">from</span> diffusers <span class="im">import</span> DDPMScheduler</span>
+<span id="cb10-3"><a href="#cb10-3"></a></span>
+<span id="cb10-4"><a href="#cb10-4"></a>num_train_timesteps <span class="op">=</span> <span class="dv">1000</span></span>
+<span id="cb10-5"><a href="#cb10-5"></a></span>
+<span id="cb10-6"><a href="#cb10-6"></a>scheduler <span class="op">=</span> DDPMScheduler(</span>
+<span id="cb10-7"><a href="#cb10-7"></a>    num_train_timesteps<span class="op">=</span>num_train_timesteps,</span>
+<span id="cb10-8"><a href="#cb10-8"></a>    beta_start<span class="op">=</span><span class="fl">0.0001</span>,</span>
+<span id="cb10-9"><a href="#cb10-9"></a>    beta_end<span class="op">=</span><span class="fl">0.02</span>,</span>
+<span id="cb10-10"><a href="#cb10-10"></a>    beta_schedule<span class="op">=</span><span class="st">"linear"</span>,</span>
+<span id="cb10-11"><a href="#cb10-11"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>You’ll notice in the code that you’re now using a <code>DDPMScheduler</code> from <code>diffusers</code>. This scheduler is responsible for:</p>
+<p>Notice that we are now using a <code>DDPMScheduler</code> from <code>diffusers</code>. This scheduler is responsible for:</p>
 <ol type="1">
 <li><p><strong>Generating Timesteps:</strong> It creates a schedule of timesteps that guide the reverse diffusion process. We’ve initialized it with <code>num_train_timesteps = 1000</code>. This means the forward diffusion process (noise addition) is simulated over 1000 steps. For the reverse process (denoising), we’ll also use these timesteps, though we might choose to use fewer steps for faster inference.</p></li>
 <li><p><strong>Adding Noise (Forward Process Simulation):</strong> During training, the scheduler’s <code>add_noise</code> function helps us create noisy versions of clean images at different timesteps. This is what we are using in our training loop:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1"></a>noisy_images <span class="op">=</span> scheduler.add_noise(clean_images, noise, timesteps)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
-<li><p><strong>Stepping Backwards (Reverse Process):</strong> Crucially, the scheduler also provides a <code>step</code> function that helps us take a denoising step <em>backwards</em> along the diffusion trajectory. This function is used during inference (and could be used in more advanced training schemes). We’ll see how to use this <code>step</code> function in Part 3’s code.</p></li>
+<div class="sourceCode" id="cb11"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1"></a>noisy_images <span class="op">=</span> scheduler.add_noise(clean_images, noise, timesteps)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<li><p><strong>Stepping Backwards (Reverse Process):</strong> Crucially, the scheduler also provides a <code>step</code> function that helps us take a denoising step <em>backwards</em> along the diffusion trajectory. This function is used during inference (and could be used in more advanced training schemes).</p></li>
 </ol>
-<p><strong>In essence, the <code>DDPMScheduler</code> encapsulates the logic for both the forward (noise addition) and reverse (denoising) diffusion processes, providing us with the tools to implement scheduled denoising.</strong></p>
+<p>In essence, the <code>DDPMScheduler</code> encapsulates the logic for both the forward (noise addition) and reverse (denoising) diffusion processes, providing us with the tools to implement scheduled denoising.</p>
 <p>In the next section, we’ll modify our training loop to incorporate noise prediction and scheduled denoising using the <code>DDPMScheduler</code>. We’ll see how the <code>step</code> function guides the reverse diffusion and how we train our model to predict the noise at each timestep.</p>
-</section>
-<section id="modifying-the-training-loop-for-noise-prediction" class="level2">
-<h2 class="anchored" data-anchor-id="modifying-the-training-loop-for-noise-prediction">Modifying the Training Loop for Noise Prediction</h2>
+<section id="modifying-the-training-loop-for-noise-prediction" class="level3">
+<h3 class="anchored" data-anchor-id="modifying-the-training-loop-for-noise-prediction">Modifying the Training Loop for Noise Prediction</h3>
 <p>Now that we understand the concepts of noise prediction and scheduled denoising, let’s adapt our training loop to reflect these changes. We’ll be using the <code>DDPMScheduler</code> and training our <code>UNet2DModel</code> to predict noise instead of directly predicting clean images.</p>
-<p>Here’s how we’ll modify the training loop (referencing the code in <code>mnist-diffuse-noise-schedular.pdf</code>):</p>
+<p>Here’s how we’ll modify the training loop:</p>
 <p><strong>1. Sampling Timesteps:</strong></p>
-<p>Instead of just generating random noise amounts, we now need to sample <strong>timesteps</strong> for each image in the batch. These timesteps will be integers between 0 and <code>num_train_timesteps - 1</code> (in your code, <code>num_train_timesteps = 1000</code>). These timesteps tell the scheduler <em>how much</em> noise to add in the forward process and guide the reverse process.</p>
-<p>You’ve already added this to your training loop:</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1"></a>timesteps <span class="op">=</span> torch.randint(<span class="dv">0</span>, num_train_timesteps, (batch_size,), device<span class="op">=</span>device).<span class="bu">long</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Instead of just generating random noise amounts, we now need to sample <strong>timesteps</strong> for each image in the batch. These timesteps will be integers between 0 and <code>num_train_timesteps</code> (where, <code>num_train_timesteps = 1000</code>). These timesteps tell the scheduler <em>how much</em> noise to add in the forward process and guide the reverse process.</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1"></a>timesteps <span class="op">=</span> torch.randint(<span class="dv">0</span>, num_train_timesteps, (batch_size,), device<span class="op">=</span>device).<span class="bu">long</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p><strong>2. Adding Noise with the Scheduler:</strong></p>
 <p>We’ll use the <code>scheduler.add_noise</code> function to add noise to our clean images, <em>conditioned on the sampled timesteps</em>. This function takes the clean images, random noise, and the timesteps as input and returns the noisy images.</p>
-<p>You’ve correctly implemented this as well:</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1"></a>noisy_images <span class="op">=</span> scheduler.add_noise(clean_images, noise, timesteps)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1"></a>noisy_images <span class="op">=</span> scheduler.add_noise(clean_images, noise, timesteps)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p><strong>3. Model Predicts Noise:</strong></p>
 <p>The crucial change is that we now feed the <code>noisy_images</code> and the <code>timesteps</code> to our <code>UNet2DModel</code>, and we train it to predict the <strong>noise</strong> that was added. The <code>UNet2DModel</code> in <code>diffusers</code> is designed to be conditioned on timesteps.</p>
-<p>Here’s the code:</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1"></a>noise_pred <span class="op">=</span> model(noisy_images, timesteps, return_dict<span class="op">=</span><span class="va">False</span>)[<span class="dv">0</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1"></a>noise_pred <span class="op">=</span> model(noisy_images, timesteps, return_dict<span class="op">=</span><span class="va">False</span>)[<span class="dv">0</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Notice that we pass <code>timesteps</code> as the second argument to the <code>model</code>. The <code>return_dict=False)[0]</code> part is just to extract the predicted noise tensor from the output.</p>
 <p><strong>4. Loss Calculation:</strong></p>
 <p>Our loss function remains <strong>Mean Squared Error (MSE)</strong>, but now we calculate the MSE between the <strong>predicted noise (<code>noise_pred</code>)</strong> and the <strong>actual noise (<code>noise</code>)</strong> that we used to corrupt the images. This is how we train the model to accurately predict the noise.</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1"></a>loss <span class="op">=</span> F.mse_loss(noise_pred, noise)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1"></a>loss <span class="op">=</span> F.mse_loss(noise_pred, noise)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p><strong>5. Rest of the Training Loop:</strong></p>
 <p>The rest of the training loop (optimizer step, loss tracking, etc.) remains largely the same as in Part 2.</p>
 <p><strong>Complete Modified Training Loop Snippet:</strong></p>
-<p>Here’s the complete, modified training loop snippet from your code, incorporating noise prediction and scheduled denoising:</p>
-<div id="ba53df7d" class="cell">
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1"></a><span class="co"># train the model</span></span>
-<span id="cb12-2"><a href="#cb12-2"></a><span class="im">from</span> torch.nn <span class="im">import</span> functional <span class="im">as</span> F</span>
-<span id="cb12-3"><a href="#cb12-3"></a></span>
-<span id="cb12-4"><a href="#cb12-4"></a>batch_size <span class="op">=</span> <span class="dv">128</span></span>
-<span id="cb12-5"><a href="#cb12-5"></a>train_dataloader <span class="op">=</span> DataLoader(</span>
-<span id="cb12-6"><a href="#cb12-6"></a>    dataset[<span class="st">"train"</span>], batch_size<span class="op">=</span>batch_size, shuffle<span class="op">=</span><span class="va">True</span></span>
-<span id="cb12-7"><a href="#cb12-7"></a>)</span>
-<span id="cb12-8"><a href="#cb12-8"></a>num_epochs <span class="op">=</span> <span class="dv">5</span></span>
-<span id="cb12-9"><a href="#cb12-9"></a></span>
-<span id="cb12-10"><a href="#cb12-10"></a>train_dataloader <span class="op">=</span> torch.utils.data.DataLoader(</span>
-<span id="cb12-11"><a href="#cb12-11"></a>    dataset[<span class="st">"train"</span>], batch_size<span class="op">=</span>batch_size, shuffle<span class="op">=</span><span class="va">True</span></span>
-<span id="cb12-12"><a href="#cb12-12"></a>)</span>
-<span id="cb12-13"><a href="#cb12-13"></a></span>
-<span id="cb12-14"><a href="#cb12-14"></a>optimizer <span class="op">=</span> torch.optim.Adam(model.parameters(), lr<span class="op">=</span><span class="fl">1e-3</span>)</span>
-<span id="cb12-15"><a href="#cb12-15"></a>losses <span class="op">=</span> []  <span class="co"># Somewhere to store the loss values for later plotting</span></span>
-<span id="cb12-16"><a href="#cb12-16"></a></span>
-<span id="cb12-17"><a href="#cb12-17"></a>model.train()</span>
-<span id="cb12-18"><a href="#cb12-18"></a><span class="cf">for</span> epoch <span class="kw">in</span> <span class="bu">range</span>(num_epochs):</span>
-<span id="cb12-19"><a href="#cb12-19"></a>    <span class="cf">for</span> batch <span class="kw">in</span> train_dataloader:</span>
-<span id="cb12-20"><a href="#cb12-20"></a>        <span class="co"># Get the clean images and move to device</span></span>
-<span id="cb12-21"><a href="#cb12-21"></a>        clean_images <span class="op">=</span> batch[<span class="st">"images"</span>].to(device)  <span class="co"># shape: (B, 1, H, W)</span></span>
-<span id="cb12-22"><a href="#cb12-22"></a>        batch_size <span class="op">=</span> clean_images.shape[<span class="dv">0</span>]</span>
-<span id="cb12-23"><a href="#cb12-23"></a></span>
-<span id="cb12-24"><a href="#cb12-24"></a>        <span class="co"># Sample random noise to add</span></span>
-<span id="cb12-25"><a href="#cb12-25"></a>        noise <span class="op">=</span> torch.randn_like(clean_images).to(device)</span>
-<span id="cb12-26"><a href="#cb12-26"></a></span>
-<span id="cb12-27"><a href="#cb12-27"></a>        <span class="co"># Sample a random timestep for each image in the batch</span></span>
-<span id="cb12-28"><a href="#cb12-28"></a>        timesteps <span class="op">=</span> torch.randint(<span class="dv">0</span>, num_train_timesteps, (batch_size,), device<span class="op">=</span>device).<span class="bu">long</span>()</span>
-<span id="cb12-29"><a href="#cb12-29"></a></span>
-<span id="cb12-30"><a href="#cb12-30"></a>        <span class="co"># Add noise to the clean images according to the scheduler's forward process</span></span>
-<span id="cb12-31"><a href="#cb12-31"></a>        noisy_images <span class="op">=</span> scheduler.add_noise(clean_images, noise, timesteps)</span>
-<span id="cb12-32"><a href="#cb12-32"></a></span>
-<span id="cb12-33"><a href="#cb12-33"></a>        <span class="co"># Let the model predict the noise component from the noisy images</span></span>
-<span id="cb12-34"><a href="#cb12-34"></a>        <span class="co"># (Note: The model is conditioned on the timestep)</span></span>
-<span id="cb12-35"><a href="#cb12-35"></a>        noise_pred <span class="op">=</span> model(noisy_images, timesteps, return_dict<span class="op">=</span><span class="va">False</span>)[<span class="dv">0</span>]</span>
-<span id="cb12-36"><a href="#cb12-36"></a></span>
-<span id="cb12-37"><a href="#cb12-37"></a>        <span class="co"># Compute the loss between the predicted noise and the actual noise</span></span>
-<span id="cb12-38"><a href="#cb12-38"></a>        loss <span class="op">=</span> F.mse_loss(noise_pred, noise)</span>
-<span id="cb12-39"><a href="#cb12-39"></a></span>
-<span id="cb12-40"><a href="#cb12-40"></a>        optimizer.zero_grad()</span>
-<span id="cb12-41"><a href="#cb12-41"></a>        loss.backward()</span>
-<span id="cb12-42"><a href="#cb12-42"></a>        optimizer.step()</span>
-<span id="cb12-43"><a href="#cb12-43"></a></span>
-<span id="cb12-44"><a href="#cb12-44"></a>        losses.append(loss.item())</span>
-<span id="cb12-45"><a href="#cb12-45"></a></span>
-<span id="cb12-46"><a href="#cb12-46"></a>    <span class="co"># Print the average loss for this epoch</span></span>
-<span id="cb12-47"><a href="#cb12-47"></a>    avg_loss <span class="op">=</span> <span class="bu">sum</span>(losses[<span class="op">-</span><span class="bu">len</span>(train_dataloader):]) <span class="op">/</span> <span class="bu">len</span>(train_dataloader)</span>
-<span id="cb12-48"><a href="#cb12-48"></a>    <span class="bu">print</span>(<span class="ss">f"Finished epoch </span><span class="sc">{</span>epoch<span class="sc">}</span><span class="ss">. Average loss: </span><span class="sc">{</span>avg_loss<span class="sc">:.6f}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Here’s the complete, modified training loop snippet, incorporating noise prediction and scheduled denoising:</p>
+<div id="gPd18pQMYlJN" class="cell" data-outputid="3f0d8bc7-ecb8-4d86-91cd-0dedff7b8758" data-execution_count="6">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1"></a><span class="im">import</span> torch.nn.functional <span class="im">as</span> F</span>
+<span id="cb16-2"><a href="#cb16-2"></a><span class="im">from</span> torch.optim <span class="im">import</span> Adam</span>
+<span id="cb16-3"><a href="#cb16-3"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb16-4"><a href="#cb16-4"></a></span>
+<span id="cb16-5"><a href="#cb16-5"></a><span class="co"># --- Setup (Device, Model, Optimizer, Loss History, Hyperparameters) ---</span></span>
+<span id="cb16-6"><a href="#cb16-6"></a>device <span class="op">=</span> torch.device(<span class="st">"cuda"</span> <span class="cf">if</span> torch.cuda.is_available() <span class="cf">else</span> <span class="st">"cpu"</span>)</span>
+<span id="cb16-7"><a href="#cb16-7"></a>model <span class="op">=</span> model.to(device) <span class="co"># Our UNet2DModel from diffusers</span></span>
+<span id="cb16-8"><a href="#cb16-8"></a>optimizer <span class="op">=</span> Adam(model.parameters(), lr<span class="op">=</span><span class="fl">1e-3</span>) <span class="co"># Same learning rate as Part 1</span></span>
+<span id="cb16-9"><a href="#cb16-9"></a>losses <span class="op">=</span> []</span>
+<span id="cb16-10"><a href="#cb16-10"></a>num_epochs <span class="op">=</span> <span class="dv">5</span> <span class="co"># Same number of epochs as Part 1</span></span>
+<span id="cb16-11"><a href="#cb16-11"></a>batch_size <span class="op">=</span> <span class="dv">128</span> <span class="co"># Same batch size as Part 1</span></span>
+<span id="cb16-12"><a href="#cb16-12"></a></span>
+<span id="cb16-13"><a href="#cb16-13"></a>train_dataloader <span class="op">=</span> torch.utils.data.DataLoader(</span>
+<span id="cb16-14"><a href="#cb16-14"></a>    dataset[<span class="st">"train"</span>], batch_size<span class="op">=</span>batch_size, shuffle<span class="op">=</span><span class="va">True</span></span>
+<span id="cb16-15"><a href="#cb16-15"></a>)</span>
+<span id="cb16-16"><a href="#cb16-16"></a></span>
+<span id="cb16-17"><a href="#cb16-17"></a><span class="bu">print</span>(device)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>cuda</code></pre>
+</div>
+</div>
+<div id="ba53df7d" class="cell" data-outputid="70cb9ed1-54ba-4b57-ee7e-1fa40e0bd004" data-execution_count="7">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1"></a><span class="cf">for</span> epoch <span class="kw">in</span> <span class="bu">range</span>(num_epochs):</span>
+<span id="cb18-2"><a href="#cb18-2"></a>    <span class="cf">for</span> batch <span class="kw">in</span> train_dataloader:</span>
+<span id="cb18-3"><a href="#cb18-3"></a>        <span class="co"># Get the clean images and move to device</span></span>
+<span id="cb18-4"><a href="#cb18-4"></a>        clean_images <span class="op">=</span> batch[<span class="st">"images"</span>].to(device)  <span class="co"># shape: (B, 1, H, W)</span></span>
+<span id="cb18-5"><a href="#cb18-5"></a>        batch_size <span class="op">=</span> clean_images.shape[<span class="dv">0</span>]</span>
+<span id="cb18-6"><a href="#cb18-6"></a></span>
+<span id="cb18-7"><a href="#cb18-7"></a>        <span class="co"># Sample random noise to add</span></span>
+<span id="cb18-8"><a href="#cb18-8"></a>        noise <span class="op">=</span> torch.randn_like(clean_images).to(device)</span>
+<span id="cb18-9"><a href="#cb18-9"></a></span>
+<span id="cb18-10"><a href="#cb18-10"></a>        <span class="co"># Sample a random timestep for each image in the batch</span></span>
+<span id="cb18-11"><a href="#cb18-11"></a>        timesteps <span class="op">=</span> torch.randint(<span class="dv">0</span>, num_train_timesteps, (batch_size,), device<span class="op">=</span>device).<span class="bu">long</span>()</span>
+<span id="cb18-12"><a href="#cb18-12"></a></span>
+<span id="cb18-13"><a href="#cb18-13"></a>        <span class="co"># Add noise to the clean images according to the scheduler's forward process</span></span>
+<span id="cb18-14"><a href="#cb18-14"></a>        noisy_images <span class="op">=</span> scheduler.add_noise(clean_images, noise, timesteps)</span>
+<span id="cb18-15"><a href="#cb18-15"></a></span>
+<span id="cb18-16"><a href="#cb18-16"></a>        <span class="co"># Let the model predict the noise component from the noisy images</span></span>
+<span id="cb18-17"><a href="#cb18-17"></a>        <span class="co"># (Note: The model is conditioned on the timestep)</span></span>
+<span id="cb18-18"><a href="#cb18-18"></a>        noise_pred <span class="op">=</span> model(noisy_images, timesteps, return_dict<span class="op">=</span><span class="va">False</span>)[<span class="dv">0</span>]</span>
+<span id="cb18-19"><a href="#cb18-19"></a></span>
+<span id="cb18-20"><a href="#cb18-20"></a>        <span class="co"># Compute the loss between the predicted noise and the actual noise</span></span>
+<span id="cb18-21"><a href="#cb18-21"></a>        loss <span class="op">=</span> F.mse_loss(noise_pred, noise)</span>
+<span id="cb18-22"><a href="#cb18-22"></a></span>
+<span id="cb18-23"><a href="#cb18-23"></a>        optimizer.zero_grad()</span>
+<span id="cb18-24"><a href="#cb18-24"></a>        loss.backward()</span>
+<span id="cb18-25"><a href="#cb18-25"></a>        optimizer.step()</span>
+<span id="cb18-26"><a href="#cb18-26"></a></span>
+<span id="cb18-27"><a href="#cb18-27"></a>        losses.append(loss.item())</span>
+<span id="cb18-28"><a href="#cb18-28"></a></span>
+<span id="cb18-29"><a href="#cb18-29"></a>    <span class="co"># Print the average loss for this epoch</span></span>
+<span id="cb18-30"><a href="#cb18-30"></a>    avg_loss <span class="op">=</span> <span class="bu">sum</span>(losses[<span class="op">-</span><span class="bu">len</span>(train_dataloader):]) <span class="op">/</span> <span class="bu">len</span>(train_dataloader)</span>
+<span id="cb18-31"><a href="#cb18-31"></a>    <span class="bu">print</span>(<span class="ss">f"Finished epoch </span><span class="sc">{</span>epoch<span class="sc">}</span><span class="ss">. Average loss: </span><span class="sc">{</span>avg_loss<span class="sc">:.6f}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Finished epoch 0. Average loss: 0.029540
+Finished epoch 1. Average loss: 0.015203
+Finished epoch 2. Average loss: 0.013258
+Finished epoch 3. Average loss: 0.012170
+Finished epoch 4. Average loss: 0.011788</code></pre>
+</div>
+</div>
+<div id="nQr7eQZRZfwP" class="cell" data-outputid="20958104-e15c-4610-c1b4-dd4e5a342b4a">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1"></a><span class="co"># --- Plotting Loss Curve ---</span></span>
+<span id="cb20-2"><a href="#cb20-2"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="dv">4</span>))</span>
+<span id="cb20-3"><a href="#cb20-3"></a>plt.plot(losses, label<span class="op">=</span><span class="st">"Training Loss"</span>)</span>
+<span id="cb20-4"><a href="#cb20-4"></a>plt.title(<span class="st">"Training Loss Curve (UNet2DModel - Noise Prediction)"</span>)</span>
+<span id="cb20-5"><a href="#cb20-5"></a>plt.xlabel(<span class="st">"Iteration"</span>)</span>
+<span id="cb20-6"><a href="#cb20-6"></a>plt.ylabel(<span class="st">"MSE Loss"</span>)</span>
+<span id="cb20-7"><a href="#cb20-7"></a>plt.legend()</span>
+<span id="cb20-8"><a href="#cb20-8"></a>plt.grid(<span class="va">True</span>)</span>
+<span id="cb20-9"><a href="#cb20-9"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="2025-02-18-diffusion-model-mnist-part3_files/figure-html/cell-9-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
 </div>
 <p>By making these modifications, we’ve successfully shifted our training paradigm from direct image prediction to noise prediction, leveraging the <code>DDPMScheduler</code> to manage the diffusion process. In the next section, we’ll focus on how to modify the inference process to generate images using scheduled denoising.</p>
 </section>
+</section>
 <section id="inference-with-scheduled-denoising-generating-images-iteratively" class="level2">
 <h2 class="anchored" data-anchor-id="inference-with-scheduled-denoising-generating-images-iteratively">Inference with Scheduled Denoising: Generating Images Iteratively</h2>
-<p>With our model now trained to predict noise, we can finally generate images using the true power of diffusion models: <strong>iterative denoising guided by a schedule</strong>. This is a significant departure from our one-shot denoising approach in Parts 1 and 2.</p>
-<p>Here’s how we’ll modify the inference process (again, referencing <code>mnist-diffuse-noise-schedular.pdf</code>):</p>
+<p>With our model now trained to predict noise, we can finally generate images using the true power of diffusion models: <strong>iterative denoising guided by a schedule</strong>. This is a significant departure from our one-shot denoising approach in <a href="https://hassaanbinaslam.github.io/myblog/posts/2025-02-10-diffusion-model-mnist-part1.html">Parts 1</a> and <a href="https://hassaanbinaslam.github.io/myblog/posts/2025-02-15-diffusion-model-mnist-part2.html">2</a>.</p>
+<p>Here’s how we’ll modify the inference process.</p>
 <p><strong>1. Start with Pure Noise:</strong></p>
 <p>We begin the generation process with pure random noise. This noise will be our starting point for the reverse diffusion process.</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1"></a>sample <span class="op">=</span> torch.randn((num_images, <span class="dv">1</span>, image_size, image_size)).to(device)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb21"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1"></a>sample <span class="op">=</span> torch.randn((num_images, <span class="dv">1</span>, image_size, image_size)).to(device)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p><strong>2. Set up the Denoising Loop:</strong></p>
 <p>We’ll use a loop that iterates through the <strong>timesteps</strong> provided by our <code>scheduler</code>. Crucially, during inference, we need to use the <em>inference timesteps</em> which are obtained using <code>scheduler.set_timesteps(num_inference_steps)</code>. These timesteps are in <em>descending order</em>, going from high noise to low noise.</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1"></a><span class="cf">for</span> t <span class="kw">in</span> scheduler.timesteps:</span>
-<span id="cb14-2"><a href="#cb14-2"></a>    <span class="co"># ... denoising step ...</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb22"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1"></a><span class="cf">for</span> t <span class="kw">in</span> scheduler.timesteps:</span>
+<span id="cb22-2"><a href="#cb22-2"></a>    <span class="co"># ... denoising step ...</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p><strong>3. Model Predicts Noise at Each Timestep:</strong></p>
 <p>Inside the loop, for each timestep <code>t</code>, we feed the current noisy image <code>sample</code> and the timestep <code>t</code> to our <code>UNet2DModel</code> to predict the noise:</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1"></a>noise_pred <span class="op">=</span> model(sample, t, return_dict<span class="op">=</span><span class="va">False</span>)[<span class="dv">0</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb23"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1"></a>noise_pred <span class="op">=</span> model(sample, t, return_dict<span class="op">=</span><span class="va">False</span>)[<span class="dv">0</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p><strong>4. Scheduler Steps Backwards:</strong></p>
 <p>This is the core of scheduled denoising! We use the <code>scheduler.step</code> function to take a step <em>backwards</em> along the diffusion trajectory, removing a bit of noise from the current <code>sample</code>. The <code>step</code> function takes the <code>noise_pred</code>, the current timestep <code>t</code>, and the current <code>sample</code> as input and returns a dictionary containing the updated sample in <code>prev_sample</code>.</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1"></a>output <span class="op">=</span> scheduler.step(noise_pred, t, sample)</span>
-<span id="cb16-2"><a href="#cb16-2"></a>sample <span class="op">=</span> output.prev_sample</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb24"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1"></a>output <span class="op">=</span> scheduler.step(noise_pred, t, sample)</span>
+<span id="cb24-2"><a href="#cb24-2"></a>sample <span class="op">=</span> output.prev_sample</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>The <code>scheduler.step</code> function intelligently uses the predicted noise and the schedule information to determine how much to “denoise” the image at each timestep. This is where the magic of the diffusion schedule comes in!</p>
 <p><strong>5. Iterate and Refine:</strong></p>
 <p>We repeat steps 3 and 4 for all timesteps in the schedule. In each iteration, the image becomes progressively less noisy and more structured, gradually revealing a coherent MNIST digit.</p>
@@ -512,47 +649,375 @@ Architecture: 64bit
 <p>After the loop completes, the <code>sample</code> tensor will contain the generated (denoised) images. We can then visualize these images as we did in previous parts.</p>
 <p><strong>Complete Inference Loop Snippet:</strong></p>
 <p>Here’s the complete inference loop snippet from your code, demonstrating scheduled denoising:</p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1"></a>num_inference_steps <span class="op">=</span> <span class="dv">50</span> <span class="co"># Example: Adjust for speed/quality trade-off</span></span>
-<span id="cb17-2"><a href="#cb17-2"></a>scheduler.set_timesteps(num_inference_steps) <span class="co"># Set inference timesteps!</span></span>
-<span id="cb17-3"><a href="#cb17-3"></a></span>
-<span id="cb17-4"><a href="#cb17-4"></a>sample <span class="op">=</span> torch.randn((num_images, <span class="dv">1</span>, image_size, image_size)).to(device) <span class="co"># Start with noise</span></span>
-<span id="cb17-5"><a href="#cb17-5"></a></span>
-<span id="cb17-6"><a href="#cb17-6"></a><span class="cf">for</span> t <span class="kw">in</span> scheduler.timesteps: <span class="co"># Iterate through timesteps (descending order)</span></span>
-<span id="cb17-7"><a href="#cb17-7"></a>    noise_pred <span class="op">=</span> model(sample, t, return_dict<span class="op">=</span><span class="va">False</span>)[<span class="dv">0</span>] <span class="co"># Predict noise</span></span>
-<span id="cb17-8"><a href="#cb17-8"></a>    output <span class="op">=</span> scheduler.step(noise_pred, t, sample) <span class="co"># Scheduler step (denoise)</span></span>
-<span id="cb17-9"><a href="#cb17-9"></a>    sample <span class="op">=</span> output.prev_sample <span class="co"># Update sample</span></span>
-<span id="cb17-10"><a href="#cb17-10"></a></span>
-<span id="cb17-11"><a href="#cb17-11"></a><span class="co"># sample now contains generated images!</span></span>
-<span id="cb17-12"><a href="#cb17-12"></a>generated_images <span class="op">=</span> sample.cpu()</span>
-<span id="cb17-13"><a href="#cb17-13"></a><span class="co"># ... (rest of your visualization code) ...</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>By implementing this iterative inference process with the <code>scheduler.step</code> function, we are now performing true scheduled denoising. This should lead to significantly improved image generation quality compared to our previous direct prediction approaches.</p>
-<p>In the next section, we’ll look at the results of this new approach and compare them to our previous methods.</p>
-<p>Results and Discussion: Witnessing the “Diffusion Model Magic”**</p>
-<p>After implementing noise prediction and scheduled denoising, let’s examine the generated MNIST digits and compare them to our previous results. We’ll first look at the images generated using a relatively small number of inference steps (e.g., <code>num_inference_steps = 5</code>) and then increase the steps (e.g., <code>num_inference_steps = 50</code> or <code>100</code>) to see the impact of more iterative refinement.</p>
-<p><strong>Results with a Small Number of Inference Steps (e.g., 5):</strong></p>
-<p><em>(Insert image grid here showing generated digits with ~5 inference steps)</em></p>
-<p><em>Describe what you observe in the generated images. For example:</em></p>
-<p>“With just 5 inference steps, we can already see a remarkable improvement compared to our direct prediction models. The generated digits are no longer blurry noise. We can discern clear digit shapes, and while they might not be perfectly crisp, they are undeniably recognizable as MNIST digits. This demonstrates the power of even a few steps of scheduled denoising.”</p>
-<p><strong>Results with a Larger Number of Inference Steps (e.g., 50 or 100):</strong></p>
-<p><em>(Insert image grid here showing generated digits with ~50-100 inference steps)</em></p>
-<p><em>Describe the improvement with more steps. For example:</em></p>
-<p>“Increasing the number of inference steps to 50 (or even 100) leads to a further significant improvement in image quality. The digits become much sharper, more well-defined, and exhibit finer details. The ‘fuzziness’ we observed with fewer steps is largely gone. These generated digits are now convincingly MNIST-like, showcasing the ‘diffusion model magic’ we were aiming for!”</p>
-<p><strong>Comparison to Previous Models:</strong></p>
-<p><em>Compare these results to the direct prediction models from Part 1 and Part 2. Highlight the key differences. For example:</em></p>
-<p>“Comparing these results to the outputs of our direct image prediction models from Part 1 and Part 2, the difference is striking. The digits generated with scheduled denoising are significantly sharper, clearer, and more visually appealing. They no longer suffer from the blurriness and lack of detail that characterized our earlier attempts. While iterative refinement in Part 2 provided some improvement, it still didn’t reach this level of quality. True scheduled denoising, driven by noise prediction and the <code>DDPMScheduler</code>, has unlocked a new level of image generation fidelity.”</p>
-<p><strong>Discussion and Key Takeaways:</strong></p>
-<p><em>Summarize the key learnings from Part 3. For example:</em></p>
+<div id="iPdJB4zQgRCQ" class="cell" data-outputid="27fe6bb3-fd5e-469f-8a9c-3b0600a7ffe7">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb25-2"><a href="#cb25-2"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb25-3"><a href="#cb25-3"></a><span class="im">import</span> torch</span>
+<span id="cb25-4"><a href="#cb25-4"></a></span>
+<span id="cb25-5"><a href="#cb25-5"></a><span class="co"># Set model to evaluation mode</span></span>
+<span id="cb25-6"><a href="#cb25-6"></a>model.<span class="bu">eval</span>()</span>
+<span id="cb25-7"><a href="#cb25-7"></a></span>
+<span id="cb25-8"><a href="#cb25-8"></a><span class="co"># Number of inference steps (can be the same as used before)</span></span>
+<span id="cb25-9"><a href="#cb25-9"></a>num_inference_steps <span class="op">=</span> <span class="dv">50</span></span>
+<span id="cb25-10"><a href="#cb25-10"></a>scheduler.set_timesteps(num_inference_steps)</span>
+<span id="cb25-11"><a href="#cb25-11"></a></span>
+<span id="cb25-12"><a href="#cb25-12"></a><span class="co"># Start with a single image of pure noise</span></span>
+<span id="cb25-13"><a href="#cb25-13"></a>noise_image <span class="op">=</span> torch.randn((<span class="dv">1</span>, <span class="dv">1</span>, image_size, image_size)).to(device)</span>
+<span id="cb25-14"><a href="#cb25-14"></a>sample <span class="op">=</span> noise_image.clone()</span>
+<span id="cb25-15"><a href="#cb25-15"></a></span>
+<span id="cb25-16"><a href="#cb25-16"></a><span class="cf">with</span> torch.no_grad():</span>
+<span id="cb25-17"><a href="#cb25-17"></a>    <span class="cf">for</span> t <span class="kw">in</span> scheduler.timesteps:</span>
+<span id="cb25-18"><a href="#cb25-18"></a>        <span class="co"># Predict the noise at the current timestep</span></span>
+<span id="cb25-19"><a href="#cb25-19"></a>        noise_pred <span class="op">=</span> model(sample, t).sample</span>
+<span id="cb25-20"><a href="#cb25-20"></a>        <span class="co"># Use the scheduler to compute the previous (less noisy) sample</span></span>
+<span id="cb25-21"><a href="#cb25-21"></a>        output <span class="op">=</span> scheduler.step(noise_pred, t, sample)</span>
+<span id="cb25-22"><a href="#cb25-22"></a>        sample <span class="op">=</span> output.prev_sample</span>
+<span id="cb25-23"><a href="#cb25-23"></a></span>
+<span id="cb25-24"><a href="#cb25-24"></a>denoised_image <span class="op">=</span> sample.clone()</span>
+<span id="cb25-25"><a href="#cb25-25"></a></span>
+<span id="cb25-26"><a href="#cb25-26"></a><span class="co"># Plot both images side by side</span></span>
+<span id="cb25-27"><a href="#cb25-27"></a>fig, axs <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="dv">4</span>))</span>
+<span id="cb25-28"><a href="#cb25-28"></a></span>
+<span id="cb25-29"><a href="#cb25-29"></a>axs[<span class="dv">0</span>].imshow(noise_image.squeeze().cpu().numpy(), cmap<span class="op">=</span><span class="st">"Greys"</span>)</span>
+<span id="cb25-30"><a href="#cb25-30"></a>axs[<span class="dv">0</span>].set_title(<span class="st">"Noisy Image"</span>)</span>
+<span id="cb25-31"><a href="#cb25-31"></a>axs[<span class="dv">0</span>].axis(<span class="st">"off"</span>)</span>
+<span id="cb25-32"><a href="#cb25-32"></a></span>
+<span id="cb25-33"><a href="#cb25-33"></a>axs[<span class="dv">1</span>].imshow(denoised_image.squeeze().cpu().numpy(), cmap<span class="op">=</span><span class="st">"Greys"</span>)</span>
+<span id="cb25-34"><a href="#cb25-34"></a>axs[<span class="dv">1</span>].set_title(<span class="st">"Model Prediction (Denoised)"</span>)</span>
+<span id="cb25-35"><a href="#cb25-35"></a>axs[<span class="dv">1</span>].axis(<span class="st">"off"</span>)</span>
+<span id="cb25-36"><a href="#cb25-36"></a></span>
+<span id="cb25-37"><a href="#cb25-37"></a>plt.tight_layout()</span>
+<span id="cb25-38"><a href="#cb25-38"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="2025-02-18-diffusion-model-mnist-part3_files/figure-html/cell-10-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="iterative-denoising-with-varying-inference-steps" class="level2">
+<h2 class="anchored" data-anchor-id="iterative-denoising-with-varying-inference-steps">Iterative Denoising with Varying Inference Steps</h2>
+<p>To visually explore the impact of scheduled denoising, let’s now denoise a batch of MNIST test images using different numbers of inference steps. We’ll use our <code>do_inference</code> function, varying <code>num_inference_steps</code> from 1 to 5. This will allow us to observe how the quality of the denoised digits improves as we increase the number of refinement steps.</p>
+<p><strong>Inference with 1 Step:</strong></p>
+<div id="wMGLp2m8cyfC" class="cell" data-outputid="acdb3e47-9d64-45de-f49d-8f6b06079d2e" data-execution_count="31">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1"></a><span class="co"># multi step inference</span></span>
+<span id="cb26-2"><a href="#cb26-2"></a></span>
+<span id="cb26-3"><a href="#cb26-3"></a><span class="im">import</span> torch</span>
+<span id="cb26-4"><a href="#cb26-4"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb26-5"><a href="#cb26-5"></a></span>
+<span id="cb26-6"><a href="#cb26-6"></a><span class="kw">def</span> do_inference(num_inference_steps):</span>
+<span id="cb26-7"><a href="#cb26-7"></a>    scheduler.set_timesteps(num_inference_steps)</span>
+<span id="cb26-8"><a href="#cb26-8"></a></span>
+<span id="cb26-9"><a href="#cb26-9"></a>    <span class="co"># Make sure your model is in evaluation mode</span></span>
+<span id="cb26-10"><a href="#cb26-10"></a>    model.<span class="bu">eval</span>()</span>
+<span id="cb26-11"><a href="#cb26-11"></a></span>
+<span id="cb26-12"><a href="#cb26-12"></a>    <span class="co"># Create a dataloader for the test (or validation) split.</span></span>
+<span id="cb26-13"><a href="#cb26-13"></a>    <span class="co"># (If you don’t have a separate test split, you can use a subset of the training data.)</span></span>
+<span id="cb26-14"><a href="#cb26-14"></a>    batch_size<span class="op">=</span><span class="dv">8</span></span>
+<span id="cb26-15"><a href="#cb26-15"></a>    test_dataloader <span class="op">=</span> torch.utils.data.DataLoader(dataset[<span class="st">"test"</span>], batch_size, shuffle<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb26-16"><a href="#cb26-16"></a></span>
+<span id="cb26-17"><a href="#cb26-17"></a>    <span class="co"># Grab one batch of images from the test set</span></span>
+<span id="cb26-18"><a href="#cb26-18"></a>    batch <span class="op">=</span> <span class="bu">next</span>(<span class="bu">iter</span>(test_dataloader))</span>
+<span id="cb26-19"><a href="#cb26-19"></a>    clean_images <span class="op">=</span> batch[<span class="st">"images"</span>].to(device)  <span class="co"># these are the ground-truth images</span></span>
+<span id="cb26-20"><a href="#cb26-20"></a></span>
+<span id="cb26-21"><a href="#cb26-21"></a>    <span class="co"># Sample random noise to add</span></span>
+<span id="cb26-22"><a href="#cb26-22"></a>    noise <span class="op">=</span> torch.randn_like(clean_images).to(device)</span>
+<span id="cb26-23"><a href="#cb26-23"></a></span>
+<span id="cb26-24"><a href="#cb26-24"></a>    <span class="co"># Sample a random timestep for each image in the batch</span></span>
+<span id="cb26-25"><a href="#cb26-25"></a>    timesteps <span class="op">=</span> torch.randint(<span class="dv">0</span>, num_train_timesteps, (batch_size,), device<span class="op">=</span>device).<span class="bu">long</span>()</span>
+<span id="cb26-26"><a href="#cb26-26"></a></span>
+<span id="cb26-27"><a href="#cb26-27"></a>    <span class="co"># Add noise to the clean images according to the scheduler's forward process</span></span>
+<span id="cb26-28"><a href="#cb26-28"></a>    noisy_images <span class="op">=</span> scheduler.add_noise(clean_images, noise, timesteps)</span>
+<span id="cb26-29"><a href="#cb26-29"></a></span>
+<span id="cb26-30"><a href="#cb26-30"></a>    <span class="co"># Iteratively denoise the sample using the scheduler's timesteps</span></span>
+<span id="cb26-31"><a href="#cb26-31"></a>    denoised_images <span class="op">=</span> noisy_images.clone()</span>
+<span id="cb26-32"><a href="#cb26-32"></a>    <span class="cf">with</span> torch.no_grad():</span>
+<span id="cb26-33"><a href="#cb26-33"></a>        <span class="cf">for</span> t <span class="kw">in</span> scheduler.timesteps:</span>
+<span id="cb26-34"><a href="#cb26-34"></a>            <span class="co"># The model expects the timestep (here, a scalar or tensor) as input.</span></span>
+<span id="cb26-35"><a href="#cb26-35"></a>            denoised_sample <span class="op">=</span> model(denoised_images, t).sample</span>
+<span id="cb26-36"><a href="#cb26-36"></a>            <span class="co"># The scheduler returns a dict containing the updated sample in "prev_sample"</span></span>
+<span id="cb26-37"><a href="#cb26-37"></a>            output <span class="op">=</span> scheduler.step(denoised_sample, t, denoised_images)</span>
+<span id="cb26-38"><a href="#cb26-38"></a>            denoised_images <span class="op">=</span> output.prev_sample</span>
+<span id="cb26-39"><a href="#cb26-39"></a></span>
+<span id="cb26-40"><a href="#cb26-40"></a>    <span class="co"># Move tensors to CPU for plotting</span></span>
+<span id="cb26-41"><a href="#cb26-41"></a>    clean_images_np <span class="op">=</span> clean_images.cpu().numpy()</span>
+<span id="cb26-42"><a href="#cb26-42"></a>    noisy_images_np <span class="op">=</span> noisy_images.cpu().numpy()</span>
+<span id="cb26-43"><a href="#cb26-43"></a>    denoised_images_np <span class="op">=</span> denoised_images.cpu().numpy()</span>
+<span id="cb26-44"><a href="#cb26-44"></a></span>
+<span id="cb26-45"><a href="#cb26-45"></a>    <span class="co"># Plot the results:</span></span>
+<span id="cb26-46"><a href="#cb26-46"></a>    <span class="co"># - Top row: Clean images (ground truth)</span></span>
+<span id="cb26-47"><a href="#cb26-47"></a>    <span class="co"># - Middle row: Noisy images (input to the model)</span></span>
+<span id="cb26-48"><a href="#cb26-48"></a>    <span class="co"># - Bottom row: Denoised images (model output)</span></span>
+<span id="cb26-49"><a href="#cb26-49"></a>    num_images <span class="op">=</span> clean_images_np.shape[<span class="dv">0</span>]</span>
+<span id="cb26-50"><a href="#cb26-50"></a>    fig, axes <span class="op">=</span> plt.subplots(<span class="dv">3</span>, num_images, figsize<span class="op">=</span>(num_images <span class="op">*</span> <span class="dv">2</span>, <span class="dv">6</span>))</span>
+<span id="cb26-51"><a href="#cb26-51"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(num_images):</span>
+<span id="cb26-52"><a href="#cb26-52"></a>        <span class="co"># Clean image</span></span>
+<span id="cb26-53"><a href="#cb26-53"></a>        axes[<span class="dv">0</span>, i].imshow(clean_images_np[i].squeeze(), cmap<span class="op">=</span><span class="st">"Greys"</span>)</span>
+<span id="cb26-54"><a href="#cb26-54"></a>        axes[<span class="dv">0</span>, i].axis(<span class="st">"off"</span>)</span>
+<span id="cb26-55"><a href="#cb26-55"></a>        <span class="cf">if</span> i <span class="op">==</span> <span class="dv">0</span>:</span>
+<span id="cb26-56"><a href="#cb26-56"></a>            axes[<span class="dv">0</span>, i].set_title(<span class="st">"Clean"</span>)</span>
+<span id="cb26-57"><a href="#cb26-57"></a></span>
+<span id="cb26-58"><a href="#cb26-58"></a>        <span class="co"># Noisy image</span></span>
+<span id="cb26-59"><a href="#cb26-59"></a>        axes[<span class="dv">1</span>, i].imshow(noisy_images_np[i].squeeze(), cmap<span class="op">=</span><span class="st">"Greys"</span>)</span>
+<span id="cb26-60"><a href="#cb26-60"></a>        axes[<span class="dv">1</span>, i].axis(<span class="st">"off"</span>)</span>
+<span id="cb26-61"><a href="#cb26-61"></a>        <span class="cf">if</span> i <span class="op">==</span> <span class="dv">0</span>:</span>
+<span id="cb26-62"><a href="#cb26-62"></a>            axes[<span class="dv">1</span>, i].set_title(<span class="st">"Noisy"</span>)</span>
+<span id="cb26-63"><a href="#cb26-63"></a></span>
+<span id="cb26-64"><a href="#cb26-64"></a>        <span class="co"># Denoised image (model output)</span></span>
+<span id="cb26-65"><a href="#cb26-65"></a>        axes[<span class="dv">2</span>, i].imshow(denoised_images_np[i].squeeze(), cmap<span class="op">=</span><span class="st">"Greys"</span>)</span>
+<span id="cb26-66"><a href="#cb26-66"></a>        axes[<span class="dv">2</span>, i].axis(<span class="st">"off"</span>)</span>
+<span id="cb26-67"><a href="#cb26-67"></a>        <span class="cf">if</span> i <span class="op">==</span> <span class="dv">0</span>:</span>
+<span id="cb26-68"><a href="#cb26-68"></a>            axes[<span class="dv">2</span>, i].set_title(<span class="st">"Denoised"</span>)</span>
+<span id="cb26-69"><a href="#cb26-69"></a></span>
+<span id="cb26-70"><a href="#cb26-70"></a>    plt.tight_layout()</span>
+<span id="cb26-71"><a href="#cb26-71"></a>    plt.show()</span>
+<span id="cb26-72"><a href="#cb26-72"></a></span>
+<span id="cb26-73"><a href="#cb26-73"></a><span class="co"># Set the number of inference steps and update the scheduler's timesteps accordingly.</span></span>
+<span id="cb26-74"><a href="#cb26-74"></a>num_inference_steps <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb26-75"><a href="#cb26-75"></a>do_inference(num_inference_steps)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="2025-02-18-diffusion-model-mnist-part3_files/figure-html/cell-11-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>With just a single inference step, the “Denoised” row presents an <em>initial</em> attempt at noise removal. The digits are barely recognizable and remain heavily influenced by the original noise.</p>
+<p><strong>Inference with 2 Steps:</strong></p>
+<div id="YvCEFrR4eqfn" class="cell" data-outputid="4323c65c-8b41-48a0-f9dc-f48acd5953b4" data-execution_count="32">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1"></a><span class="co"># Set the number of inference steps and update the scheduler's timesteps accordingly.</span></span>
+<span id="cb27-2"><a href="#cb27-2"></a>do_inference(num_inference_steps<span class="op">=</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="2025-02-18-diffusion-model-mnist-part3_files/figure-html/cell-12-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Increasing the inference steps to 2, we observe a noticeable improvement. The digits in the “Denoised” row are becoming more defined. The shapes are clearer, and we can start to discern the intended digits more confidently. However, there’s still a considerable amount of blur and noise remaining, and fine details are lacking.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>You might have noticed that the denoised images actually deviate from the original ones. For example, the first clean image is a 3, but the denoised version more closely resembles a 9. Similarly, the third clean image is a 1, yet its denoised version resembles a 2. Why does this happen?</p>
+<p>I’m not entirely sure. I’ve experimented with it and tried to identify the cause but haven’t found a definitive answer. My theory is that the scheduler might be increasing the noise in the first step instead of reducing it. At this stage, the actual image signal could be getting lost in the added noise. As a result, when the second step attempts to remove the noise and recover the original image, it fails.</p>
+</div>
+</div>
+<p><strong>Inference with 3 Steps:</strong></p>
+<div id="gOGgt1T_ezLo" class="cell" data-outputid="03af7835-4b7c-411a-a063-267f66431ad9" data-execution_count="33">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1"></a><span class="co"># Set the number of inference steps and update the scheduler's timesteps accordingly.</span></span>
+<span id="cb28-2"><a href="#cb28-2"></a>do_inference(num_inference_steps<span class="op">=</span><span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="2025-02-18-diffusion-model-mnist-part3_files/figure-html/cell-13-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>At 3 inference steps, the trend of improvement continues. The “Denoised” digits are now even more recognizable and sharper. The digits like ‘2’, ‘8’, and ‘9’ are becoming quite distinct from the noisy input. The background noise is further reduced, allowing the digit structure to emerge more prominently.</p>
+<p><strong>Inference with 4 Steps:</strong></p>
+<div id="b6hqJ3j7e1OT" class="cell" data-outputid="813722e3-a989-4af4-a95d-3aed4a2a40ff" data-execution_count="34">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1"></a><span class="co"># Set the number of inference steps and update the scheduler's timesteps accordingly.</span></span>
+<span id="cb29-2"><a href="#cb29-2"></a>do_inference(num_inference_steps<span class="op">=</span><span class="dv">4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="2025-02-18-diffusion-model-mnist-part3_files/figure-html/cell-14-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>With 4 inference steps, the quality jumps again. The “Denoised” digits are now quite clear and well-formed. The residual blur is further minimized, and the digits are gaining more crispness.</p>
+<p><strong>Inference with 5 Steps:</strong></p>
+<div id="TQ03ijXoe7s7" class="cell" data-outputid="6a2134b0-b1a1-41fa-89b3-be51b3f2957a" data-execution_count="35">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1"></a><span class="co"># Set the number of inference steps and update the scheduler's timesteps accordingly.</span></span>
+<span id="cb30-2"><a href="#cb30-2"></a>do_inference(num_inference_steps<span class="op">=</span><span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="2025-02-18-diffusion-model-mnist-part3_files/figure-html/cell-15-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Finally, at 5 inference steps, we reach a point where the “Denoised” digits are quite impressive. They exhibit a good level of sharpness and clarity. While not perfectly identical to the originals, they are now convincingly denoised MNIST digits. Comparing the “Denoised” row to the “Noisy” row clearly shows the effectiveness of the scheduled denoising process in removing the added noise and recovering the underlying digit structure.</p>
+<p><strong>Observations and Trend:</strong></p>
+<p>By visually comparing the results across 1 to 5 inference steps, we can clearly observe a positive correlation: <strong>increasing the number of inference steps generally leads to improved denoising quality.</strong></p>
+<p><strong>Inference with 50 Steps:</strong></p>
+<div id="pNwoDRRke9YB" class="cell" data-outputid="89a3f736-951f-47c6-c918-4e2b511024ca" data-execution_count="36">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1"></a><span class="co"># Set the number of inference steps and update the scheduler's timesteps accordingly.</span></span>
+<span id="cb31-2"><a href="#cb31-2"></a>do_inference(num_inference_steps<span class="op">=</span><span class="dv">50</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="2025-02-18-diffusion-model-mnist-part3_files/figure-html/cell-16-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>This experiment effectively demonstrates the power of iterative refinement in diffusion models. Scheduled denoising, even with a small number of steps, can significantly improve the quality of generated (or in this case, denoised) images.</p>
+</section>
+<section id="iterative-refinement-from-pure-noise" class="level2">
+<h2 class="anchored" data-anchor-id="iterative-refinement-from-pure-noise">Iterative Refinement from Pure Noise</h2>
+<p>Now, let’s push our enhanced <code>UNet2DModel</code> further and explore its ability to generate MNIST digits <em>directly from pure random noise</em> through iterative refinement. This is a more generative task compared to the denoising experiments in the last section. We’ll start with a batch of pure noise and iteratively refine it over 5 steps, observing how digit-like structures emerge.</p>
+<div id="oHvKGC8cfTpG" class="cell" data-outputid="a4b30984-8ce2-4775-c7cb-e44800b5bde1" data-execution_count="37">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1"></a><span class="im">import</span> torchvision</span>
+<span id="cb32-2"><a href="#cb32-2"></a><span class="im">from</span> matplotlib <span class="im">import</span> pyplot <span class="im">as</span> plt</span>
+<span id="cb32-3"><a href="#cb32-3"></a></span>
+<span id="cb32-4"><a href="#cb32-4"></a>n_steps <span class="op">=</span> <span class="dv">5</span></span>
+<span id="cb32-5"><a href="#cb32-5"></a>x <span class="op">=</span> torch.rand(<span class="dv">8</span>, <span class="dv">1</span>, <span class="dv">32</span>, <span class="dv">32</span>).to(device)  <span class="co"># Start from random</span></span>
+<span id="cb32-6"><a href="#cb32-6"></a>step_history <span class="op">=</span> [x.detach().cpu()]</span>
+<span id="cb32-7"><a href="#cb32-7"></a>pred_output_history <span class="op">=</span> []</span>
+<span id="cb32-8"><a href="#cb32-8"></a>model.to(device)</span>
+<span id="cb32-9"><a href="#cb32-9"></a></span>
+<span id="cb32-10"><a href="#cb32-10"></a>pred <span class="op">=</span> x.clone()</span>
+<span id="cb32-11"><a href="#cb32-11"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(n_steps):</span>
+<span id="cb32-12"><a href="#cb32-12"></a>    <span class="co"># Predict denoise image</span></span>
+<span id="cb32-13"><a href="#cb32-13"></a>    <span class="cf">with</span> torch.no_grad():</span>
+<span id="cb32-14"><a href="#cb32-14"></a>        <span class="cf">for</span> t <span class="kw">in</span> scheduler.timesteps:</span>
+<span id="cb32-15"><a href="#cb32-15"></a>            sample <span class="op">=</span> model(pred, t).sample</span>
+<span id="cb32-16"><a href="#cb32-16"></a>            output <span class="op">=</span> scheduler.step(sample, t, pred)</span>
+<span id="cb32-17"><a href="#cb32-17"></a>            pred <span class="op">=</span> output.prev_sample</span>
+<span id="cb32-18"><a href="#cb32-18"></a></span>
+<span id="cb32-19"><a href="#cb32-19"></a></span>
+<span id="cb32-20"><a href="#cb32-20"></a>    <span class="co"># Store output for plotting</span></span>
+<span id="cb32-21"><a href="#cb32-21"></a>    pred_output_history.append(pred.detach().cpu())</span>
+<span id="cb32-22"><a href="#cb32-22"></a></span>
+<span id="cb32-23"><a href="#cb32-23"></a>    <span class="co"># Move slightly towards that direction</span></span>
+<span id="cb32-24"><a href="#cb32-24"></a>    mix_factor <span class="op">=</span> <span class="dv">1</span> <span class="op">/</span> (n_steps <span class="op">-</span> i)</span>
+<span id="cb32-25"><a href="#cb32-25"></a>    x <span class="op">=</span> x <span class="op">*</span> (<span class="dv">1</span> <span class="op">-</span> mix_factor) <span class="op">+</span> pred <span class="op">*</span> mix_factor</span>
+<span id="cb32-26"><a href="#cb32-26"></a></span>
+<span id="cb32-27"><a href="#cb32-27"></a>    <span class="co"># Store output for plotting</span></span>
+<span id="cb32-28"><a href="#cb32-28"></a>    step_history.append(x.detach().cpu())</span>
+<span id="cb32-29"><a href="#cb32-29"></a></span>
+<span id="cb32-30"><a href="#cb32-30"></a>fig, axs <span class="op">=</span> plt.subplots(n_steps, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">9</span>, <span class="dv">4</span>), sharex<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb32-31"><a href="#cb32-31"></a>axs[<span class="dv">0</span>, <span class="dv">0</span>].set_title(<span class="st">"x (model input)"</span>)</span>
+<span id="cb32-32"><a href="#cb32-32"></a>axs[<span class="dv">0</span>, <span class="dv">1</span>].set_title(<span class="st">"model prediction"</span>)</span>
+<span id="cb32-33"><a href="#cb32-33"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(n_steps):</span>
+<span id="cb32-34"><a href="#cb32-34"></a>    axs[i, <span class="dv">0</span>].imshow(</span>
+<span id="cb32-35"><a href="#cb32-35"></a>        torchvision.utils.make_grid(step_history[i])[<span class="dv">0</span>].clip(<span class="dv">0</span>, <span class="dv">1</span>), cmap<span class="op">=</span><span class="st">"Greys"</span></span>
+<span id="cb32-36"><a href="#cb32-36"></a>    )</span>
+<span id="cb32-37"><a href="#cb32-37"></a>    axs[i, <span class="dv">1</span>].imshow(</span>
+<span id="cb32-38"><a href="#cb32-38"></a>        torchvision.utils.make_grid(pred_output_history[i])[<span class="dv">0</span>].clip(<span class="dv">0</span>, <span class="dv">1</span>),</span>
+<span id="cb32-39"><a href="#cb32-39"></a>        cmap<span class="op">=</span><span class="st">"Greys"</span>,</span>
+<span id="cb32-40"><a href="#cb32-40"></a>    )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="2025-02-18-diffusion-model-mnist-part3_files/figure-html/cell-17-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The image above visualizes the iterative refinement process. Let’s examine each column:</p>
 <ul>
-<li><strong>Noise Prediction is Key:</strong> “We’ve demonstrated that training our model to predict noise, rather than directly predicting clean images, is a crucial step towards building effective diffusion models. This paradigm shift leads to more stable training and better generation quality.”</li>
-<li><strong>Scheduled Denoising Unleashes Power:</strong> “Scheduled denoising, guided by the <code>DDPMScheduler</code> and its timesteps, is what truly unleashes the power of diffusion models. The iterative refinement process, stepping backwards along the diffusion trajectory, allows us to generate high-quality images from pure noise.”</li>
-<li><strong>Iterative Refinement is Essential:</strong> “The number of inference steps directly impacts image quality. More steps generally lead to sharper and more detailed images, but also increase generation time. There’s a trade-off between quality and speed that can be adjusted by changing <code>num_inference_steps</code>.”</li>
-<li><strong>We’ve Achieved “Diffusion Model Magic”:</strong> “With this final part, we’ve moved beyond simplified approaches and implemented the core principles of diffusion models. The results speak for themselves – we can now generate convincingly MNIST-like digits from random noise, showcasing the power and potential of diffusion models.”</li>
+<li><p><strong>Left Column: “x (model input)” - Image at Each Refinement Step:</strong> This column shows the evolving image at each step of the refinement process. Starting from the top row with pure random noise, we can trace the gradual transformation over 5 steps.</p>
+<ul>
+<li><strong>Step 1 (Top Row):</strong> We begin with unstructured random noise. There’s no discernible digit shape or coherent structure.</li>
+<li><strong>Step 2:</strong> After the first refinement step, faint, blurry blobs begin to appear within the noise. These are very rudimentary hints of potential digit structures, but still largely dominated by noise.</li>
+<li><strong>Step 3:</strong> The blobs become more organized and digit-like. We can start to vaguely perceive shapes resembling digits, though they remain very unclear and noisy.</li>
+<li><strong>Step 4:</strong> The digit shapes become more pronounced and sharper. We can now more confidently identify potential digits emerging, such as ‘3’, ‘6’, and ‘8’ in the examples. The background noise is also reducing.</li>
+<li><strong>Step 5 (Bottom Row):</strong> After 5 refinement steps, recognizable MNIST digits have emerged from the initial pure noise! While they might not be perfectly crisp or high-resolution, they are undeniably digit-like. We can clearly discern different digits across the batch, showcasing the model’s ability to generate structure from randomness through iterative refinement.</li>
+</ul></li>
+<li><p><strong>Right Column: “model prediction” - Model’s Direct Prediction at Each Step:</strong> This column displays the direct output of the <code>UNet2DModel</code> at each step. It represents what the model <em>predicts</em> should be the next, less noisy image in the sequence. Observing this column, we can see that the model consistently predicts images that are slightly less noisy and more digit-like than the current input image in the left column, guiding the refinement process.</p></li>
 </ul>
+</section>
+<section id="long-term-iterative-generation-50-steps" class="level2">
+<h2 class="anchored" data-anchor-id="long-term-iterative-generation-50-steps">Long-Term Iterative Generation (50 Steps)</h2>
+<p>To fully appreciate the image generation capabilities of our diffusion model, let’s extend the iterative refinement process to a larger number of steps. In this section, we’ll generate MNIST digits from pure noise using <code>num_inference_steps = 50</code>. This extended denoising process should allow the model to refine the images more thoroughly, potentially leading to higher quality and more detailed digits.</p>
+<div id="yACAI35u9gwW" class="cell" data-outputid="8d8f2dc4-aec8-4b77-af9c-51db7d6b43a6" data-execution_count="39">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb33-2"><a href="#cb33-2"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb33-3"><a href="#cb33-3"></a><span class="im">import</span> torch</span>
+<span id="cb33-4"><a href="#cb33-4"></a></span>
+<span id="cb33-5"><a href="#cb33-5"></a><span class="co"># Set model to evaluation mode</span></span>
+<span id="cb33-6"><a href="#cb33-6"></a>model.<span class="bu">eval</span>()</span>
+<span id="cb33-7"><a href="#cb33-7"></a></span>
+<span id="cb33-8"><a href="#cb33-8"></a><span class="co"># Number of inference steps</span></span>
+<span id="cb33-9"><a href="#cb33-9"></a>num_inference_steps <span class="op">=</span> <span class="dv">50</span></span>
+<span id="cb33-10"><a href="#cb33-10"></a>scheduler.set_timesteps(num_inference_steps)</span>
+<span id="cb33-11"><a href="#cb33-11"></a></span>
+<span id="cb33-12"><a href="#cb33-12"></a><span class="co"># Start with a single image of pure noise</span></span>
+<span id="cb33-13"><a href="#cb33-13"></a>sample <span class="op">=</span> torch.randn((<span class="dv">1</span>, <span class="dv">1</span>, image_size, image_size)).to(device)</span>
+<span id="cb33-14"><a href="#cb33-14"></a></span>
+<span id="cb33-15"><a href="#cb33-15"></a><span class="co"># List to store intermediate images</span></span>
+<span id="cb33-16"><a href="#cb33-16"></a>progression <span class="op">=</span> [sample.clone()]</span>
+<span id="cb33-17"><a href="#cb33-17"></a></span>
+<span id="cb33-18"><a href="#cb33-18"></a><span class="cf">with</span> torch.no_grad():</span>
+<span id="cb33-19"><a href="#cb33-19"></a>    <span class="cf">for</span> t <span class="kw">in</span> scheduler.timesteps:</span>
+<span id="cb33-20"><a href="#cb33-20"></a>        <span class="co"># Predict noise and get the previous sample</span></span>
+<span id="cb33-21"><a href="#cb33-21"></a>        noise_pred <span class="op">=</span> model(sample, t).sample</span>
+<span id="cb33-22"><a href="#cb33-22"></a>        output <span class="op">=</span> scheduler.step(noise_pred, t, sample)</span>
+<span id="cb33-23"><a href="#cb33-23"></a>        sample <span class="op">=</span> output.prev_sample</span>
+<span id="cb33-24"><a href="#cb33-24"></a>        progression.append(sample.clone())</span>
+<span id="cb33-25"><a href="#cb33-25"></a></span>
+<span id="cb33-26"><a href="#cb33-26"></a><span class="co"># Convert tensors to NumPy arrays for plotting</span></span>
+<span id="cb33-27"><a href="#cb33-27"></a>progression <span class="op">=</span> [img.squeeze().cpu().numpy() <span class="cf">for</span> img <span class="kw">in</span> progression]</span>
+<span id="cb33-28"><a href="#cb33-28"></a></span>
+<span id="cb33-29"><a href="#cb33-29"></a><span class="co"># Select a subset to display</span></span>
+<span id="cb33-30"><a href="#cb33-30"></a>num_to_plot <span class="op">=</span> <span class="dv">15</span>  <span class="co"># Change this based on how many you want to display</span></span>
+<span id="cb33-31"><a href="#cb33-31"></a>indices <span class="op">=</span> np.linspace(<span class="dv">0</span>, <span class="bu">len</span>(progression) <span class="op">-</span> <span class="dv">1</span>, num_to_plot, dtype<span class="op">=</span><span class="bu">int</span>)</span>
+<span id="cb33-32"><a href="#cb33-32"></a>selected_images <span class="op">=</span> [progression[i] <span class="cf">for</span> i <span class="kw">in</span> indices]</span>
+<span id="cb33-33"><a href="#cb33-33"></a></span>
+<span id="cb33-34"><a href="#cb33-34"></a><span class="co"># Set grid size</span></span>
+<span id="cb33-35"><a href="#cb33-35"></a>rows <span class="op">=</span> <span class="dv">3</span>  <span class="co"># Adjust based on your preference</span></span>
+<span id="cb33-36"><a href="#cb33-36"></a>cols <span class="op">=</span> (num_to_plot <span class="op">+</span> rows <span class="op">-</span> <span class="dv">1</span>) <span class="op">//</span> rows  <span class="co"># Compute columns dynamically</span></span>
+<span id="cb33-37"><a href="#cb33-37"></a></span>
+<span id="cb33-38"><a href="#cb33-38"></a><span class="co"># Create subplots</span></span>
+<span id="cb33-39"><a href="#cb33-39"></a>fig, axes <span class="op">=</span> plt.subplots(rows, cols, figsize<span class="op">=</span>(cols <span class="op">*</span> <span class="dv">2</span>, rows <span class="op">*</span> <span class="dv">2</span>))</span>
+<span id="cb33-40"><a href="#cb33-40"></a>axes <span class="op">=</span> axes.flatten()  <span class="co"># Flatten in case it's a 2D grid</span></span>
+<span id="cb33-41"><a href="#cb33-41"></a></span>
+<span id="cb33-42"><a href="#cb33-42"></a><span class="co"># Plot images</span></span>
+<span id="cb33-43"><a href="#cb33-43"></a><span class="cf">for</span> idx, ax <span class="kw">in</span> <span class="bu">enumerate</span>(axes):</span>
+<span id="cb33-44"><a href="#cb33-44"></a>    <span class="cf">if</span> idx <span class="op">&lt;</span> num_to_plot:</span>
+<span id="cb33-45"><a href="#cb33-45"></a>        ax.imshow(selected_images[idx], cmap<span class="op">=</span><span class="st">"Greys"</span>)</span>
+<span id="cb33-46"><a href="#cb33-46"></a>        ax.set_title(<span class="ss">f"Step </span><span class="sc">{</span>indices[idx]<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb33-47"><a href="#cb33-47"></a>        ax.axis(<span class="st">"off"</span>)</span>
+<span id="cb33-48"><a href="#cb33-48"></a>    <span class="cf">else</span>:</span>
+<span id="cb33-49"><a href="#cb33-49"></a>        ax.axis(<span class="st">"off"</span>)  <span class="co"># Hide extra empty subplots</span></span>
+<span id="cb33-50"><a href="#cb33-50"></a></span>
+<span id="cb33-51"><a href="#cb33-51"></a>plt.tight_layout()</span>
+<span id="cb33-52"><a href="#cb33-52"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="2025-02-18-diffusion-model-mnist-part3_files/figure-html/cell-18-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The image above visualizes the evolution of a generated MNIST digit over 15 selected steps from the 50-step denoising process. While we are only showing a subset of the steps for clarity, it represents the full 50-step refinement.</p>
+</section>
+<section id="conclusion" class="level2">
+<h2 class="anchored" data-anchor-id="conclusion">Conclusion</h2>
+<p>In this three-part series, we embarked on a hands-on journey to demystify diffusion models and build our own MNIST digit generator from scratch. Starting with a basic Convolutional UNet and direct image prediction, we progressively enhanced our model and delved deeper into the core principles of diffusion.</p>
+<p><strong>Key Milestones of Our Journey:</strong></p>
+<ul>
+<li><a href="https://hassaanbinaslam.github.io/myblog/posts/2025-02-10-diffusion-model-mnist-part1.html"><strong>Part 1: Laying the Foundation:</strong></a> We built a simple <code>BasicUNet</code> and trained it for direct image prediction, establishing a baseline and understanding the fundamentals of UNet architectures for denoising tasks.</li>
+<li><a href="https://hassaanbinaslam.github.io/myblog/posts/2025-02-15-diffusion-model-mnist-part2.html"><strong>Part 2: Enhancing the Architecture:</strong></a> We upgraded to the <code>diffusers</code> library’s <code>UNet2DModel</code>, incorporating ResNet blocks and attention mechanisms, and observed a noticeable improvement in denoising quality, showcasing the power of more sophisticated architectures.</li>
+<li><strong>Part 3: Embracing True Diffusion:</strong> In this final part, we made the crucial shift to <strong>noise prediction</strong> and <strong>scheduled denoising</strong>, leveraging the <code>DDPMScheduler</code>. We witnessed firsthand how these core concepts unlock the true potential of diffusion models, enabling us to generate high-quality MNIST digits from pure random noise through iterative refinement.</li>
+</ul>
+<p>In Part 3, we moved beyond simplified approaches and successfully implemented key elements of modern diffusion models. We saw firsthand how a learned noise prediction model and a well-designed denoising schedule can transform pure noise into coherent, recognizable images. With more inference steps, image quality improved significantly.</p>
+<p>I hope this guide has helped you understand and experiment with diffusion models. The code and explanations provided serve as a strong foundation for further exploration. Now, go forth and create your own <em>diffusion model magic</em>!</p>
 
 
 </section>
 
 </main> <!-- /main -->
+<script type="application/vnd.jupyter.widget-state+json">
+{"002b01c81f1544e6a80b915371ba9c26":{"model_module":"@jupyter-widgets/base","model_module_version":"1.2.0","model_name":"LayoutModel","state":{"_model_module":"@jupyter-widgets/base","_model_module_version":"1.2.0","_model_name":"LayoutModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"1.2.0","_view_name":"LayoutView","align_content":null,"align_items":null,"align_self":null,"border":null,"bottom":null,"display":null,"flex":null,"flex_flow":null,"grid_area":null,"grid_auto_columns":null,"grid_auto_flow":null,"grid_auto_rows":null,"grid_column":null,"grid_gap":null,"grid_row":null,"grid_template_areas":null,"grid_template_columns":null,"grid_template_rows":null,"height":null,"justify_content":null,"justify_items":null,"left":null,"margin":null,"max_height":null,"max_width":null,"min_height":null,"min_width":null,"object_fit":null,"object_position":null,"order":null,"overflow":null,"overflow_x":null,"overflow_y":null,"padding":null,"right":null,"top":null,"visibility":null,"width":null}},"088574b7f3234860a167ebe9e8adb5fc":{"model_module":"@jupyter-widgets/controls","model_module_version":"1.5.0","model_name":"HBoxModel","state":{"_dom_classes":[],"_model_module":"@jupyter-widgets/controls","_model_module_version":"1.5.0","_model_name":"HBoxModel","_view_count":null,"_view_module":"@jupyter-widgets/controls","_view_module_version":"1.5.0","_view_name":"HBoxView","box_style":"","children":["IPY_MODEL_1eafe7b0df9c49889c50efeda40a0061","IPY_MODEL_468513ad737144cc96a5743a1a701156","IPY_MODEL_82dd09ce75d2411b946bd9022f114b89"],"layout":"IPY_MODEL_4661cef82290457f84bf443a22c9b58f"}},"08dd338e08a248ceb3d3eb19bb384ec4":{"model_module":"@jupyter-widgets/base","model_module_version":"1.2.0","model_name":"LayoutModel","state":{"_model_module":"@jupyter-widgets/base","_model_module_version":"1.2.0","_model_name":"LayoutModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"1.2.0","_view_name":"LayoutView","align_content":null,"align_items":null,"align_self":null,"border":null,"bottom":null,"display":null,"flex":null,"flex_flow":null,"grid_area":null,"grid_auto_columns":null,"grid_auto_flow":null,"grid_auto_rows":null,"grid_column":null,"grid_gap":null,"grid_row":null,"grid_template_areas":null,"grid_template_columns":null,"grid_template_rows":null,"height":null,"justify_content":null,"justify_items":null,"left":null,"margin":null,"max_height":null,"max_width":null,"min_height":null,"min_width":null,"object_fit":null,"object_position":null,"order":null,"overflow":null,"overflow_x":null,"overflow_y":null,"padding":null,"right":null,"top":null,"visibility":null,"width":null}},"0f939dbf54244cff9de3f8ce2082409d":{"model_module":"@jupyter-widgets/controls","model_module_version":"1.5.0","model_name":"HBoxModel","state":{"_dom_classes":[],"_model_module":"@jupyter-widgets/controls","_model_module_version":"1.5.0","_model_name":"HBoxModel","_view_count":null,"_view_module":"@jupyter-widgets/controls","_view_module_version":"1.5.0","_view_name":"HBoxView","box_style":"","children":["IPY_MODEL_b2fb5262ff994eea8b1b58498b59a964","IPY_MODEL_bbfed27f0e76412e8c9796ac6b7974dc","IPY_MODEL_2f2838aa47b445f693ea1b7cff284c01"],"layout":"IPY_MODEL_cd5fb3e0b0b1455c909dee62dad9f8f2"}},"1d1ca9d541ea4ffe927cee88b248cfc5":{"model_module":"@jupyter-widgets/controls","model_module_version":"1.5.0","model_name":"DescriptionStyleModel","state":{"_model_module":"@jupyter-widgets/controls","_model_module_version":"1.5.0","_model_name":"DescriptionStyleModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"1.2.0","_view_name":"StyleView","description_width":""}},"1eafe7b0df9c49889c50efeda40a0061":{"model_module":"@jupyter-widgets/controls","model_module_version":"1.5.0","model_name":"HTMLModel","state":{"_dom_classes":[],"_model_module":"@jupyter-widgets/controls","_model_module_version":"1.5.0","_model_name":"HTMLModel","_view_count":null,"_view_module":"@jupyter-widgets/controls","_view_module_version":"1.5.0","_view_name":"HTMLView","description":"","description_tooltip":null,"layout":"IPY_MODEL_6c30fde38d754e9c92bbb31c210285e0","placeholder":"​","style":"IPY_MODEL_74206f0564264766acf5c26df3108795","value":"README.md: 100%"}},"215139c839d8492b8321cd4dc449cc29":{"model_module":"@jupyter-widgets/controls","model_module_version":"1.5.0","model_name":"HTMLModel","state":{"_dom_classes":[],"_model_module":"@jupyter-widgets/controls","_model_module_version":"1.5.0","_model_name":"HTMLModel","_view_count":null,"_view_module":"@jupyter-widgets/controls","_view_module_version":"1.5.0","_view_name":"HTMLView","description":"","description_tooltip":null,"layout":"IPY_MODEL_70d5d733465d4d2b8c34b2f440cef01e","placeholder":"​","style":"IPY_MODEL_ba35aca969194911811f75f6d183f460","value":"test-00000-of-00001.parquet: 100%"}},"21b53d49c5974ea0ac4f3f791a1b144c":{"model_module":"@jupyter-widgets/controls","model_module_version":"1.5.0","model_name":"HTMLModel","state":{"_dom_classes":[],"_model_module":"@jupyter-widgets/controls","_model_module_version":"1.5.0","_model_name":"HTMLModel","_view_count":null,"_view_module":"@jupyter-widgets/controls","_view_module_version":"1.5.0","_view_name":"HTMLView","description":"","description_tooltip":null,"layout":"IPY_MODEL_d2f33a4690ce4c6ea13bf63f7f7c4579","placeholder":"​","style":"IPY_MODEL_bef80a38dd12419c8b2ad17ed23f3179","value":"Generating train split: 100%"}},"2277619cfbf141ccafe27b5068569862":{"model_module":"@jupyter-widgets/base","model_module_version":"1.2.0","model_name":"LayoutModel","state":{"_model_module":"@jupyter-widgets/base","_model_module_version":"1.2.0","_model_name":"LayoutModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"1.2.0","_view_name":"LayoutView","align_content":null,"align_items":null,"align_self":null,"border":null,"bottom":null,"display":null,"flex":null,"flex_flow":null,"grid_area":null,"grid_auto_columns":null,"grid_auto_flow":null,"grid_auto_rows":null,"grid_column":null,"grid_gap":null,"grid_row":null,"grid_template_areas":null,"grid_template_columns":null,"grid_template_rows":null,"height":null,"justify_content":null,"justify_items":null,"left":null,"margin":null,"max_height":null,"max_width":null,"min_height":null,"min_width":null,"object_fit":null,"object_position":null,"order":null,"overflow":null,"overflow_x":null,"overflow_y":null,"padding":null,"right":null,"top":null,"visibility":null,"width":null}},"251aa6b40e2140b58e2b658f151fa49d":{"model_module":"@jupyter-widgets/controls","model_module_version":"1.5.0","model_name":"ProgressStyleModel","state":{"_model_module":"@jupyter-widgets/controls","_model_module_version":"1.5.0","_model_name":"ProgressStyleModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"1.2.0","_view_name":"StyleView","bar_color":null,"description_width":""}},"2c91ed527b9c4123ae69cfa44a15216b":{"model_module":"@jupyter-widgets/controls","model_module_version":"1.5.0","model_name":"DescriptionStyleModel","state":{"_model_module":"@jupyter-widgets/controls","_model_module_version":"1.5.0","_model_name":"DescriptionStyleModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"1.2.0","_view_name":"StyleView","description_width":""}},"2f2838aa47b445f693ea1b7cff284c01":{"model_module":"@jupyter-widgets/controls","model_module_version":"1.5.0","model_name":"HTMLModel","state":{"_dom_classes":[],"_model_module":"@jupyter-widgets/controls","_model_module_version":"1.5.0","_model_name":"HTMLModel","_view_count":null,"_view_module":"@jupyter-widgets/controls","_view_module_version":"1.5.0","_view_name":"HTMLView","description":"","description_tooltip":null,"layout":"IPY_MODEL_9158e625140c448cb34d3e24c896400c","placeholder":"​","style":"IPY_MODEL_ef439eda4a0b4f4a9bf4933a59f2e849","value":" 15.6M/15.6M [00:00&lt;00:00, 76.9MB/s]"}},"4661cef82290457f84bf443a22c9b58f":{"model_module":"@jupyter-widgets/base","model_module_version":"1.2.0","model_name":"LayoutModel","state":{"_model_module":"@jupyter-widgets/base","_model_module_version":"1.2.0","_model_name":"LayoutModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"1.2.0","_view_name":"LayoutView","align_content":null,"align_items":null,"align_self":null,"border":null,"bottom":null,"display":null,"flex":null,"flex_flow":null,"grid_area":null,"grid_auto_columns":null,"grid_auto_flow":null,"grid_auto_rows":null,"grid_column":null,"grid_gap":null,"grid_row":null,"grid_template_areas":null,"grid_template_columns":null,"grid_template_rows":null,"height":null,"justify_content":null,"justify_items":null,"left":null,"margin":null,"max_height":null,"max_width":null,"min_height":null,"min_width":null,"object_fit":null,"object_position":null,"order":null,"overflow":null,"overflow_x":null,"overflow_y":null,"padding":null,"right":null,"top":null,"visibility":null,"width":null}},"468513ad737144cc96a5743a1a701156":{"model_module":"@jupyter-widgets/controls","model_module_version":"1.5.0","model_name":"FloatProgressModel","state":{"_dom_classes":[],"_model_module":"@jupyter-widgets/controls","_model_module_version":"1.5.0","_model_name":"FloatProgressModel","_view_count":null,"_view_module":"@jupyter-widgets/controls","_view_module_version":"1.5.0","_view_name":"ProgressView","bar_style":"success","description":"","description_tooltip":null,"layout":"IPY_MODEL_c7a49015db774629813443a02ba762d9","max":6971,"min":0,"orientation":"horizontal","style":"IPY_MODEL_251aa6b40e2140b58e2b658f151fa49d","value":6971}},"48bb8c3e04564485b2d324c377719d6e":{"model_module":"@jupyter-widgets/base","model_module_version":"1.2.0","model_name":"LayoutModel","state":{"_model_module":"@jupyter-widgets/base","_model_module_version":"1.2.0","_model_name":"LayoutModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"1.2.0","_view_name":"LayoutView","align_content":null,"align_items":null,"align_self":null,"border":null,"bottom":null,"display":null,"flex":null,"flex_flow":null,"grid_area":null,"grid_auto_columns":null,"grid_auto_flow":null,"grid_auto_rows":null,"grid_column":null,"grid_gap":null,"grid_row":null,"grid_template_areas":null,"grid_template_columns":null,"grid_template_rows":null,"height":null,"justify_content":null,"justify_items":null,"left":null,"margin":null,"max_height":null,"max_width":null,"min_height":null,"min_width":null,"object_fit":null,"object_position":null,"order":null,"overflow":null,"overflow_x":null,"overflow_y":null,"padding":null,"right":null,"top":null,"visibility":null,"width":null}},"4a93f58fb8dc45aeafa7311ffbf4b7d5":{"model_module":"@jupyter-widgets/controls","model_module_version":"1.5.0","model_name":"ProgressStyleModel","state":{"_model_module":"@jupyter-widgets/controls","_model_module_version":"1.5.0","_model_name":"ProgressStyleModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"1.2.0","_view_name":"StyleView","bar_color":null,"description_width":""}},"4a97d28821a048518353c6788eae0196":{"model_module":"@jupyter-widgets/base","model_module_version":"1.2.0","model_name":"LayoutModel","state":{"_model_module":"@jupyter-widgets/base","_model_module_version":"1.2.0","_model_name":"LayoutModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"1.2.0","_view_name":"LayoutView","align_content":null,"align_items":null,"align_self":null,"border":null,"bottom":null,"display":null,"flex":null,"flex_flow":null,"grid_area":null,"grid_auto_columns":null,"grid_auto_flow":null,"grid_auto_rows":null,"grid_column":null,"grid_gap":null,"grid_row":null,"grid_template_areas":null,"grid_template_columns":null,"grid_template_rows":null,"height":null,"justify_content":null,"justify_items":null,"left":null,"margin":null,"max_height":null,"max_width":null,"min_height":null,"min_width":null,"object_fit":null,"object_position":null,"order":null,"overflow":null,"overflow_x":null,"overflow_y":null,"padding":null,"right":null,"top":null,"visibility":null,"width":"20px"}},"4d941101c2ae4af9a0f73da86012db71":{"model_module":"@jupyter-widgets/controls","model_module_version":"1.5.0","model_name":"ProgressStyleModel","state":{"_model_module":"@jupyter-widgets/controls","_model_module_version":"1.5.0","_model_name":"ProgressStyleModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"1.2.0","_view_name":"StyleView","bar_color":null,"description_width":""}},"4db80348f8834903941af0ed9c440b69":{"model_module":"@jupyter-widgets/controls","model_module_version":"1.5.0","model_name":"HTMLModel","state":{"_dom_classes":[],"_model_module":"@jupyter-widgets/controls","_model_module_version":"1.5.0","_model_name":"HTMLModel","_view_count":null,"_view_module":"@jupyter-widgets/controls","_view_module_version":"1.5.0","_view_name":"HTMLView","description":"","description_tooltip":null,"layout":"IPY_MODEL_08dd338e08a248ceb3d3eb19bb384ec4","placeholder":"​","style":"IPY_MODEL_e88e04ff3d0c49d682137ca58d83d66e","value":""}},"52283c4c1be440ad8be5ee83f6cb0039":{"model_module":"@jupyter-widgets/controls","model_module_version":"1.5.0","model_name":"HTMLModel","state":{"_dom_classes":[],"_model_module":"@jupyter-widgets/controls","_model_module_version":"1.5.0","_model_name":"HTMLModel","_view_count":null,"_view_module":"@jupyter-widgets/controls","_view_module_version":"1.5.0","_view_name":"HTMLView","description":"","description_tooltip":null,"layout":"IPY_MODEL_a3629307ae2a41cd96d2c36481ff92f6","placeholder":"​","style":"IPY_MODEL_2c91ed527b9c4123ae69cfa44a15216b","value":" 0/0 [00:00&lt;?, ?it/s]"}},"53a69fea04284390b3678e046492bf67":{"model_module":"@jupyter-widgets/controls","model_module_version":"1.5.0","model_name":"HTMLModel","state":{"_dom_classes":[],"_model_module":"@jupyter-widgets/controls","_model_module_version":"1.5.0","_model_name":"HTMLModel","_view_count":null,"_view_module":"@jupyter-widgets/controls","_view_module_version":"1.5.0","_view_name":"HTMLView","description":"","description_tooltip":null,"layout":"IPY_MODEL_6bbb82d59e06467ba72bb36c5099aa60","placeholder":"​","style":"IPY_MODEL_65bd994730654801a25a953a9ba54297","value":" 2.60M/2.60M [00:00&lt;00:00, 99.1MB/s]"}},"57db71a0f61149749a49e93d32efa66e":{"model_module":"@jupyter-widgets/base","model_module_version":"1.2.0","model_name":"LayoutModel","state":{"_model_module":"@jupyter-widgets/base","_model_module_version":"1.2.0","_model_name":"LayoutModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"1.2.0","_view_name":"LayoutView","align_content":null,"align_items":null,"align_self":null,"border":null,"bottom":null,"display":null,"flex":null,"flex_flow":null,"grid_area":null,"grid_auto_columns":null,"grid_auto_flow":null,"grid_auto_rows":null,"grid_column":null,"grid_gap":null,"grid_row":null,"grid_template_areas":null,"grid_template_columns":null,"grid_template_rows":null,"height":null,"justify_content":null,"justify_items":null,"left":null,"margin":null,"max_height":null,"max_width":null,"min_height":null,"min_width":null,"object_fit":null,"object_position":null,"order":null,"overflow":null,"overflow_x":null,"overflow_y":null,"padding":null,"right":null,"top":null,"visibility":null,"width":null}},"5a6cda4ec4444d25bbe619cf70c971f9":{"model_module":"@jupyter-widgets/controls","model_module_version":"1.5.0","model_name":"ProgressStyleModel","state":{"_model_module":"@jupyter-widgets/controls","_model_module_version":"1.5.0","_model_name":"ProgressStyleModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"1.2.0","_view_name":"StyleView","bar_color":null,"description_width":""}},"5c8db95267e5484d9a17850dbaef9050":{"model_module":"@jupyter-widgets/controls","model_module_version":"1.5.0","model_name":"DescriptionStyleModel","state":{"_model_module":"@jupyter-widgets/controls","_model_module_version":"1.5.0","_model_name":"DescriptionStyleModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"1.2.0","_view_name":"StyleView","description_width":""}},"60be0993cda6470d8f202ab779509283":{"model_module":"@jupyter-widgets/controls","model_module_version":"1.5.0","model_name":"ProgressStyleModel","state":{"_model_module":"@jupyter-widgets/controls","_model_module_version":"1.5.0","_model_name":"ProgressStyleModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"1.2.0","_view_name":"StyleView","bar_color":null,"description_width":""}},"649b82e48ac54639be46fd55fd4777d6":{"model_module":"@jupyter-widgets/controls","model_module_version":"1.5.0","model_name":"DescriptionStyleModel","state":{"_model_module":"@jupyter-widgets/controls","_model_module_version":"1.5.0","_model_name":"DescriptionStyleModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"1.2.0","_view_name":"StyleView","description_width":""}},"655ad077191e4a8a9e2b0c3836647cc8":{"model_module":"@jupyter-widgets/controls","model_module_version":"1.5.0","model_name":"FloatProgressModel","state":{"_dom_classes":[],"_model_module":"@jupyter-widgets/controls","_model_module_version":"1.5.0","_model_name":"FloatProgressModel","_view_count":null,"_view_module":"@jupyter-widgets/controls","_view_module_version":"1.5.0","_view_name":"ProgressView","bar_style":"success","description":"","description_tooltip":null,"layout":"IPY_MODEL_4a97d28821a048518353c6788eae0196","max":1,"min":0,"orientation":"horizontal","style":"IPY_MODEL_60be0993cda6470d8f202ab779509283","value":0}},"65bd994730654801a25a953a9ba54297":{"model_module":"@jupyter-widgets/controls","model_module_version":"1.5.0","model_name":"DescriptionStyleModel","state":{"_model_module":"@jupyter-widgets/controls","_model_module_version":"1.5.0","_model_name":"DescriptionStyleModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"1.2.0","_view_name":"StyleView","description_width":""}},"6bbb82d59e06467ba72bb36c5099aa60":{"model_module":"@jupyter-widgets/base","model_module_version":"1.2.0","model_name":"LayoutModel","state":{"_model_module":"@jupyter-widgets/base","_model_module_version":"1.2.0","_model_name":"LayoutModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"1.2.0","_view_name":"LayoutView","align_content":null,"align_items":null,"align_self":null,"border":null,"bottom":null,"display":null,"flex":null,"flex_flow":null,"grid_area":null,"grid_auto_columns":null,"grid_auto_flow":null,"grid_auto_rows":null,"grid_column":null,"grid_gap":null,"grid_row":null,"grid_template_areas":null,"grid_template_columns":null,"grid_template_rows":null,"height":null,"justify_content":null,"justify_items":null,"left":null,"margin":null,"max_height":null,"max_width":null,"min_height":null,"min_width":null,"object_fit":null,"object_position":null,"order":null,"overflow":null,"overflow_x":null,"overflow_y":null,"padding":null,"right":null,"top":null,"visibility":null,"width":null}},"6c30fde38d754e9c92bbb31c210285e0":{"model_module":"@jupyter-widgets/base","model_module_version":"1.2.0","model_name":"LayoutModel","state":{"_model_module":"@jupyter-widgets/base","_model_module_version":"1.2.0","_model_name":"LayoutModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"1.2.0","_view_name":"LayoutView","align_content":null,"align_items":null,"align_self":null,"border":null,"bottom":null,"display":null,"flex":null,"flex_flow":null,"grid_area":null,"grid_auto_columns":null,"grid_auto_flow":null,"grid_auto_rows":null,"grid_column":null,"grid_gap":null,"grid_row":null,"grid_template_areas":null,"grid_template_columns":null,"grid_template_rows":null,"height":null,"justify_content":null,"justify_items":null,"left":null,"margin":null,"max_height":null,"max_width":null,"min_height":null,"min_width":null,"object_fit":null,"object_position":null,"order":null,"overflow":null,"overflow_x":null,"overflow_y":null,"padding":null,"right":null,"top":null,"visibility":null,"width":null}},"704ac242a09e45b48eb88b5e3e71fed1":{"model_module":"@jupyter-widgets/base","model_module_version":"1.2.0","model_name":"LayoutModel","state":{"_model_module":"@jupyter-widgets/base","_model_module_version":"1.2.0","_model_name":"LayoutModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"1.2.0","_view_name":"LayoutView","align_content":null,"align_items":null,"align_self":null,"border":null,"bottom":null,"display":null,"flex":null,"flex_flow":null,"grid_area":null,"grid_auto_columns":null,"grid_auto_flow":null,"grid_auto_rows":null,"grid_column":null,"grid_gap":null,"grid_row":null,"grid_template_areas":null,"grid_template_columns":null,"grid_template_rows":null,"height":null,"justify_content":null,"justify_items":null,"left":null,"margin":null,"max_height":null,"max_width":null,"min_height":null,"min_width":null,"object_fit":null,"object_position":null,"order":null,"overflow":null,"overflow_x":null,"overflow_y":null,"padding":null,"right":null,"top":null,"visibility":null,"width":null}},"70d5d733465d4d2b8c34b2f440cef01e":{"model_module":"@jupyter-widgets/base","model_module_version":"1.2.0","model_name":"LayoutModel","state":{"_model_module":"@jupyter-widgets/base","_model_module_version":"1.2.0","_model_name":"LayoutModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"1.2.0","_view_name":"LayoutView","align_content":null,"align_items":null,"align_self":null,"border":null,"bottom":null,"display":null,"flex":null,"flex_flow":null,"grid_area":null,"grid_auto_columns":null,"grid_auto_flow":null,"grid_auto_rows":null,"grid_column":null,"grid_gap":null,"grid_row":null,"grid_template_areas":null,"grid_template_columns":null,"grid_template_rows":null,"height":null,"justify_content":null,"justify_items":null,"left":null,"margin":null,"max_height":null,"max_width":null,"min_height":null,"min_width":null,"object_fit":null,"object_position":null,"order":null,"overflow":null,"overflow_x":null,"overflow_y":null,"padding":null,"right":null,"top":null,"visibility":null,"width":null}},"74206f0564264766acf5c26df3108795":{"model_module":"@jupyter-widgets/controls","model_module_version":"1.5.0","model_name":"DescriptionStyleModel","state":{"_model_module":"@jupyter-widgets/controls","_model_module_version":"1.5.0","_model_name":"DescriptionStyleModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"1.2.0","_view_name":"StyleView","description_width":""}},"7b3973d7793a4b438388cf4884dbf7a9":{"model_module":"@jupyter-widgets/controls","model_module_version":"1.5.0","model_name":"FloatProgressModel","state":{"_dom_classes":[],"_model_module":"@jupyter-widgets/controls","_model_module_version":"1.5.0","_model_name":"FloatProgressModel","_view_count":null,"_view_module":"@jupyter-widgets/controls","_view_module_version":"1.5.0","_view_name":"ProgressView","bar_style":"success","description":"","description_tooltip":null,"layout":"IPY_MODEL_b33e18ae2e764325aee4239b414cd261","max":60000,"min":0,"orientation":"horizontal","style":"IPY_MODEL_a6ad48b7228e40ffaebfb941f5024e18","value":60000}},"7c4a6c81df9f4bd2946e38a586fb1c02":{"model_module":"@jupyter-widgets/controls","model_module_version":"1.5.0","model_name":"HBoxModel","state":{"_dom_classes":[],"_model_module":"@jupyter-widgets/controls","_model_module_version":"1.5.0","_model_name":"HBoxModel","_view_count":null,"_view_module":"@jupyter-widgets/controls","_view_module_version":"1.5.0","_view_name":"HBoxView","box_style":"","children":["IPY_MODEL_4db80348f8834903941af0ed9c440b69","IPY_MODEL_655ad077191e4a8a9e2b0c3836647cc8","IPY_MODEL_52283c4c1be440ad8be5ee83f6cb0039"],"layout":"IPY_MODEL_fc3ecd75c7654eaa9e62061ed9941b89"}},"808c450780184b52be37719aadc33cf2":{"model_module":"@jupyter-widgets/controls","model_module_version":"1.5.0","model_name":"HTMLModel","state":{"_dom_classes":[],"_model_module":"@jupyter-widgets/controls","_model_module_version":"1.5.0","_model_name":"HTMLModel","_view_count":null,"_view_module":"@jupyter-widgets/controls","_view_module_version":"1.5.0","_view_name":"HTMLView","description":"","description_tooltip":null,"layout":"IPY_MODEL_e5be221dbe344795afa8ee53b8f8b716","placeholder":"​","style":"IPY_MODEL_5c8db95267e5484d9a17850dbaef9050","value":"Generating test split: 100%"}},"82dd09ce75d2411b946bd9022f114b89":{"model_module":"@jupyter-widgets/controls","model_module_version":"1.5.0","model_name":"HTMLModel","state":{"_dom_classes":[],"_model_module":"@jupyter-widgets/controls","_model_module_version":"1.5.0","_model_name":"HTMLModel","_view_count":null,"_view_module":"@jupyter-widgets/controls","_view_module_version":"1.5.0","_view_name":"HTMLView","description":"","description_tooltip":null,"layout":"IPY_MODEL_ae33913c17764e469f00353c4e0f771e","placeholder":"​","style":"IPY_MODEL_b1d9952bbd884846a053485ed8b11085","value":" 6.97k/6.97k [00:00&lt;00:00, 735kB/s]"}},"86e9b8db5f4c4c319056e64055921f2c":{"model_module":"@jupyter-widgets/base","model_module_version":"1.2.0","model_name":"LayoutModel","state":{"_model_module":"@jupyter-widgets/base","_model_module_version":"1.2.0","_model_name":"LayoutModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"1.2.0","_view_name":"LayoutView","align_content":null,"align_items":null,"align_self":null,"border":null,"bottom":null,"display":null,"flex":null,"flex_flow":null,"grid_area":null,"grid_auto_columns":null,"grid_auto_flow":null,"grid_auto_rows":null,"grid_column":null,"grid_gap":null,"grid_row":null,"grid_template_areas":null,"grid_template_columns":null,"grid_template_rows":null,"height":null,"justify_content":null,"justify_items":null,"left":null,"margin":null,"max_height":null,"max_width":null,"min_height":null,"min_width":null,"object_fit":null,"object_position":null,"order":null,"overflow":null,"overflow_x":null,"overflow_y":null,"padding":null,"right":null,"top":null,"visibility":null,"width":null}},"8c38fa2b4b394d789229f0b0636780df":{"model_module":"@jupyter-widgets/controls","model_module_version":"1.5.0","model_name":"HTMLModel","state":{"_dom_classes":[],"_model_module":"@jupyter-widgets/controls","_model_module_version":"1.5.0","_model_name":"HTMLModel","_view_count":null,"_view_module":"@jupyter-widgets/controls","_view_module_version":"1.5.0","_view_name":"HTMLView","description":"","description_tooltip":null,"layout":"IPY_MODEL_ec14f865f27148b98215c14c2f2ac9dc","placeholder":"​","style":"IPY_MODEL_649b82e48ac54639be46fd55fd4777d6","value":" 60000/60000 [00:00&lt;00:00, 153660.92 examples/s]"}},"9158e625140c448cb34d3e24c896400c":{"model_module":"@jupyter-widgets/base","model_module_version":"1.2.0","model_name":"LayoutModel","state":{"_model_module":"@jupyter-widgets/base","_model_module_version":"1.2.0","_model_name":"LayoutModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"1.2.0","_view_name":"LayoutView","align_content":null,"align_items":null,"align_self":null,"border":null,"bottom":null,"display":null,"flex":null,"flex_flow":null,"grid_area":null,"grid_auto_columns":null,"grid_auto_flow":null,"grid_auto_rows":null,"grid_column":null,"grid_gap":null,"grid_row":null,"grid_template_areas":null,"grid_template_columns":null,"grid_template_rows":null,"height":null,"justify_content":null,"justify_items":null,"left":null,"margin":null,"max_height":null,"max_width":null,"min_height":null,"min_width":null,"object_fit":null,"object_position":null,"order":null,"overflow":null,"overflow_x":null,"overflow_y":null,"padding":null,"right":null,"top":null,"visibility":null,"width":null}},"9f35f431f1d8438ab954383cf0dcc29e":{"model_module":"@jupyter-widgets/controls","model_module_version":"1.5.0","model_name":"HBoxModel","state":{"_dom_classes":[],"_model_module":"@jupyter-widgets/controls","_model_module_version":"1.5.0","_model_name":"HBoxModel","_view_count":null,"_view_module":"@jupyter-widgets/controls","_view_module_version":"1.5.0","_view_name":"HBoxView","box_style":"","children":["IPY_MODEL_215139c839d8492b8321cd4dc449cc29","IPY_MODEL_a025acf68dc64f1c9c6876804a7bd1bb","IPY_MODEL_53a69fea04284390b3678e046492bf67"],"layout":"IPY_MODEL_48bb8c3e04564485b2d324c377719d6e"}},"a025acf68dc64f1c9c6876804a7bd1bb":{"model_module":"@jupyter-widgets/controls","model_module_version":"1.5.0","model_name":"FloatProgressModel","state":{"_dom_classes":[],"_model_module":"@jupyter-widgets/controls","_model_module_version":"1.5.0","_model_name":"FloatProgressModel","_view_count":null,"_view_module":"@jupyter-widgets/controls","_view_module_version":"1.5.0","_view_name":"ProgressView","bar_style":"success","description":"","description_tooltip":null,"layout":"IPY_MODEL_86e9b8db5f4c4c319056e64055921f2c","max":2595890,"min":0,"orientation":"horizontal","style":"IPY_MODEL_4d941101c2ae4af9a0f73da86012db71","value":2595890}},"a3629307ae2a41cd96d2c36481ff92f6":{"model_module":"@jupyter-widgets/base","model_module_version":"1.2.0","model_name":"LayoutModel","state":{"_model_module":"@jupyter-widgets/base","_model_module_version":"1.2.0","_model_name":"LayoutModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"1.2.0","_view_name":"LayoutView","align_content":null,"align_items":null,"align_self":null,"border":null,"bottom":null,"display":null,"flex":null,"flex_flow":null,"grid_area":null,"grid_auto_columns":null,"grid_auto_flow":null,"grid_auto_rows":null,"grid_column":null,"grid_gap":null,"grid_row":null,"grid_template_areas":null,"grid_template_columns":null,"grid_template_rows":null,"height":null,"justify_content":null,"justify_items":null,"left":null,"margin":null,"max_height":null,"max_width":null,"min_height":null,"min_width":null,"object_fit":null,"object_position":null,"order":null,"overflow":null,"overflow_x":null,"overflow_y":null,"padding":null,"right":null,"top":null,"visibility":null,"width":null}},"a6ad48b7228e40ffaebfb941f5024e18":{"model_module":"@jupyter-widgets/controls","model_module_version":"1.5.0","model_name":"ProgressStyleModel","state":{"_model_module":"@jupyter-widgets/controls","_model_module_version":"1.5.0","_model_name":"ProgressStyleModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"1.2.0","_view_name":"StyleView","bar_color":null,"description_width":""}},"ad2f3cebc7864ecdb0837e29b3e60e1e":{"model_module":"@jupyter-widgets/controls","model_module_version":"1.5.0","model_name":"DescriptionStyleModel","state":{"_model_module":"@jupyter-widgets/controls","_model_module_version":"1.5.0","_model_name":"DescriptionStyleModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"1.2.0","_view_name":"StyleView","description_width":""}},"ae33913c17764e469f00353c4e0f771e":{"model_module":"@jupyter-widgets/base","model_module_version":"1.2.0","model_name":"LayoutModel","state":{"_model_module":"@jupyter-widgets/base","_model_module_version":"1.2.0","_model_name":"LayoutModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"1.2.0","_view_name":"LayoutView","align_content":null,"align_items":null,"align_self":null,"border":null,"bottom":null,"display":null,"flex":null,"flex_flow":null,"grid_area":null,"grid_auto_columns":null,"grid_auto_flow":null,"grid_auto_rows":null,"grid_column":null,"grid_gap":null,"grid_row":null,"grid_template_areas":null,"grid_template_columns":null,"grid_template_rows":null,"height":null,"justify_content":null,"justify_items":null,"left":null,"margin":null,"max_height":null,"max_width":null,"min_height":null,"min_width":null,"object_fit":null,"object_position":null,"order":null,"overflow":null,"overflow_x":null,"overflow_y":null,"padding":null,"right":null,"top":null,"visibility":null,"width":null}},"b1d9952bbd884846a053485ed8b11085":{"model_module":"@jupyter-widgets/controls","model_module_version":"1.5.0","model_name":"DescriptionStyleModel","state":{"_model_module":"@jupyter-widgets/controls","_model_module_version":"1.5.0","_model_name":"DescriptionStyleModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"1.2.0","_view_name":"StyleView","description_width":""}},"b2fb5262ff994eea8b1b58498b59a964":{"model_module":"@jupyter-widgets/controls","model_module_version":"1.5.0","model_name":"HTMLModel","state":{"_dom_classes":[],"_model_module":"@jupyter-widgets/controls","_model_module_version":"1.5.0","_model_name":"HTMLModel","_view_count":null,"_view_module":"@jupyter-widgets/controls","_view_module_version":"1.5.0","_view_name":"HTMLView","description":"","description_tooltip":null,"layout":"IPY_MODEL_b6dfb1636cd440cbabe3e57501df1840","placeholder":"​","style":"IPY_MODEL_ad2f3cebc7864ecdb0837e29b3e60e1e","value":"train-00000-of-00001.parquet: 100%"}},"b33e18ae2e764325aee4239b414cd261":{"model_module":"@jupyter-widgets/base","model_module_version":"1.2.0","model_name":"LayoutModel","state":{"_model_module":"@jupyter-widgets/base","_model_module_version":"1.2.0","_model_name":"LayoutModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"1.2.0","_view_name":"LayoutView","align_content":null,"align_items":null,"align_self":null,"border":null,"bottom":null,"display":null,"flex":null,"flex_flow":null,"grid_area":null,"grid_auto_columns":null,"grid_auto_flow":null,"grid_auto_rows":null,"grid_column":null,"grid_gap":null,"grid_row":null,"grid_template_areas":null,"grid_template_columns":null,"grid_template_rows":null,"height":null,"justify_content":null,"justify_items":null,"left":null,"margin":null,"max_height":null,"max_width":null,"min_height":null,"min_width":null,"object_fit":null,"object_position":null,"order":null,"overflow":null,"overflow_x":null,"overflow_y":null,"padding":null,"right":null,"top":null,"visibility":null,"width":null}},"b6dfb1636cd440cbabe3e57501df1840":{"model_module":"@jupyter-widgets/base","model_module_version":"1.2.0","model_name":"LayoutModel","state":{"_model_module":"@jupyter-widgets/base","_model_module_version":"1.2.0","_model_name":"LayoutModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"1.2.0","_view_name":"LayoutView","align_content":null,"align_items":null,"align_self":null,"border":null,"bottom":null,"display":null,"flex":null,"flex_flow":null,"grid_area":null,"grid_auto_columns":null,"grid_auto_flow":null,"grid_auto_rows":null,"grid_column":null,"grid_gap":null,"grid_row":null,"grid_template_areas":null,"grid_template_columns":null,"grid_template_rows":null,"height":null,"justify_content":null,"justify_items":null,"left":null,"margin":null,"max_height":null,"max_width":null,"min_height":null,"min_width":null,"object_fit":null,"object_position":null,"order":null,"overflow":null,"overflow_x":null,"overflow_y":null,"padding":null,"right":null,"top":null,"visibility":null,"width":null}},"ba35aca969194911811f75f6d183f460":{"model_module":"@jupyter-widgets/controls","model_module_version":"1.5.0","model_name":"DescriptionStyleModel","state":{"_model_module":"@jupyter-widgets/controls","_model_module_version":"1.5.0","_model_name":"DescriptionStyleModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"1.2.0","_view_name":"StyleView","description_width":""}},"bbfed27f0e76412e8c9796ac6b7974dc":{"model_module":"@jupyter-widgets/controls","model_module_version":"1.5.0","model_name":"FloatProgressModel","state":{"_dom_classes":[],"_model_module":"@jupyter-widgets/controls","_model_module_version":"1.5.0","_model_name":"FloatProgressModel","_view_count":null,"_view_module":"@jupyter-widgets/controls","_view_module_version":"1.5.0","_view_name":"ProgressView","bar_style":"success","description":"","description_tooltip":null,"layout":"IPY_MODEL_57db71a0f61149749a49e93d32efa66e","max":15561616,"min":0,"orientation":"horizontal","style":"IPY_MODEL_4a93f58fb8dc45aeafa7311ffbf4b7d5","value":15561616}},"be88e3cfe42b45a488ca29e80f5ae1fd":{"model_module":"@jupyter-widgets/controls","model_module_version":"1.5.0","model_name":"HBoxModel","state":{"_dom_classes":[],"_model_module":"@jupyter-widgets/controls","_model_module_version":"1.5.0","_model_name":"HBoxModel","_view_count":null,"_view_module":"@jupyter-widgets/controls","_view_module_version":"1.5.0","_view_name":"HBoxView","box_style":"","children":["IPY_MODEL_808c450780184b52be37719aadc33cf2","IPY_MODEL_e739c509fd3e4345bfa2a604188fd604","IPY_MODEL_fed1a1f62af6429bbbe39b063b2c001d"],"layout":"IPY_MODEL_eb1778074ee548af9775245c57ccb488"}},"bef80a38dd12419c8b2ad17ed23f3179":{"model_module":"@jupyter-widgets/controls","model_module_version":"1.5.0","model_name":"DescriptionStyleModel","state":{"_model_module":"@jupyter-widgets/controls","_model_module_version":"1.5.0","_model_name":"DescriptionStyleModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"1.2.0","_view_name":"StyleView","description_width":""}},"c7a49015db774629813443a02ba762d9":{"model_module":"@jupyter-widgets/base","model_module_version":"1.2.0","model_name":"LayoutModel","state":{"_model_module":"@jupyter-widgets/base","_model_module_version":"1.2.0","_model_name":"LayoutModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"1.2.0","_view_name":"LayoutView","align_content":null,"align_items":null,"align_self":null,"border":null,"bottom":null,"display":null,"flex":null,"flex_flow":null,"grid_area":null,"grid_auto_columns":null,"grid_auto_flow":null,"grid_auto_rows":null,"grid_column":null,"grid_gap":null,"grid_row":null,"grid_template_areas":null,"grid_template_columns":null,"grid_template_rows":null,"height":null,"justify_content":null,"justify_items":null,"left":null,"margin":null,"max_height":null,"max_width":null,"min_height":null,"min_width":null,"object_fit":null,"object_position":null,"order":null,"overflow":null,"overflow_x":null,"overflow_y":null,"padding":null,"right":null,"top":null,"visibility":null,"width":null}},"cd5fb3e0b0b1455c909dee62dad9f8f2":{"model_module":"@jupyter-widgets/base","model_module_version":"1.2.0","model_name":"LayoutModel","state":{"_model_module":"@jupyter-widgets/base","_model_module_version":"1.2.0","_model_name":"LayoutModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"1.2.0","_view_name":"LayoutView","align_content":null,"align_items":null,"align_self":null,"border":null,"bottom":null,"display":null,"flex":null,"flex_flow":null,"grid_area":null,"grid_auto_columns":null,"grid_auto_flow":null,"grid_auto_rows":null,"grid_column":null,"grid_gap":null,"grid_row":null,"grid_template_areas":null,"grid_template_columns":null,"grid_template_rows":null,"height":null,"justify_content":null,"justify_items":null,"left":null,"margin":null,"max_height":null,"max_width":null,"min_height":null,"min_width":null,"object_fit":null,"object_position":null,"order":null,"overflow":null,"overflow_x":null,"overflow_y":null,"padding":null,"right":null,"top":null,"visibility":null,"width":null}},"d2f33a4690ce4c6ea13bf63f7f7c4579":{"model_module":"@jupyter-widgets/base","model_module_version":"1.2.0","model_name":"LayoutModel","state":{"_model_module":"@jupyter-widgets/base","_model_module_version":"1.2.0","_model_name":"LayoutModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"1.2.0","_view_name":"LayoutView","align_content":null,"align_items":null,"align_self":null,"border":null,"bottom":null,"display":null,"flex":null,"flex_flow":null,"grid_area":null,"grid_auto_columns":null,"grid_auto_flow":null,"grid_auto_rows":null,"grid_column":null,"grid_gap":null,"grid_row":null,"grid_template_areas":null,"grid_template_columns":null,"grid_template_rows":null,"height":null,"justify_content":null,"justify_items":null,"left":null,"margin":null,"max_height":null,"max_width":null,"min_height":null,"min_width":null,"object_fit":null,"object_position":null,"order":null,"overflow":null,"overflow_x":null,"overflow_y":null,"padding":null,"right":null,"top":null,"visibility":null,"width":null}},"e43eaaf9674d4c998f69ccd1b6fe6bea":{"model_module":"@jupyter-widgets/controls","model_module_version":"1.5.0","model_name":"HBoxModel","state":{"_dom_classes":[],"_model_module":"@jupyter-widgets/controls","_model_module_version":"1.5.0","_model_name":"HBoxModel","_view_count":null,"_view_module":"@jupyter-widgets/controls","_view_module_version":"1.5.0","_view_name":"HBoxView","box_style":"","children":["IPY_MODEL_21b53d49c5974ea0ac4f3f791a1b144c","IPY_MODEL_7b3973d7793a4b438388cf4884dbf7a9","IPY_MODEL_8c38fa2b4b394d789229f0b0636780df"],"layout":"IPY_MODEL_704ac242a09e45b48eb88b5e3e71fed1"}},"e5be221dbe344795afa8ee53b8f8b716":{"model_module":"@jupyter-widgets/base","model_module_version":"1.2.0","model_name":"LayoutModel","state":{"_model_module":"@jupyter-widgets/base","_model_module_version":"1.2.0","_model_name":"LayoutModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"1.2.0","_view_name":"LayoutView","align_content":null,"align_items":null,"align_self":null,"border":null,"bottom":null,"display":null,"flex":null,"flex_flow":null,"grid_area":null,"grid_auto_columns":null,"grid_auto_flow":null,"grid_auto_rows":null,"grid_column":null,"grid_gap":null,"grid_row":null,"grid_template_areas":null,"grid_template_columns":null,"grid_template_rows":null,"height":null,"justify_content":null,"justify_items":null,"left":null,"margin":null,"max_height":null,"max_width":null,"min_height":null,"min_width":null,"object_fit":null,"object_position":null,"order":null,"overflow":null,"overflow_x":null,"overflow_y":null,"padding":null,"right":null,"top":null,"visibility":null,"width":null}},"e739c509fd3e4345bfa2a604188fd604":{"model_module":"@jupyter-widgets/controls","model_module_version":"1.5.0","model_name":"FloatProgressModel","state":{"_dom_classes":[],"_model_module":"@jupyter-widgets/controls","_model_module_version":"1.5.0","_model_name":"FloatProgressModel","_view_count":null,"_view_module":"@jupyter-widgets/controls","_view_module_version":"1.5.0","_view_name":"ProgressView","bar_style":"success","description":"","description_tooltip":null,"layout":"IPY_MODEL_002b01c81f1544e6a80b915371ba9c26","max":10000,"min":0,"orientation":"horizontal","style":"IPY_MODEL_5a6cda4ec4444d25bbe619cf70c971f9","value":10000}},"e88e04ff3d0c49d682137ca58d83d66e":{"model_module":"@jupyter-widgets/controls","model_module_version":"1.5.0","model_name":"DescriptionStyleModel","state":{"_model_module":"@jupyter-widgets/controls","_model_module_version":"1.5.0","_model_name":"DescriptionStyleModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"1.2.0","_view_name":"StyleView","description_width":""}},"eb1778074ee548af9775245c57ccb488":{"model_module":"@jupyter-widgets/base","model_module_version":"1.2.0","model_name":"LayoutModel","state":{"_model_module":"@jupyter-widgets/base","_model_module_version":"1.2.0","_model_name":"LayoutModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"1.2.0","_view_name":"LayoutView","align_content":null,"align_items":null,"align_self":null,"border":null,"bottom":null,"display":null,"flex":null,"flex_flow":null,"grid_area":null,"grid_auto_columns":null,"grid_auto_flow":null,"grid_auto_rows":null,"grid_column":null,"grid_gap":null,"grid_row":null,"grid_template_areas":null,"grid_template_columns":null,"grid_template_rows":null,"height":null,"justify_content":null,"justify_items":null,"left":null,"margin":null,"max_height":null,"max_width":null,"min_height":null,"min_width":null,"object_fit":null,"object_position":null,"order":null,"overflow":null,"overflow_x":null,"overflow_y":null,"padding":null,"right":null,"top":null,"visibility":null,"width":null}},"ec14f865f27148b98215c14c2f2ac9dc":{"model_module":"@jupyter-widgets/base","model_module_version":"1.2.0","model_name":"LayoutModel","state":{"_model_module":"@jupyter-widgets/base","_model_module_version":"1.2.0","_model_name":"LayoutModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"1.2.0","_view_name":"LayoutView","align_content":null,"align_items":null,"align_self":null,"border":null,"bottom":null,"display":null,"flex":null,"flex_flow":null,"grid_area":null,"grid_auto_columns":null,"grid_auto_flow":null,"grid_auto_rows":null,"grid_column":null,"grid_gap":null,"grid_row":null,"grid_template_areas":null,"grid_template_columns":null,"grid_template_rows":null,"height":null,"justify_content":null,"justify_items":null,"left":null,"margin":null,"max_height":null,"max_width":null,"min_height":null,"min_width":null,"object_fit":null,"object_position":null,"order":null,"overflow":null,"overflow_x":null,"overflow_y":null,"padding":null,"right":null,"top":null,"visibility":null,"width":null}},"ef439eda4a0b4f4a9bf4933a59f2e849":{"model_module":"@jupyter-widgets/controls","model_module_version":"1.5.0","model_name":"DescriptionStyleModel","state":{"_model_module":"@jupyter-widgets/controls","_model_module_version":"1.5.0","_model_name":"DescriptionStyleModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"1.2.0","_view_name":"StyleView","description_width":""}},"fc3ecd75c7654eaa9e62061ed9941b89":{"model_module":"@jupyter-widgets/base","model_module_version":"1.2.0","model_name":"LayoutModel","state":{"_model_module":"@jupyter-widgets/base","_model_module_version":"1.2.0","_model_name":"LayoutModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"1.2.0","_view_name":"LayoutView","align_content":null,"align_items":null,"align_self":null,"border":null,"bottom":null,"display":null,"flex":null,"flex_flow":null,"grid_area":null,"grid_auto_columns":null,"grid_auto_flow":null,"grid_auto_rows":null,"grid_column":null,"grid_gap":null,"grid_row":null,"grid_template_areas":null,"grid_template_columns":null,"grid_template_rows":null,"height":null,"justify_content":null,"justify_items":null,"left":null,"margin":null,"max_height":null,"max_width":null,"min_height":null,"min_width":null,"object_fit":null,"object_position":null,"order":null,"overflow":null,"overflow_x":null,"overflow_y":null,"padding":null,"right":null,"top":null,"visibility":null,"width":null}},"fed1a1f62af6429bbbe39b063b2c001d":{"model_module":"@jupyter-widgets/controls","model_module_version":"1.5.0","model_name":"HTMLModel","state":{"_dom_classes":[],"_model_module":"@jupyter-widgets/controls","_model_module_version":"1.5.0","_model_name":"HTMLModel","_view_count":null,"_view_module":"@jupyter-widgets/controls","_view_module_version":"1.5.0","_view_name":"HTMLView","description":"","description_tooltip":null,"layout":"IPY_MODEL_2277619cfbf141ccafe27b5068569862","placeholder":"​","style":"IPY_MODEL_1d1ca9d541ea4ffe927cee88b248cfc5","value":" 10000/10000 [00:00&lt;00:00, 88350.80 examples/s]"}}}
+</script>
 <script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {
