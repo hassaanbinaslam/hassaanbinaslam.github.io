@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.6.40">
+<meta name="generator" content="quarto-1.7.32">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -23,8 +23,9 @@ ul.task-list li input[type="checkbox"] {
   vertical-align: middle;
 }
 /* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -35,7 +36,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
   { counter-reset: source-line 0; }
@@ -67,15 +68,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
 <link href="../images/favicon.ico" rel="icon">
-<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-549806ee2085284f45b00abea8c6df48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-84543be43ff612bda7a31c913735130b.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-ec1a476101e3788554028e6f9c82f7c1.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -129,7 +131,7 @@ gtag('config', 'G-D1ST9BH6HX', { 'anonymize_ip': true});
 <meta name="twitter:card" content="summary_large_image">
 </head>
 
-<body class="nav-fixed">
+<body class="nav-fixed quarto-light">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
@@ -261,7 +263,7 @@ gtag('config', 'G-D1ST9BH6HX', { 'anonymize_ip': true});
 <li><strong>GitHub</strong>: <a href="https://github.com/hassaanbinaslam/myblog/blob/main/posts/2022-12-14-pytorch-autoencoder.ipynb">2022-12-14-pytorch-autoencoder.ipynb</a></li>
 <li><strong>Open In Colab</strong>: <a href="https://colab.research.google.com/github/hassaanbinaslam/myblog/blob/main/posts/2022-12-14-pytorch-autoencoder.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" class="img-fluid" alt="Open In Colab"></a></li>
 </ul>
-<div id="cell-4" class="cell" data-executioninfo="{&quot;elapsed&quot;:5097,&quot;status&quot;:&quot;ok&quot;,&quot;timestamp&quot;:1671116013884,&quot;user&quot;:{&quot;displayName&quot;:&quot;Hassaan Bin Aslam&quot;,&quot;userId&quot;:&quot;13411116435427293553&quot;},&quot;user_tz&quot;:-300}" data-outputid="e3912be3-89c0-4765-e907-dff72f8ea36e" data-execution_count="1">
+<div id="cell-4" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;executionInfo&quot;,&quot;value&quot;:{&quot;elapsed&quot;:5097,&quot;status&quot;:&quot;ok&quot;,&quot;timestamp&quot;:1671116013884,&quot;user&quot;:{&quot;displayName&quot;:&quot;Hassaan Bin Aslam&quot;,&quot;userId&quot;:&quot;13411116435427293553&quot;},&quot;user_tz&quot;:-300}}" data-outputid="e3912be3-89c0-4765-e907-dff72f8ea36e" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1"></a><span class="im">from</span> platform <span class="im">import</span> python_version</span>
@@ -280,7 +282,7 @@ matplotlib==3.2.2</code></pre>
 </div>
 </div>
 <p>Let’s also set the device and seed for results reproducibility.</p>
-<div id="cell-6" class="cell" data-executioninfo="{&quot;elapsed&quot;:658,&quot;status&quot;:&quot;ok&quot;,&quot;timestamp&quot;:1671116014526,&quot;user&quot;:{&quot;displayName&quot;:&quot;Hassaan Bin Aslam&quot;,&quot;userId&quot;:&quot;13411116435427293553&quot;},&quot;user_tz&quot;:-300}" data-outputid="121b66cc-4af8-4bd2-9d5d-cd51a604d83b" data-execution_count="2">
+<div id="cell-6" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;executionInfo&quot;,&quot;value&quot;:{&quot;elapsed&quot;:658,&quot;status&quot;:&quot;ok&quot;,&quot;timestamp&quot;:1671116014526,&quot;user&quot;:{&quot;displayName&quot;:&quot;Hassaan Bin Aslam&quot;,&quot;userId&quot;:&quot;13411116435427293553&quot;},&quot;user_tz&quot;:-300}}" data-outputid="121b66cc-4af8-4bd2-9d5d-cd51a604d83b" data-execution_count="2">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1"></a><span class="im">import</span> torch, os, random</span>
@@ -348,7 +350,7 @@ Random seed set as 42</code></pre>
 <section id="load-mnist-dataset" class="level3">
 <h3 class="anchored" data-anchor-id="load-mnist-dataset">Load MNIST Dataset</h3>
 <p>In the next cell, I downloaded the MNIST dataset and created a DataLoader with a batch size of 256.</p>
-<div id="cell-10" class="cell" data-executioninfo="{&quot;elapsed&quot;:1437,&quot;status&quot;:&quot;ok&quot;,&quot;timestamp&quot;:1671116015944,&quot;user&quot;:{&quot;displayName&quot;:&quot;Hassaan Bin Aslam&quot;,&quot;userId&quot;:&quot;13411116435427293553&quot;},&quot;user_tz&quot;:-300}" data-outputid="22ab80e0-d966-4080-ad6a-bdb41ddc13bd" data-execution_count="3">
+<div id="cell-10" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;executionInfo&quot;,&quot;value&quot;:{&quot;elapsed&quot;:1437,&quot;status&quot;:&quot;ok&quot;,&quot;timestamp&quot;:1671116015944,&quot;user&quot;:{&quot;displayName&quot;:&quot;Hassaan Bin Aslam&quot;,&quot;userId&quot;:&quot;13411116435427293553&quot;},&quot;user_tz&quot;:-300}}" data-outputid="22ab80e0-d966-4080-ad6a-bdb41ddc13bd" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1"></a><span class="im">from</span> torchvision <span class="im">import</span> datasets</span>
 <span id="cb5-2"><a href="#cb5-2"></a><span class="im">from</span> torch.utils.data <span class="im">import</span> DataLoader</span>
 <span id="cb5-3"><a href="#cb5-3"></a><span class="im">from</span> torchvision <span class="im">import</span> transforms</span>
@@ -421,7 +423,7 @@ Downloading http://yann.lecun.com/exdb/mnist/t10k-labels-idx1-ubyte.gz to data/M
 <li>Scales image pixel values from the range [0, 255] to range [0.0, 1.0]</li>
 </ul>
 <p>Let’s check the dimension of our dataset.</p>
-<div id="cell-12" class="cell" data-executioninfo="{&quot;elapsed&quot;:15,&quot;status&quot;:&quot;ok&quot;,&quot;timestamp&quot;:1671116015945,&quot;user&quot;:{&quot;displayName&quot;:&quot;Hassaan Bin Aslam&quot;,&quot;userId&quot;:&quot;13411116435427293553&quot;},&quot;user_tz&quot;:-300}" data-outputid="993e5774-55d4-49b6-f823-585bb8555f24" data-execution_count="4">
+<div id="cell-12" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;executionInfo&quot;,&quot;value&quot;:{&quot;elapsed&quot;:15,&quot;status&quot;:&quot;ok&quot;,&quot;timestamp&quot;:1671116015945,&quot;user&quot;:{&quot;displayName&quot;:&quot;Hassaan Bin Aslam&quot;,&quot;userId&quot;:&quot;13411116435427293553&quot;},&quot;user_tz&quot;:-300}}" data-outputid="993e5774-55d4-49b6-f823-585bb8555f24" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1"></a><span class="cf">for</span> images, labels <span class="kw">in</span> train_loader:</span>
 <span id="cb11-2"><a href="#cb11-2"></a>    <span class="bu">print</span>(</span>
 <span id="cb11-3"><a href="#cb11-3"></a>        <span class="st">"Image batch dimensions:"</span>, images.shape</span>
@@ -442,7 +444,7 @@ Image label dimensions: torch.Size([256])</code></pre>
 <li>Latent space dimension (<code>latent_dim</code>) is kept configurable so we can use the same model class to configure autoencoder having different latent spaces</li>
 <li>I have used <code>torch.sigmoid()</code> in the forward pass. This is to squash the data into the range [0, 1]. This is done because the input image received by the model is assumed to be in this range (remember <code>transforms.ToTensor()</code> function while creating datasets). So we want the image created (or returned) by the model to be in the same distribution range.</li>
 </ul>
-<div id="cell-14" class="cell" data-executioninfo="{&quot;elapsed&quot;:9,&quot;status&quot;:&quot;ok&quot;,&quot;timestamp&quot;:1671116015947,&quot;user&quot;:{&quot;displayName&quot;:&quot;Hassaan Bin Aslam&quot;,&quot;userId&quot;:&quot;13411116435427293553&quot;},&quot;user_tz&quot;:-300}" data-execution_count="5">
+<div id="cell-14" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;executionInfo&quot;,&quot;value&quot;:{&quot;elapsed&quot;:9,&quot;status&quot;:&quot;ok&quot;,&quot;timestamp&quot;:1671116015947,&quot;user&quot;:{&quot;displayName&quot;:&quot;Hassaan Bin Aslam&quot;,&quot;userId&quot;:&quot;13411116435427293553&quot;},&quot;user_tz&quot;:-300}}" data-execution_count="5">
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1"></a><span class="im">import</span> torch.nn <span class="im">as</span> nn</span>
 <span id="cb13-2"><a href="#cb13-2"></a></span>
 <span id="cb13-3"><a href="#cb13-3"></a><span class="kw">class</span> AutoEncoder(nn.Module):</span>
@@ -480,7 +482,7 @@ Image label dimensions: torch.Size([256])</code></pre>
 <li>We want to try an extreme case, and you will be surprised to see that even with two features in latent space, we can construct the whole image with acceptable quality.</li>
 <li>We want to visualize the 2D latent space. Visualizing (plotting) latent space with higher dimensions will not be possible.</li>
 </ul>
-<div id="cell-16" class="cell" data-executioninfo="{&quot;elapsed&quot;:4743,&quot;status&quot;:&quot;ok&quot;,&quot;timestamp&quot;:1671116020682,&quot;user&quot;:{&quot;displayName&quot;:&quot;Hassaan Bin Aslam&quot;,&quot;userId&quot;:&quot;13411116435427293553&quot;},&quot;user_tz&quot;:-300}" data-execution_count="6">
+<div id="cell-16" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;executionInfo&quot;,&quot;value&quot;:{&quot;elapsed&quot;:4743,&quot;status&quot;:&quot;ok&quot;,&quot;timestamp&quot;:1671116020682,&quot;user&quot;:{&quot;displayName&quot;:&quot;Hassaan Bin Aslam&quot;,&quot;userId&quot;:&quot;13411116435427293553&quot;},&quot;user_tz&quot;:-300}}" data-execution_count="6">
 <div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1"></a>learning_rate <span class="op">=</span> <span class="fl">0.005</span></span>
 <span id="cb14-2"><a href="#cb14-2"></a>num_features <span class="op">=</span> <span class="dv">28</span> <span class="op">*</span> <span class="dv">28</span>  <span class="co"># image height X image width = 784</span></span>
 <span id="cb14-3"><a href="#cb14-3"></a>latent_dim <span class="op">=</span> <span class="dv">2</span></span>
@@ -490,7 +492,7 @@ Image label dimensions: torch.Size([256])</code></pre>
 <span id="cb14-7"><a href="#cb14-7"></a>optimizer <span class="op">=</span> torch.optim.Adam(model.parameters(), lr<span class="op">=</span>learning_rate)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>We have configured our model and optimizer, and we can start training our model.</p>
-<div id="cell-18" class="cell" data-executioninfo="{&quot;elapsed&quot;:57384,&quot;status&quot;:&quot;ok&quot;,&quot;timestamp&quot;:1671116078022,&quot;user&quot;:{&quot;displayName&quot;:&quot;Hassaan Bin Aslam&quot;,&quot;userId&quot;:&quot;13411116435427293553&quot;},&quot;user_tz&quot;:-300}" data-outputid="3308e8c0-c938-44a1-8a5f-8ab8dcfe9c69" data-execution_count="7">
+<div id="cell-18" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;executionInfo&quot;,&quot;value&quot;:{&quot;elapsed&quot;:57384,&quot;status&quot;:&quot;ok&quot;,&quot;timestamp&quot;:1671116078022,&quot;user&quot;:{&quot;displayName&quot;:&quot;Hassaan Bin Aslam&quot;,&quot;userId&quot;:&quot;13411116435427293553&quot;},&quot;user_tz&quot;:-300}}" data-outputid="3308e8c0-c938-44a1-8a5f-8ab8dcfe9c69" data-execution_count="7">
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1"></a><span class="im">import</span> time</span>
 <span id="cb15-2"><a href="#cb15-2"></a><span class="im">import</span> torch.nn.functional <span class="im">as</span> F</span>
 <span id="cb15-3"><a href="#cb15-3"></a></span>
@@ -580,7 +582,7 @@ Total Training Time: 0.96 min</code></pre>
 <li><code>decoded</code> = decoded or reconstructed images from latent space. This is because it runs the forward pass when we predict from our model (<code>decoded = model(features)</code>). And we know that during the forward pass, we will first encode the input image, then use the output (latent representation) to reconstruct the image using the decoder.</li>
 </ul>
 <p>Let’s plot these original images and decoded ones to see how much we are successful in doing that.</p>
-<div id="cell-20" class="cell" data-executioninfo="{&quot;elapsed&quot;:5175,&quot;status&quot;:&quot;ok&quot;,&quot;timestamp&quot;:1671116083068,&quot;user&quot;:{&quot;displayName&quot;:&quot;Hassaan Bin Aslam&quot;,&quot;userId&quot;:&quot;13411116435427293553&quot;},&quot;user_tz&quot;:-300}" data-outputid="e2e775a4-7b12-4b5e-f8b2-be223c38a3de" data-execution_count="8">
+<div id="cell-20" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;executionInfo&quot;,&quot;value&quot;:{&quot;elapsed&quot;:5175,&quot;status&quot;:&quot;ok&quot;,&quot;timestamp&quot;:1671116083068,&quot;user&quot;:{&quot;displayName&quot;:&quot;Hassaan Bin Aslam&quot;,&quot;userId&quot;:&quot;13411116435427293553&quot;},&quot;user_tz&quot;:-300}}" data-outputid="e2e775a4-7b12-4b5e-f8b2-be223c38a3de" data-execution_count="8">
 <div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb17-2"><a href="#cb17-2"></a><span class="op">%</span>matplotlib inline</span>
 <span id="cb17-3"><a href="#cb17-3"></a></span>
@@ -606,7 +608,7 @@ Total Training Time: 0.96 min</code></pre>
 </div>
 </div>
 <p>These results are remarkable, considering we only use information from two pixels to generate a complete image of 784 pixels. So what information is stored in those two pixels (embedding)? Let’s also print embeddings for the above generated images.</p>
-<div id="cell-22" class="cell" data-executioninfo="{&quot;elapsed&quot;:27,&quot;status&quot;:&quot;ok&quot;,&quot;timestamp&quot;:1671116083069,&quot;user&quot;:{&quot;displayName&quot;:&quot;Hassaan Bin Aslam&quot;,&quot;userId&quot;:&quot;13411116435427293553&quot;},&quot;user_tz&quot;:-300}" data-outputid="596c5345-2cf7-4067-ecbc-43f2e172fb18" data-execution_count="9">
+<div id="cell-22" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;executionInfo&quot;,&quot;value&quot;:{&quot;elapsed&quot;:27,&quot;status&quot;:&quot;ok&quot;,&quot;timestamp&quot;:1671116083069,&quot;user&quot;:{&quot;displayName&quot;:&quot;Hassaan Bin Aslam&quot;,&quot;userId&quot;:&quot;13411116435427293553&quot;},&quot;user_tz&quot;:-300}}" data-outputid="596c5345-2cf7-4067-ecbc-43f2e172fb18" data-execution_count="9">
 <div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1"></a><span class="cf">for</span> feature, target <span class="kw">in</span> <span class="bu">zip</span>(orig_images, label_images):</span>
 <span id="cb18-2"><a href="#cb18-2"></a>    feature <span class="op">=</span> feature.view(<span class="op">-</span><span class="dv">1</span>, num_features).to(device)</span>
 <span id="cb18-3"><a href="#cb18-3"></a>    <span class="cf">with</span> torch.no_grad():</span>
@@ -632,7 +634,7 @@ Label: 0, Embedding: [[ 13.757708 -11.047596]]</code></pre>
 </div>
 </div>
 <p>By analyzing these values, we can say that our autoencoder has learned to use slightly different ranges for embeddings each of the digits. Next, let’s try to visualize the distribution of latent space for the complete training set. For this, I have used a helper function. This function creates scatter plots of the latent space for all the digits.</p>
-<div id="cell-24" class="cell" data-executioninfo="{&quot;elapsed&quot;:20,&quot;status&quot;:&quot;ok&quot;,&quot;timestamp&quot;:1671116083072,&quot;user&quot;:{&quot;displayName&quot;:&quot;Hassaan Bin Aslam&quot;,&quot;userId&quot;:&quot;13411116435427293553&quot;},&quot;user_tz&quot;:-300}" data-execution_count="10">
+<div id="cell-24" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;executionInfo&quot;,&quot;value&quot;:{&quot;elapsed&quot;:20,&quot;status&quot;:&quot;ok&quot;,&quot;timestamp&quot;:1671116083072,&quot;user&quot;:{&quot;displayName&quot;:&quot;Hassaan Bin Aslam&quot;,&quot;userId&quot;:&quot;13411116435427293553&quot;},&quot;user_tz&quot;:-300}}" data-execution_count="10">
 <div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb20-2"><a href="#cb20-2"></a><span class="im">import</span> matplotlib.colors <span class="im">as</span> mcolors</span>
 <span id="cb20-3"><a href="#cb20-3"></a></span>
@@ -663,7 +665,7 @@ Label: 0, Embedding: [[ 13.757708 -11.047596]]</code></pre>
 <span id="cb20-28"><a href="#cb20-28"></a>    plt.legend()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Let’s create the plot.</p>
-<div id="cell-26" class="cell" data-executioninfo="{&quot;elapsed&quot;:6365,&quot;status&quot;:&quot;ok&quot;,&quot;timestamp&quot;:1671116089418,&quot;user&quot;:{&quot;displayName&quot;:&quot;Hassaan Bin Aslam&quot;,&quot;userId&quot;:&quot;13411116435427293553&quot;},&quot;user_tz&quot;:-300}" data-outputid="564f8a31-47d7-4141-85a3-518c9d606f44" data-execution_count="11">
+<div id="cell-26" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;executionInfo&quot;,&quot;value&quot;:{&quot;elapsed&quot;:6365,&quot;status&quot;:&quot;ok&quot;,&quot;timestamp&quot;:1671116089418,&quot;user&quot;:{&quot;displayName&quot;:&quot;Hassaan Bin Aslam&quot;,&quot;userId&quot;:&quot;13411116435427293553&quot;},&quot;user_tz&quot;:-300}}" data-outputid="564f8a31-47d7-4141-85a3-518c9d606f44" data-execution_count="11">
 <div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1"></a>plot_latent_space_with_labels(</span>
 <span id="cb21-2"><a href="#cb21-2"></a>    num_classes<span class="op">=</span><span class="bu">len</span>(train_dataset.classes),  <span class="co"># 10</span></span>
 <span id="cb21-3"><a href="#cb21-3"></a>    data_loader<span class="op">=</span>train_loader,</span>
@@ -683,7 +685,7 @@ Label: 0, Embedding: [[ 13.757708 -11.047596]]</code></pre>
 </div>
 <p>This plot tells us different digits are occupying different areas in the latent space. If we want to draw a sample for a number (e.g., 0), we must take the point from its range. It is a 2D plot, so If I take a sample from it, I will get two points (x, y), and then I can use that as an embedding. I can then reconstruct an image using the <code>decoder</code> of my model from this embedding.</p>
 <p>In the next cell, I have created a helper function that can take the embeddings list and decode an image from it.</p>
-<div id="cell-28" class="cell" data-executioninfo="{&quot;elapsed&quot;:81,&quot;status&quot;:&quot;ok&quot;,&quot;timestamp&quot;:1671116089428,&quot;user&quot;:{&quot;displayName&quot;:&quot;Hassaan Bin Aslam&quot;,&quot;userId&quot;:&quot;13411116435427293553&quot;},&quot;user_tz&quot;:-300}" data-execution_count="12">
+<div id="cell-28" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;executionInfo&quot;,&quot;value&quot;:{&quot;elapsed&quot;:81,&quot;status&quot;:&quot;ok&quot;,&quot;timestamp&quot;:1671116089428,&quot;user&quot;:{&quot;displayName&quot;:&quot;Hassaan Bin Aslam&quot;,&quot;userId&quot;:&quot;13411116435427293553&quot;},&quot;user_tz&quot;:-300}}" data-execution_count="12">
 <div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1"></a><span class="kw">def</span> decode_images(model, embedding_list):</span>
 <span id="cb22-2"><a href="#cb22-2"></a>    fig, axs <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="bu">len</span>(embedding_list), figsize<span class="op">=</span>(<span class="dv">20</span>, <span class="fl">2.5</span>))</span>
 <span id="cb22-3"><a href="#cb22-3"></a></span>
@@ -701,7 +703,7 @@ Label: 0, Embedding: [[ 13.757708 -11.047596]]</code></pre>
 <span id="cb22-15"><a href="#cb22-15"></a>    plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Next, I created some embeddings using the above plot.</p>
-<div id="cell-30" class="cell" data-executioninfo="{&quot;elapsed&quot;:78,&quot;status&quot;:&quot;ok&quot;,&quot;timestamp&quot;:1671116089433,&quot;user&quot;:{&quot;displayName&quot;:&quot;Hassaan Bin Aslam&quot;,&quot;userId&quot;:&quot;13411116435427293553&quot;},&quot;user_tz&quot;:-300}" data-execution_count="13">
+<div id="cell-30" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;executionInfo&quot;,&quot;value&quot;:{&quot;elapsed&quot;:78,&quot;status&quot;:&quot;ok&quot;,&quot;timestamp&quot;:1671116089433,&quot;user&quot;:{&quot;displayName&quot;:&quot;Hassaan Bin Aslam&quot;,&quot;userId&quot;:&quot;13411116435427293553&quot;},&quot;user_tz&quot;:-300}}" data-execution_count="13">
 <div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1"></a>embedding_list <span class="op">=</span> [</span>
 <span id="cb23-2"><a href="#cb23-2"></a>    (<span class="st">"0"</span>, [<span class="fl">5.0</span>, <span class="op">-</span><span class="fl">10.0</span>]),</span>
 <span id="cb23-3"><a href="#cb23-3"></a>    (<span class="st">"1"</span>, [<span class="op">-</span><span class="fl">4.0</span>, <span class="fl">13.0</span>]),</span>
@@ -726,7 +728,7 @@ Label: 0, Embedding: [[ 13.757708 -11.047596]]</code></pre>
 <li>Digit 3 image generated from the embedding range not visible in the plot</li>
 </ul></li>
 </ul>
-<div id="cell-32" class="cell" data-executioninfo="{&quot;elapsed&quot;:1085,&quot;status&quot;:&quot;ok&quot;,&quot;timestamp&quot;:1671116090443,&quot;user&quot;:{&quot;displayName&quot;:&quot;Hassaan Bin Aslam&quot;,&quot;userId&quot;:&quot;13411116435427293553&quot;},&quot;user_tz&quot;:-300}" data-outputid="1c6be446-d706-47df-883c-01589b6e5ae4" data-execution_count="14">
+<div id="cell-32" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;executionInfo&quot;,&quot;value&quot;:{&quot;elapsed&quot;:1085,&quot;status&quot;:&quot;ok&quot;,&quot;timestamp&quot;:1671116090443,&quot;user&quot;:{&quot;displayName&quot;:&quot;Hassaan Bin Aslam&quot;,&quot;userId&quot;:&quot;13411116435427293553&quot;},&quot;user_tz&quot;:-300}}" data-outputid="1c6be446-d706-47df-883c-01589b6e5ae4" data-execution_count="14">
 <div class="sourceCode cell-code" id="cb24"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1"></a>decode_images(model, embedding_list)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div>
@@ -741,7 +743,7 @@ Label: 0, Embedding: [[ 13.757708 -11.047596]]</code></pre>
 <h2 class="anchored" data-anchor-id="autoencoder-with-latent-space-dimension5-10-20-50">AutoEncoder with latent space dimension=[5, 10, 20, 50]</h2>
 <p>We have seen the quality of decoded images from 2d latent space. Our understanding is that if we increase the dimension, it will retain more information and improve the image quality.</p>
 <p>Next, I have created a function that can take a model to train it. We will iteratively create models with increasing dimensions and use this function to train them.</p>
-<div id="cell-34" class="cell" data-executioninfo="{&quot;elapsed&quot;:95,&quot;status&quot;:&quot;ok&quot;,&quot;timestamp&quot;:1671116090447,&quot;user&quot;:{&quot;displayName&quot;:&quot;Hassaan Bin Aslam&quot;,&quot;userId&quot;:&quot;13411116435427293553&quot;},&quot;user_tz&quot;:-300}" data-execution_count="15">
+<div id="cell-34" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;executionInfo&quot;,&quot;value&quot;:{&quot;elapsed&quot;:95,&quot;status&quot;:&quot;ok&quot;,&quot;timestamp&quot;:1671116090447,&quot;user&quot;:{&quot;displayName&quot;:&quot;Hassaan Bin Aslam&quot;,&quot;userId&quot;:&quot;13411116435427293553&quot;},&quot;user_tz&quot;:-300}}" data-execution_count="15">
 <div class="sourceCode cell-code" id="cb25"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1"></a><span class="kw">def</span> training_loop(train_loader, model, optimizer, device, num_epochs<span class="op">=</span><span class="dv">10</span>):</span>
 <span id="cb25-2"><a href="#cb25-2"></a>    start_time <span class="op">=</span> time.time()</span>
 <span id="cb25-3"><a href="#cb25-3"></a>    <span class="cf">for</span> epoch <span class="kw">in</span> <span class="bu">range</span>(num_epochs):</span>
@@ -764,7 +766,7 @@ Label: 0, Embedding: [[ 13.757708 -11.047596]]</code></pre>
 <span id="cb25-20"><a href="#cb25-20"></a></span>
 <span id="cb25-21"><a href="#cb25-21"></a>    <span class="bu">print</span>(<span class="st">"Total Training Time: </span><span class="sc">%.2f</span><span class="st"> min"</span> <span class="op">%</span> ((time.time() <span class="op">-</span> start_time) <span class="op">/</span> <span class="dv">60</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div id="cell-35" class="cell" data-executioninfo="{&quot;elapsed&quot;:218792,&quot;status&quot;:&quot;ok&quot;,&quot;timestamp&quot;:1671116309149,&quot;user&quot;:{&quot;displayName&quot;:&quot;Hassaan Bin Aslam&quot;,&quot;userId&quot;:&quot;13411116435427293553&quot;},&quot;user_tz&quot;:-300}" data-outputid="7ba1149d-ceda-4145-f3e7-3a4780272810" data-execution_count="16">
+<div id="cell-35" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;executionInfo&quot;,&quot;value&quot;:{&quot;elapsed&quot;:218792,&quot;status&quot;:&quot;ok&quot;,&quot;timestamp&quot;:1671116309149,&quot;user&quot;:{&quot;displayName&quot;:&quot;Hassaan Bin Aslam&quot;,&quot;userId&quot;:&quot;13411116435427293553&quot;},&quot;user_tz&quot;:-300}}" data-outputid="7ba1149d-ceda-4145-f3e7-3a4780272810" data-execution_count="16">
 <div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1"></a>models_list <span class="op">=</span> [model]  <span class="co"># model with latent_dim=2</span></span>
 <span id="cb26-2"><a href="#cb26-2"></a>latent_dimensions <span class="op">=</span> [<span class="dv">5</span>, <span class="dv">10</span>, <span class="dv">20</span>, <span class="dv">50</span>]</span>
 <span id="cb26-3"><a href="#cb26-3"></a></span>
@@ -836,7 +838,7 @@ Total Training Time: 0.91 min</code></pre>
 </div>
 </div>
 <p>Verify the latent space dimension of our models.</p>
-<div id="cell-37" class="cell" data-executioninfo="{&quot;elapsed&quot;:47,&quot;status&quot;:&quot;ok&quot;,&quot;timestamp&quot;:1671116309150,&quot;user&quot;:{&quot;displayName&quot;:&quot;Hassaan Bin Aslam&quot;,&quot;userId&quot;:&quot;13411116435427293553&quot;},&quot;user_tz&quot;:-300}" data-outputid="96d970ae-b23c-4293-eabc-db657e5371d8" data-execution_count="17">
+<div id="cell-37" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;executionInfo&quot;,&quot;value&quot;:{&quot;elapsed&quot;:47,&quot;status&quot;:&quot;ok&quot;,&quot;timestamp&quot;:1671116309150,&quot;user&quot;:{&quot;displayName&quot;:&quot;Hassaan Bin Aslam&quot;,&quot;userId&quot;:&quot;13411116435427293553&quot;},&quot;user_tz&quot;:-300}}" data-outputid="96d970ae-b23c-4293-eabc-db657e5371d8" data-execution_count="17">
 <div class="sourceCode cell-code" id="cb28"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1"></a><span class="cf">for</span> model_n <span class="kw">in</span> models_list:</span>
 <span id="cb28-2"><a href="#cb28-2"></a>    <span class="bu">print</span>(model_n.latent_dim)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -849,7 +851,7 @@ Total Training Time: 0.91 min</code></pre>
 </div>
 <p>Next, we will compare the results from these models. This time I have used the test dataset that our model has not seen. From the results, you may note that the results from the models with latent_dim 2 and 5 are blurry and make mistakes while decoding the input image. In comparison, the results from the rest are more accurate and of better quality.</p>
 <p>It also tells us that we can significantly compress the images without losing much information. For example, our <code>model_50</code> (model with latent_dim=50) can generate an original image with 16x less information. But this performance also depends on the type of images used. For example, we have black-and-white digit images with large white spaces, so we were able to compress them significantly. On the other hand, we may get different performances with images having more patterns.</p>
-<div id="cell-39" class="cell" data-executioninfo="{&quot;elapsed&quot;:14701,&quot;status&quot;:&quot;ok&quot;,&quot;timestamp&quot;:1671116323829,&quot;user&quot;:{&quot;displayName&quot;:&quot;Hassaan Bin Aslam&quot;,&quot;userId&quot;:&quot;13411116435427293553&quot;},&quot;user_tz&quot;:-300}" data-outputid="c77d6ff8-bbaa-4b7e-e812-65300e7ebde7" data-execution_count="18">
+<div id="cell-39" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;executionInfo&quot;,&quot;value&quot;:{&quot;elapsed&quot;:14701,&quot;status&quot;:&quot;ok&quot;,&quot;timestamp&quot;:1671116323829,&quot;user&quot;:{&quot;displayName&quot;:&quot;Hassaan Bin Aslam&quot;,&quot;userId&quot;:&quot;13411116435427293553&quot;},&quot;user_tz&quot;:-300}}" data-outputid="c77d6ff8-bbaa-4b7e-e812-65300e7ebde7" data-execution_count="18">
 <div class="sourceCode cell-code" id="cb30"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1"></a>img_sample_count <span class="op">=</span> <span class="dv">25</span></span>
 <span id="cb30-2"><a href="#cb30-2"></a></span>
 <span id="cb30-3"><a href="#cb30-3"></a><span class="cf">for</span> idx <span class="kw">in</span> <span class="bu">range</span>(img_sample_count):</span>
@@ -1061,7 +1063,7 @@ Total Training Time: 0.91 min</code></pre>
 </div>
 <p>From model_50, we are getting considerably good results compared to model_2 and model_5. The last time we visualized the embeddings for model_2, we also found that the latent space of digits was overlapping. Since the output quality of model_50 has improved, the overlap in the latent space should be less. Let’s confirm this assumption.</p>
 <p>For this, we will first gather the embeddings of the test images. Remember that the output from the <code>model.encoder</code> is the embedding of an image (or compressed representation).</p>
-<div id="cell-41" class="cell" data-executioninfo="{&quot;elapsed&quot;:48,&quot;status&quot;:&quot;ok&quot;,&quot;timestamp&quot;:1671116323830,&quot;user&quot;:{&quot;displayName&quot;:&quot;Hassaan Bin Aslam&quot;,&quot;userId&quot;:&quot;13411116435427293553&quot;},&quot;user_tz&quot;:-300}" data-outputid="b94f4eaf-a8a4-4953-8ccf-d27022f3443e" data-execution_count="19">
+<div id="cell-41" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;executionInfo&quot;,&quot;value&quot;:{&quot;elapsed&quot;:48,&quot;status&quot;:&quot;ok&quot;,&quot;timestamp&quot;:1671116323830,&quot;user&quot;:{&quot;displayName&quot;:&quot;Hassaan Bin Aslam&quot;,&quot;userId&quot;:&quot;13411116435427293553&quot;},&quot;user_tz&quot;:-300}}" data-outputid="b94f4eaf-a8a4-4953-8ccf-d27022f3443e" data-execution_count="19">
 <div class="sourceCode cell-code" id="cb31"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1"></a>latent_vectors <span class="op">=</span> []</span>
 <span id="cb31-2"><a href="#cb31-2"></a>classes <span class="op">=</span> []</span>
 <span id="cb31-3"><a href="#cb31-3"></a>model_50 <span class="op">=</span> models_list[<span class="op">-</span><span class="dv">1</span>]</span>
@@ -1072,7 +1074,7 @@ Total Training Time: 0.91 min</code></pre>
 </div>
 </div>
 <p>In the next cell, I am collecting the embeddings. Note that each fetch from the DataLoader iterator returns a batch of images (batch_size=256).</p>
-<div id="cell-43" class="cell" data-executioninfo="{&quot;elapsed&quot;:727,&quot;status&quot;:&quot;ok&quot;,&quot;timestamp&quot;:1671116324514,&quot;user&quot;:{&quot;displayName&quot;:&quot;Hassaan Bin Aslam&quot;,&quot;userId&quot;:&quot;13411116435427293553&quot;},&quot;user_tz&quot;:-300}" data-execution_count="20">
+<div id="cell-43" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;executionInfo&quot;,&quot;value&quot;:{&quot;elapsed&quot;:727,&quot;status&quot;:&quot;ok&quot;,&quot;timestamp&quot;:1671116324514,&quot;user&quot;:{&quot;displayName&quot;:&quot;Hassaan Bin Aslam&quot;,&quot;userId&quot;:&quot;13411116435427293553&quot;},&quot;user_tz&quot;:-300}}" data-execution_count="20">
 <div class="sourceCode cell-code" id="cb33"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1"></a><span class="cf">for</span> images_batch,labels_batch <span class="kw">in</span> test_loader:</span>
 <span id="cb33-2"><a href="#cb33-2"></a>    <span class="co"># images_batch.shape = torch.Size([256, 1, 28, 28]</span></span>
 <span id="cb33-3"><a href="#cb33-3"></a>    <span class="co"># labels_batch.shape = torch.Size([256])</span></span>
@@ -1091,13 +1093,13 @@ Total Training Time: 0.91 min</code></pre>
 <li><code>latent_vectors[0].shape = torch.Size([256, 50]</code>. It means that each latent vector holds embeddings of size 50 for a batch of 256 images</li>
 <li><code>torch.cat(latent_vectors).shape = torch.Size([10000, 50])</code>. It means that if we concatenate the embeddings of all the images, we will have a tensor of 10,000 rows with 50 dimensions (or features/columns)</li>
 </ul>
-<div id="cell-45" class="cell" data-executioninfo="{&quot;elapsed&quot;:47,&quot;status&quot;:&quot;ok&quot;,&quot;timestamp&quot;:1671116324517,&quot;user&quot;:{&quot;displayName&quot;:&quot;Hassaan Bin Aslam&quot;,&quot;userId&quot;:&quot;13411116435427293553&quot;},&quot;user_tz&quot;:-300}" data-outputid="a421db15-39a1-4608-f6d9-580e728049ed" data-execution_count="21">
+<div id="cell-45" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;executionInfo&quot;,&quot;value&quot;:{&quot;elapsed&quot;:47,&quot;status&quot;:&quot;ok&quot;,&quot;timestamp&quot;:1671116324517,&quot;user&quot;:{&quot;displayName&quot;:&quot;Hassaan Bin Aslam&quot;,&quot;userId&quot;:&quot;13411116435427293553&quot;},&quot;user_tz&quot;:-300}}" data-outputid="a421db15-39a1-4608-f6d9-580e728049ed" data-execution_count="21">
 <div class="sourceCode cell-code" id="cb34"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1"></a><span class="bu">len</span>(latent_vectors), latent_vectors[<span class="dv">0</span>].shape, torch.cat(latent_vectors).shape</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="21">
 <pre><code>(40, torch.Size([256, 50]), torch.Size([10000, 50]))</code></pre>
 </div>
 </div>
-<div id="cell-46" class="cell" data-executioninfo="{&quot;elapsed&quot;:40,&quot;status&quot;:&quot;ok&quot;,&quot;timestamp&quot;:1671116324520,&quot;user&quot;:{&quot;displayName&quot;:&quot;Hassaan Bin Aslam&quot;,&quot;userId&quot;:&quot;13411116435427293553&quot;},&quot;user_tz&quot;:-300}" data-outputid="73a801ca-e9f6-4d3a-883e-baba57f77f64" data-execution_count="22">
+<div id="cell-46" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;executionInfo&quot;,&quot;value&quot;:{&quot;elapsed&quot;:40,&quot;status&quot;:&quot;ok&quot;,&quot;timestamp&quot;:1671116324520,&quot;user&quot;:{&quot;displayName&quot;:&quot;Hassaan Bin Aslam&quot;,&quot;userId&quot;:&quot;13411116435427293553&quot;},&quot;user_tz&quot;:-300}}" data-outputid="73a801ca-e9f6-4d3a-883e-baba57f77f64" data-execution_count="22">
 <div class="sourceCode cell-code" id="cb36"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1"></a><span class="co"># concatenate all test images embeddings</span></span>
 <span id="cb36-2"><a href="#cb36-2"></a>latent_vectors_cat <span class="op">=</span> torch.cat(latent_vectors).cpu().detach().numpy()</span>
 <span id="cb36-3"><a href="#cb36-3"></a>latent_vectors_cat.shape</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -1108,7 +1110,7 @@ Total Training Time: 0.91 min</code></pre>
 <p>Now that we have all the embeddings, we can visualize them too. But how can we visualize embeddings with 50 features? We can use <a href="https://scikit-learn.org/stable/modules/generated/sklearn.manifold.TSNE.html">sklearn.manifold.TSNE.html</a>.</p>
 <p><code>chatGPT prompt &gt; explain T-distributed Stochastic Neighbor Embedding</code></p>
 <p>T-distributed Stochastic Neighbor Embedding (t-SNE) is a machine learning algorithm that is used to reduce the dimensionality of high-dimensional data and visualize it in a lower-dimensional space. It works by measuring the similarity between the data points and representing them as points in a lower-dimensional space, such that similar data points are grouped together, and dissimilar ones are separated. This allows for better visualization and understanding of the structure of the data.</p>
-<div id="cell-48" class="cell" data-executioninfo="{&quot;elapsed&quot;:89663,&quot;status&quot;:&quot;ok&quot;,&quot;timestamp&quot;:1671116414159,&quot;user&quot;:{&quot;displayName&quot;:&quot;Hassaan Bin Aslam&quot;,&quot;userId&quot;:&quot;13411116435427293553&quot;},&quot;user_tz&quot;:-300}" data-outputid="6bad205c-bc7a-498c-b602-d408af780fad" data-execution_count="23">
+<div id="cell-48" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;executionInfo&quot;,&quot;value&quot;:{&quot;elapsed&quot;:89663,&quot;status&quot;:&quot;ok&quot;,&quot;timestamp&quot;:1671116414159,&quot;user&quot;:{&quot;displayName&quot;:&quot;Hassaan Bin Aslam&quot;,&quot;userId&quot;:&quot;13411116435427293553&quot;},&quot;user_tz&quot;:-300}}" data-outputid="6bad205c-bc7a-498c-b602-d408af780fad" data-execution_count="23">
 <div class="sourceCode cell-code" id="cb38"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1"></a><span class="im">from</span> sklearn.manifold <span class="im">import</span> TSNE</span>
 <span id="cb38-2"><a href="#cb38-2"></a></span>
 <span id="cb38-3"><a href="#cb38-3"></a>tsne <span class="op">=</span> TSNE(<span class="dv">2</span>)</span>
@@ -1143,7 +1145,7 @@ Total Training Time: 0.91 min</code></pre>
 </ul></li>
 </ul>
 <p>We can prove this by adding some noise to these embeddings and trying to regenerate images from them.</p>
-<div id="cell-50" class="cell" data-executioninfo="{&quot;elapsed&quot;:152,&quot;status&quot;:&quot;ok&quot;,&quot;timestamp&quot;:1671116414160,&quot;user&quot;:{&quot;displayName&quot;:&quot;Hassaan Bin Aslam&quot;,&quot;userId&quot;:&quot;13411116435427293553&quot;},&quot;user_tz&quot;:-300}" data-outputid="6e079dbf-c905-4247-bd75-55c3347550c1" data-execution_count="24">
+<div id="cell-50" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;executionInfo&quot;,&quot;value&quot;:{&quot;elapsed&quot;:152,&quot;status&quot;:&quot;ok&quot;,&quot;timestamp&quot;:1671116414160,&quot;user&quot;:{&quot;displayName&quot;:&quot;Hassaan Bin Aslam&quot;,&quot;userId&quot;:&quot;13411116435427293553&quot;},&quot;user_tz&quot;:-300}}" data-outputid="6e079dbf-c905-4247-bd75-55c3347550c1" data-execution_count="24">
 <div class="sourceCode cell-code" id="cb40"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb40-1"><a href="#cb40-1"></a><span class="co"># step 1: transpose to get 50 embeddings with 10000 features</span></span>
 <span id="cb40-2"><a href="#cb40-2"></a><span class="co"># len(latent_vectors_transpose) = 50</span></span>
 <span id="cb40-3"><a href="#cb40-3"></a></span>
@@ -1153,7 +1155,7 @@ Total Training Time: 0.91 min</code></pre>
 <pre><code>((10000, 50), (50, 10000))</code></pre>
 </div>
 </div>
-<div id="cell-51" class="cell" data-executioninfo="{&quot;elapsed&quot;:142,&quot;status&quot;:&quot;ok&quot;,&quot;timestamp&quot;:1671116414168,&quot;user&quot;:{&quot;displayName&quot;:&quot;Hassaan Bin Aslam&quot;,&quot;userId&quot;:&quot;13411116435427293553&quot;},&quot;user_tz&quot;:-300}" data-execution_count="25">
+<div id="cell-51" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;executionInfo&quot;,&quot;value&quot;:{&quot;elapsed&quot;:142,&quot;status&quot;:&quot;ok&quot;,&quot;timestamp&quot;:1671116414168,&quot;user&quot;:{&quot;displayName&quot;:&quot;Hassaan Bin Aslam&quot;,&quot;userId&quot;:&quot;13411116435427293553&quot;},&quot;user_tz&quot;:-300}}" data-execution_count="25">
 <div class="sourceCode cell-code" id="cb42"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb42-1"><a href="#cb42-1"></a><span class="co"># step 2: add some noise.</span></span>
 <span id="cb42-2"><a href="#cb42-2"></a><span class="co"># take each row, calucate mean and std</span></span>
 <span id="cb42-3"><a href="#cb42-3"></a><span class="co"># use mean and std to generate 100 new features. each time add some noise to std</span></span>
@@ -1163,7 +1165,7 @@ Total Training Time: 0.91 min</code></pre>
 <span id="cb42-7"><a href="#cb42-7"></a>    mu, sigma <span class="op">=</span> col.mean(), col.std()</span>
 <span id="cb42-8"><a href="#cb42-8"></a>    rand_vectors.append(sigma <span class="op">*</span> torch.randn(<span class="dv">1</span>, <span class="dv">100</span>) <span class="op">+</span> mu)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div id="cell-52" class="cell" data-executioninfo="{&quot;elapsed&quot;:141,&quot;status&quot;:&quot;ok&quot;,&quot;timestamp&quot;:1671116414172,&quot;user&quot;:{&quot;displayName&quot;:&quot;Hassaan Bin Aslam&quot;,&quot;userId&quot;:&quot;13411116435427293553&quot;},&quot;user_tz&quot;:-300}" data-outputid="f731bc59-ec5b-46d4-d46d-afd4c6efd834" data-execution_count="26">
+<div id="cell-52" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;executionInfo&quot;,&quot;value&quot;:{&quot;elapsed&quot;:141,&quot;status&quot;:&quot;ok&quot;,&quot;timestamp&quot;:1671116414172,&quot;user&quot;:{&quot;displayName&quot;:&quot;Hassaan Bin Aslam&quot;,&quot;userId&quot;:&quot;13411116435427293553&quot;},&quot;user_tz&quot;:-300}}" data-outputid="f731bc59-ec5b-46d4-d46d-afd4c6efd834" data-execution_count="26">
 <div class="sourceCode cell-code" id="cb43"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb43-1"><a href="#cb43-1"></a><span class="co"># step 3: verify dimensions</span></span>
 <span id="cb43-2"><a href="#cb43-2"></a></span>
 <span id="cb43-3"><a href="#cb43-3"></a><span class="bu">len</span>(rand_vectors), rand_vectors[<span class="dv">0</span>].shape, torch.cat(rand_vectors).shape</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -1171,7 +1173,7 @@ Total Training Time: 0.91 min</code></pre>
 <pre><code>(50, torch.Size([1, 100]), torch.Size([50, 100]))</code></pre>
 </div>
 </div>
-<div id="cell-53" class="cell" data-executioninfo="{&quot;elapsed&quot;:135,&quot;status&quot;:&quot;ok&quot;,&quot;timestamp&quot;:1671116414175,&quot;user&quot;:{&quot;displayName&quot;:&quot;Hassaan Bin Aslam&quot;,&quot;userId&quot;:&quot;13411116435427293553&quot;},&quot;user_tz&quot;:-300}" data-outputid="fa0a0d26-a16d-479f-db08-ecbbc702ec00" data-execution_count="27">
+<div id="cell-53" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;executionInfo&quot;,&quot;value&quot;:{&quot;elapsed&quot;:135,&quot;status&quot;:&quot;ok&quot;,&quot;timestamp&quot;:1671116414175,&quot;user&quot;:{&quot;displayName&quot;:&quot;Hassaan Bin Aslam&quot;,&quot;userId&quot;:&quot;13411116435427293553&quot;},&quot;user_tz&quot;:-300}}" data-outputid="fa0a0d26-a16d-479f-db08-ecbbc702ec00" data-execution_count="27">
 <div class="sourceCode cell-code" id="cb45"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb45-1"><a href="#cb45-1"></a><span class="co"># step 4: concat 100 features</span></span>
 <span id="cb45-2"><a href="#cb45-2"></a></span>
 <span id="cb45-3"><a href="#cb45-3"></a>rand_vectors_cat <span class="op">=</span> torch.cat(rand_vectors)</span>
@@ -1180,7 +1182,7 @@ Total Training Time: 0.91 min</code></pre>
 <pre><code>torch.Size([50, 100])</code></pre>
 </div>
 </div>
-<div id="cell-54" class="cell" data-executioninfo="{&quot;elapsed&quot;:125,&quot;status&quot;:&quot;ok&quot;,&quot;timestamp&quot;:1671116414177,&quot;user&quot;:{&quot;displayName&quot;:&quot;Hassaan Bin Aslam&quot;,&quot;userId&quot;:&quot;13411116435427293553&quot;},&quot;user_tz&quot;:-300}" data-outputid="fc523b15-ba04-44c9-fc00-f008646686ae" data-execution_count="28">
+<div id="cell-54" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;executionInfo&quot;,&quot;value&quot;:{&quot;elapsed&quot;:125,&quot;status&quot;:&quot;ok&quot;,&quot;timestamp&quot;:1671116414177,&quot;user&quot;:{&quot;displayName&quot;:&quot;Hassaan Bin Aslam&quot;,&quot;userId&quot;:&quot;13411116435427293553&quot;},&quot;user_tz&quot;:-300}}" data-outputid="fc523b15-ba04-44c9-fc00-f008646686ae" data-execution_count="28">
 <div class="sourceCode cell-code" id="cb47"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb47-1"><a href="#cb47-1"></a><span class="co"># step 5: transpose back to have 100 embeddings of dimension 50</span></span>
 <span id="cb47-2"><a href="#cb47-2"></a></span>
 <span id="cb47-3"><a href="#cb47-3"></a>rand_vectors_transpose <span class="op">=</span> rand_vectors_cat.transpose(<span class="dv">1</span>, <span class="dv">0</span>)</span>
@@ -1190,7 +1192,7 @@ Total Training Time: 0.91 min</code></pre>
 </div>
 </div>
 <p>We have generated 100 new (random) embeddings by adding some noise to the original embeddings. We have done it in a way so that these embeddings do not represent any digit. They are like a mix of embeddings of all the numbers. So when we try to use them, they will generate distorted images. Similar to decoded images generated by taking a sample from an overlapping latent space.</p>
-<div id="cell-56" class="cell" data-executioninfo="{&quot;elapsed&quot;:8718,&quot;status&quot;:&quot;ok&quot;,&quot;timestamp&quot;:1671116422785,&quot;user&quot;:{&quot;displayName&quot;:&quot;Hassaan Bin Aslam&quot;,&quot;userId&quot;:&quot;13411116435427293553&quot;},&quot;user_tz&quot;:-300}" data-outputid="17074aee-d9df-4689-fff0-f04a6be40bb9" data-execution_count="29">
+<div id="cell-56" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;executionInfo&quot;,&quot;value&quot;:{&quot;elapsed&quot;:8718,&quot;status&quot;:&quot;ok&quot;,&quot;timestamp&quot;:1671116422785,&quot;user&quot;:{&quot;displayName&quot;:&quot;Hassaan Bin Aslam&quot;,&quot;userId&quot;:&quot;13411116435427293553&quot;},&quot;user_tz&quot;:-300}}" data-outputid="17074aee-d9df-4689-fff0-f04a6be40bb9" data-execution_count="29">
 <div class="sourceCode cell-code" id="cb49"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb49-1"><a href="#cb49-1"></a>rand_vectors_transpose <span class="op">=</span> rand_vectors_transpose.to(device)</span>
 <span id="cb49-2"><a href="#cb49-2"></a></span>
 <span id="cb49-3"><a href="#cb49-3"></a>fig, ax <span class="op">=</span> plt.subplots(<span class="dv">10</span>, <span class="dv">10</span>, figsize<span class="op">=</span>(<span class="dv">20</span>, <span class="dv">20</span>))</span>
@@ -1229,236 +1231,242 @@ Total Training Time: 0.91 min</code></pre>
 {"0879f22e34814eb0be7367b475bbbcf4":{"model_module":"@jupyter-widgets/base","model_module_version":"1.2.0","model_name":"LayoutModel","state":{"_model_module":"@jupyter-widgets/base","_model_module_version":"1.2.0","_model_name":"LayoutModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"1.2.0","_view_name":"LayoutView","align_content":null,"align_items":null,"align_self":null,"border":null,"bottom":null,"display":null,"flex":null,"flex_flow":null,"grid_area":null,"grid_auto_columns":null,"grid_auto_flow":null,"grid_auto_rows":null,"grid_column":null,"grid_gap":null,"grid_row":null,"grid_template_areas":null,"grid_template_columns":null,"grid_template_rows":null,"height":null,"justify_content":null,"justify_items":null,"left":null,"margin":null,"max_height":null,"max_width":null,"min_height":null,"min_width":null,"object_fit":null,"object_position":null,"order":null,"overflow":null,"overflow_x":null,"overflow_y":null,"padding":null,"right":null,"top":null,"visibility":null,"width":null}},"10f39ab08a4b4ddebee58de950652522":{"model_module":"@jupyter-widgets/controls","model_module_version":"1.5.0","model_name":"ProgressStyleModel","state":{"_model_module":"@jupyter-widgets/controls","_model_module_version":"1.5.0","_model_name":"ProgressStyleModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"1.2.0","_view_name":"StyleView","bar_color":null,"description_width":""}},"17e6fea9056c4d0c869ca020adb51385":{"model_module":"@jupyter-widgets/controls","model_module_version":"1.5.0","model_name":"FloatProgressModel","state":{"_dom_classes":[],"_model_module":"@jupyter-widgets/controls","_model_module_version":"1.5.0","_model_name":"FloatProgressModel","_view_count":null,"_view_module":"@jupyter-widgets/controls","_view_module_version":"1.5.0","_view_name":"ProgressView","bar_style":"success","description":"","description_tooltip":null,"layout":"IPY_MODEL_44e7f603b1d442be9f330a2a2556fdb2","max":28881,"min":0,"orientation":"horizontal","style":"IPY_MODEL_aa22dcd5799b4c029b43f7fa6aa0bd6d","value":28881}},"1fa8e27e8b424049a9daa123115a2509":{"model_module":"@jupyter-widgets/controls","model_module_version":"1.5.0","model_name":"HTMLModel","state":{"_dom_classes":[],"_model_module":"@jupyter-widgets/controls","_model_module_version":"1.5.0","_model_name":"HTMLModel","_view_count":null,"_view_module":"@jupyter-widgets/controls","_view_module_version":"1.5.0","_view_name":"HTMLView","description":"","description_tooltip":null,"layout":"IPY_MODEL_ba26b496ded94fa1bd27c0375d446f20","placeholder":"​","style":"IPY_MODEL_78693f442e0b44539eec7848daf1e881","value":" 9912422/9912422 [00:00&lt;00:00, 54855552.22it/s]"}},"255b6b1014364ed68adcfa4b5900e005":{"model_module":"@jupyter-widgets/controls","model_module_version":"1.5.0","model_name":"DescriptionStyleModel","state":{"_model_module":"@jupyter-widgets/controls","_model_module_version":"1.5.0","_model_name":"DescriptionStyleModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"1.2.0","_view_name":"StyleView","description_width":""}},"2b332f63d23343c5bbdd572f0334b0cf":{"model_module":"@jupyter-widgets/controls","model_module_version":"1.5.0","model_name":"FloatProgressModel","state":{"_dom_classes":[],"_model_module":"@jupyter-widgets/controls","_model_module_version":"1.5.0","_model_name":"FloatProgressModel","_view_count":null,"_view_module":"@jupyter-widgets/controls","_view_module_version":"1.5.0","_view_name":"ProgressView","bar_style":"success","description":"","description_tooltip":null,"layout":"IPY_MODEL_8b78b87e7c224cf8834e8b60502cc581","max":9912422,"min":0,"orientation":"horizontal","style":"IPY_MODEL_10f39ab08a4b4ddebee58de950652522","value":9912422}},"2c655e9a08864307b359721cfe083fde":{"model_module":"@jupyter-widgets/controls","model_module_version":"1.5.0","model_name":"DescriptionStyleModel","state":{"_model_module":"@jupyter-widgets/controls","_model_module_version":"1.5.0","_model_name":"DescriptionStyleModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"1.2.0","_view_name":"StyleView","description_width":""}},"2db00f6d6b1e429f89b5da7fd1b0645e":{"model_module":"@jupyter-widgets/controls","model_module_version":"1.5.0","model_name":"HTMLModel","state":{"_dom_classes":[],"_model_module":"@jupyter-widgets/controls","_model_module_version":"1.5.0","_model_name":"HTMLModel","_view_count":null,"_view_module":"@jupyter-widgets/controls","_view_module_version":"1.5.0","_view_name":"HTMLView","description":"","description_tooltip":null,"layout":"IPY_MODEL_f3996f2fe0104e10942e2b6d076a2e89","placeholder":"​","style":"IPY_MODEL_8a3dd83c7256479ca040d76c530b75e0","value":"100%"}},"311c9454ed784f2fa346ed73d8c91339":{"model_module":"@jupyter-widgets/controls","model_module_version":"1.5.0","model_name":"DescriptionStyleModel","state":{"_model_module":"@jupyter-widgets/controls","_model_module_version":"1.5.0","_model_name":"DescriptionStyleModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"1.2.0","_view_name":"StyleView","description_width":""}},"331a16abfead4d38acb849e955001823":{"model_module":"@jupyter-widgets/base","model_module_version":"1.2.0","model_name":"LayoutModel","state":{"_model_module":"@jupyter-widgets/base","_model_module_version":"1.2.0","_model_name":"LayoutModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"1.2.0","_view_name":"LayoutView","align_content":null,"align_items":null,"align_self":null,"border":null,"bottom":null,"display":null,"flex":null,"flex_flow":null,"grid_area":null,"grid_auto_columns":null,"grid_auto_flow":null,"grid_auto_rows":null,"grid_column":null,"grid_gap":null,"grid_row":null,"grid_template_areas":null,"grid_template_columns":null,"grid_template_rows":null,"height":null,"justify_content":null,"justify_items":null,"left":null,"margin":null,"max_height":null,"max_width":null,"min_height":null,"min_width":null,"object_fit":null,"object_position":null,"order":null,"overflow":null,"overflow_x":null,"overflow_y":null,"padding":null,"right":null,"top":null,"visibility":null,"width":null}},"3590778a271942febb8f0f50646a3b68":{"model_module":"@jupyter-widgets/controls","model_module_version":"1.5.0","model_name":"HBoxModel","state":{"_dom_classes":[],"_model_module":"@jupyter-widgets/controls","_model_module_version":"1.5.0","_model_name":"HBoxModel","_view_count":null,"_view_module":"@jupyter-widgets/controls","_view_module_version":"1.5.0","_view_name":"HBoxView","box_style":"","children":["IPY_MODEL_2db00f6d6b1e429f89b5da7fd1b0645e","IPY_MODEL_17e6fea9056c4d0c869ca020adb51385","IPY_MODEL_8da45ae404be44aeba54e53ca9a9754b"],"layout":"IPY_MODEL_733f545f1f254b3ca9465a42288a1564"}},"3d26edaf37b94d9fbd5685fe7c354a52":{"model_module":"@jupyter-widgets/base","model_module_version":"1.2.0","model_name":"LayoutModel","state":{"_model_module":"@jupyter-widgets/base","_model_module_version":"1.2.0","_model_name":"LayoutModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"1.2.0","_view_name":"LayoutView","align_content":null,"align_items":null,"align_self":null,"border":null,"bottom":null,"display":null,"flex":null,"flex_flow":null,"grid_area":null,"grid_auto_columns":null,"grid_auto_flow":null,"grid_auto_rows":null,"grid_column":null,"grid_gap":null,"grid_row":null,"grid_template_areas":null,"grid_template_columns":null,"grid_template_rows":null,"height":null,"justify_content":null,"justify_items":null,"left":null,"margin":null,"max_height":null,"max_width":null,"min_height":null,"min_width":null,"object_fit":null,"object_position":null,"order":null,"overflow":null,"overflow_x":null,"overflow_y":null,"padding":null,"right":null,"top":null,"visibility":null,"width":null}},"44e7f603b1d442be9f330a2a2556fdb2":{"model_module":"@jupyter-widgets/base","model_module_version":"1.2.0","model_name":"LayoutModel","state":{"_model_module":"@jupyter-widgets/base","_model_module_version":"1.2.0","_model_name":"LayoutModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"1.2.0","_view_name":"LayoutView","align_content":null,"align_items":null,"align_self":null,"border":null,"bottom":null,"display":null,"flex":null,"flex_flow":null,"grid_area":null,"grid_auto_columns":null,"grid_auto_flow":null,"grid_auto_rows":null,"grid_column":null,"grid_gap":null,"grid_row":null,"grid_template_areas":null,"grid_template_columns":null,"grid_template_rows":null,"height":null,"justify_content":null,"justify_items":null,"left":null,"margin":null,"max_height":null,"max_width":null,"min_height":null,"min_width":null,"object_fit":null,"object_position":null,"order":null,"overflow":null,"overflow_x":null,"overflow_y":null,"padding":null,"right":null,"top":null,"visibility":null,"width":null}},"4b7e3340261b4858a53ead0a3e742ba1":{"model_module":"@jupyter-widgets/controls","model_module_version":"1.5.0","model_name":"HTMLModel","state":{"_dom_classes":[],"_model_module":"@jupyter-widgets/controls","_model_module_version":"1.5.0","_model_name":"HTMLModel","_view_count":null,"_view_module":"@jupyter-widgets/controls","_view_module_version":"1.5.0","_view_name":"HTMLView","description":"","description_tooltip":null,"layout":"IPY_MODEL_aaf342c2442c48d5856232a4cb65df02","placeholder":"​","style":"IPY_MODEL_8411eaf867a24be1b4c619c5952c5293","value":" 4542/4542 [00:00&lt;00:00, 164762.75it/s]"}},"5480e3830b604b0e9a87aa774f01f172":{"model_module":"@jupyter-widgets/controls","model_module_version":"1.5.0","model_name":"ProgressStyleModel","state":{"_model_module":"@jupyter-widgets/controls","_model_module_version":"1.5.0","_model_name":"ProgressStyleModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"1.2.0","_view_name":"StyleView","bar_color":null,"description_width":""}},"567dc89a6d0c49f1aaad72b48d53609a":{"model_module":"@jupyter-widgets/base","model_module_version":"1.2.0","model_name":"LayoutModel","state":{"_model_module":"@jupyter-widgets/base","_model_module_version":"1.2.0","_model_name":"LayoutModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"1.2.0","_view_name":"LayoutView","align_content":null,"align_items":null,"align_self":null,"border":null,"bottom":null,"display":null,"flex":null,"flex_flow":null,"grid_area":null,"grid_auto_columns":null,"grid_auto_flow":null,"grid_auto_rows":null,"grid_column":null,"grid_gap":null,"grid_row":null,"grid_template_areas":null,"grid_template_columns":null,"grid_template_rows":null,"height":null,"justify_content":null,"justify_items":null,"left":null,"margin":null,"max_height":null,"max_width":null,"min_height":null,"min_width":null,"object_fit":null,"object_position":null,"order":null,"overflow":null,"overflow_x":null,"overflow_y":null,"padding":null,"right":null,"top":null,"visibility":null,"width":null}},"597bbe32b951412da40eec041140a2e7":{"model_module":"@jupyter-widgets/base","model_module_version":"1.2.0","model_name":"LayoutModel","state":{"_model_module":"@jupyter-widgets/base","_model_module_version":"1.2.0","_model_name":"LayoutModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"1.2.0","_view_name":"LayoutView","align_content":null,"align_items":null,"align_self":null,"border":null,"bottom":null,"display":null,"flex":null,"flex_flow":null,"grid_area":null,"grid_auto_columns":null,"grid_auto_flow":null,"grid_auto_rows":null,"grid_column":null,"grid_gap":null,"grid_row":null,"grid_template_areas":null,"grid_template_columns":null,"grid_template_rows":null,"height":null,"justify_content":null,"justify_items":null,"left":null,"margin":null,"max_height":null,"max_width":null,"min_height":null,"min_width":null,"object_fit":null,"object_position":null,"order":null,"overflow":null,"overflow_x":null,"overflow_y":null,"padding":null,"right":null,"top":null,"visibility":null,"width":null}},"6351025cc4f44815ad90b21943bd1a8e":{"model_module":"@jupyter-widgets/controls","model_module_version":"1.5.0","model_name":"DescriptionStyleModel","state":{"_model_module":"@jupyter-widgets/controls","_model_module_version":"1.5.0","_model_name":"DescriptionStyleModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"1.2.0","_view_name":"StyleView","description_width":""}},"733f545f1f254b3ca9465a42288a1564":{"model_module":"@jupyter-widgets/base","model_module_version":"1.2.0","model_name":"LayoutModel","state":{"_model_module":"@jupyter-widgets/base","_model_module_version":"1.2.0","_model_name":"LayoutModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"1.2.0","_view_name":"LayoutView","align_content":null,"align_items":null,"align_self":null,"border":null,"bottom":null,"display":null,"flex":null,"flex_flow":null,"grid_area":null,"grid_auto_columns":null,"grid_auto_flow":null,"grid_auto_rows":null,"grid_column":null,"grid_gap":null,"grid_row":null,"grid_template_areas":null,"grid_template_columns":null,"grid_template_rows":null,"height":null,"justify_content":null,"justify_items":null,"left":null,"margin":null,"max_height":null,"max_width":null,"min_height":null,"min_width":null,"object_fit":null,"object_position":null,"order":null,"overflow":null,"overflow_x":null,"overflow_y":null,"padding":null,"right":null,"top":null,"visibility":null,"width":null}},"764db68947984d99968601e58e9977ef":{"model_module":"@jupyter-widgets/base","model_module_version":"1.2.0","model_name":"LayoutModel","state":{"_model_module":"@jupyter-widgets/base","_model_module_version":"1.2.0","_model_name":"LayoutModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"1.2.0","_view_name":"LayoutView","align_content":null,"align_items":null,"align_self":null,"border":null,"bottom":null,"display":null,"flex":null,"flex_flow":null,"grid_area":null,"grid_auto_columns":null,"grid_auto_flow":null,"grid_auto_rows":null,"grid_column":null,"grid_gap":null,"grid_row":null,"grid_template_areas":null,"grid_template_columns":null,"grid_template_rows":null,"height":null,"justify_content":null,"justify_items":null,"left":null,"margin":null,"max_height":null,"max_width":null,"min_height":null,"min_width":null,"object_fit":null,"object_position":null,"order":null,"overflow":null,"overflow_x":null,"overflow_y":null,"padding":null,"right":null,"top":null,"visibility":null,"width":null}},"78693f442e0b44539eec7848daf1e881":{"model_module":"@jupyter-widgets/controls","model_module_version":"1.5.0","model_name":"DescriptionStyleModel","state":{"_model_module":"@jupyter-widgets/controls","_model_module_version":"1.5.0","_model_name":"DescriptionStyleModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"1.2.0","_view_name":"StyleView","description_width":""}},"835eb82179254d678688e178d696b3d3":{"model_module":"@jupyter-widgets/controls","model_module_version":"1.5.0","model_name":"HTMLModel","state":{"_dom_classes":[],"_model_module":"@jupyter-widgets/controls","_model_module_version":"1.5.0","_model_name":"HTMLModel","_view_count":null,"_view_module":"@jupyter-widgets/controls","_view_module_version":"1.5.0","_view_name":"HTMLView","description":"","description_tooltip":null,"layout":"IPY_MODEL_3d26edaf37b94d9fbd5685fe7c354a52","placeholder":"​","style":"IPY_MODEL_255b6b1014364ed68adcfa4b5900e005","value":"100%"}},"8411eaf867a24be1b4c619c5952c5293":{"model_module":"@jupyter-widgets/controls","model_module_version":"1.5.0","model_name":"DescriptionStyleModel","state":{"_model_module":"@jupyter-widgets/controls","_model_module_version":"1.5.0","_model_name":"DescriptionStyleModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"1.2.0","_view_name":"StyleView","description_width":""}},"8a3dd83c7256479ca040d76c530b75e0":{"model_module":"@jupyter-widgets/controls","model_module_version":"1.5.0","model_name":"DescriptionStyleModel","state":{"_model_module":"@jupyter-widgets/controls","_model_module_version":"1.5.0","_model_name":"DescriptionStyleModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"1.2.0","_view_name":"StyleView","description_width":""}},"8ad10cd9cba54f0b9ecfe4dbf25d19a9":{"model_module":"@jupyter-widgets/controls","model_module_version":"1.5.0","model_name":"HBoxModel","state":{"_dom_classes":[],"_model_module":"@jupyter-widgets/controls","_model_module_version":"1.5.0","_model_name":"HBoxModel","_view_count":null,"_view_module":"@jupyter-widgets/controls","_view_module_version":"1.5.0","_view_name":"HBoxView","box_style":"","children":["IPY_MODEL_d5153124f74049fca7b4ab6f58bc5e59","IPY_MODEL_2b332f63d23343c5bbdd572f0334b0cf","IPY_MODEL_1fa8e27e8b424049a9daa123115a2509"],"layout":"IPY_MODEL_8c50b7d3c7bd41a99cea765e25642a69"}},"8b78b87e7c224cf8834e8b60502cc581":{"model_module":"@jupyter-widgets/base","model_module_version":"1.2.0","model_name":"LayoutModel","state":{"_model_module":"@jupyter-widgets/base","_model_module_version":"1.2.0","_model_name":"LayoutModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"1.2.0","_view_name":"LayoutView","align_content":null,"align_items":null,"align_self":null,"border":null,"bottom":null,"display":null,"flex":null,"flex_flow":null,"grid_area":null,"grid_auto_columns":null,"grid_auto_flow":null,"grid_auto_rows":null,"grid_column":null,"grid_gap":null,"grid_row":null,"grid_template_areas":null,"grid_template_columns":null,"grid_template_rows":null,"height":null,"justify_content":null,"justify_items":null,"left":null,"margin":null,"max_height":null,"max_width":null,"min_height":null,"min_width":null,"object_fit":null,"object_position":null,"order":null,"overflow":null,"overflow_x":null,"overflow_y":null,"padding":null,"right":null,"top":null,"visibility":null,"width":null}},"8c50b7d3c7bd41a99cea765e25642a69":{"model_module":"@jupyter-widgets/base","model_module_version":"1.2.0","model_name":"LayoutModel","state":{"_model_module":"@jupyter-widgets/base","_model_module_version":"1.2.0","_model_name":"LayoutModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"1.2.0","_view_name":"LayoutView","align_content":null,"align_items":null,"align_self":null,"border":null,"bottom":null,"display":null,"flex":null,"flex_flow":null,"grid_area":null,"grid_auto_columns":null,"grid_auto_flow":null,"grid_auto_rows":null,"grid_column":null,"grid_gap":null,"grid_row":null,"grid_template_areas":null,"grid_template_columns":null,"grid_template_rows":null,"height":null,"justify_content":null,"justify_items":null,"left":null,"margin":null,"max_height":null,"max_width":null,"min_height":null,"min_width":null,"object_fit":null,"object_position":null,"order":null,"overflow":null,"overflow_x":null,"overflow_y":null,"padding":null,"right":null,"top":null,"visibility":null,"width":null}},"8da45ae404be44aeba54e53ca9a9754b":{"model_module":"@jupyter-widgets/controls","model_module_version":"1.5.0","model_name":"HTMLModel","state":{"_dom_classes":[],"_model_module":"@jupyter-widgets/controls","_model_module_version":"1.5.0","_model_name":"HTMLModel","_view_count":null,"_view_module":"@jupyter-widgets/controls","_view_module_version":"1.5.0","_view_name":"HTMLView","description":"","description_tooltip":null,"layout":"IPY_MODEL_567dc89a6d0c49f1aaad72b48d53609a","placeholder":"​","style":"IPY_MODEL_f63e73a5ed3d41998e16bdfbadb84ce9","value":" 28881/28881 [00:00&lt;00:00, 1178248.16it/s]"}},"91503c1281234c1998e2dff2694e6212":{"model_module":"@jupyter-widgets/controls","model_module_version":"1.5.0","model_name":"HTMLModel","state":{"_dom_classes":[],"_model_module":"@jupyter-widgets/controls","_model_module_version":"1.5.0","_model_name":"HTMLModel","_view_count":null,"_view_module":"@jupyter-widgets/controls","_view_module_version":"1.5.0","_view_name":"HTMLView","description":"","description_tooltip":null,"layout":"IPY_MODEL_af657737d41e402583f5ec7fd1a52ad3","placeholder":"​","style":"IPY_MODEL_311c9454ed784f2fa346ed73d8c91339","value":" 1648877/1648877 [00:00&lt;00:00, 48968649.92it/s]"}},"98fc62e2d071497891255192b7225794":{"model_module":"@jupyter-widgets/base","model_module_version":"1.2.0","model_name":"LayoutModel","state":{"_model_module":"@jupyter-widgets/base","_model_module_version":"1.2.0","_model_name":"LayoutModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"1.2.0","_view_name":"LayoutView","align_content":null,"align_items":null,"align_self":null,"border":null,"bottom":null,"display":null,"flex":null,"flex_flow":null,"grid_area":null,"grid_auto_columns":null,"grid_auto_flow":null,"grid_auto_rows":null,"grid_column":null,"grid_gap":null,"grid_row":null,"grid_template_areas":null,"grid_template_columns":null,"grid_template_rows":null,"height":null,"justify_content":null,"justify_items":null,"left":null,"margin":null,"max_height":null,"max_width":null,"min_height":null,"min_width":null,"object_fit":null,"object_position":null,"order":null,"overflow":null,"overflow_x":null,"overflow_y":null,"padding":null,"right":null,"top":null,"visibility":null,"width":null}},"aa22dcd5799b4c029b43f7fa6aa0bd6d":{"model_module":"@jupyter-widgets/controls","model_module_version":"1.5.0","model_name":"ProgressStyleModel","state":{"_model_module":"@jupyter-widgets/controls","_model_module_version":"1.5.0","_model_name":"ProgressStyleModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"1.2.0","_view_name":"StyleView","bar_color":null,"description_width":""}},"aaf342c2442c48d5856232a4cb65df02":{"model_module":"@jupyter-widgets/base","model_module_version":"1.2.0","model_name":"LayoutModel","state":{"_model_module":"@jupyter-widgets/base","_model_module_version":"1.2.0","_model_name":"LayoutModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"1.2.0","_view_name":"LayoutView","align_content":null,"align_items":null,"align_self":null,"border":null,"bottom":null,"display":null,"flex":null,"flex_flow":null,"grid_area":null,"grid_auto_columns":null,"grid_auto_flow":null,"grid_auto_rows":null,"grid_column":null,"grid_gap":null,"grid_row":null,"grid_template_areas":null,"grid_template_columns":null,"grid_template_rows":null,"height":null,"justify_content":null,"justify_items":null,"left":null,"margin":null,"max_height":null,"max_width":null,"min_height":null,"min_width":null,"object_fit":null,"object_position":null,"order":null,"overflow":null,"overflow_x":null,"overflow_y":null,"padding":null,"right":null,"top":null,"visibility":null,"width":null}},"af657737d41e402583f5ec7fd1a52ad3":{"model_module":"@jupyter-widgets/base","model_module_version":"1.2.0","model_name":"LayoutModel","state":{"_model_module":"@jupyter-widgets/base","_model_module_version":"1.2.0","_model_name":"LayoutModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"1.2.0","_view_name":"LayoutView","align_content":null,"align_items":null,"align_self":null,"border":null,"bottom":null,"display":null,"flex":null,"flex_flow":null,"grid_area":null,"grid_auto_columns":null,"grid_auto_flow":null,"grid_auto_rows":null,"grid_column":null,"grid_gap":null,"grid_row":null,"grid_template_areas":null,"grid_template_columns":null,"grid_template_rows":null,"height":null,"justify_content":null,"justify_items":null,"left":null,"margin":null,"max_height":null,"max_width":null,"min_height":null,"min_width":null,"object_fit":null,"object_position":null,"order":null,"overflow":null,"overflow_x":null,"overflow_y":null,"padding":null,"right":null,"top":null,"visibility":null,"width":null}},"b70cefcef47c4b7b81ed250fe7060e24":{"model_module":"@jupyter-widgets/controls","model_module_version":"1.5.0","model_name":"HBoxModel","state":{"_dom_classes":[],"_model_module":"@jupyter-widgets/controls","_model_module_version":"1.5.0","_model_name":"HBoxModel","_view_count":null,"_view_module":"@jupyter-widgets/controls","_view_module_version":"1.5.0","_view_name":"HBoxView","box_style":"","children":["IPY_MODEL_f2e1458a52944b3885b2f02eb623ba6d","IPY_MODEL_efb773337d524adab0844262b00d9ab1","IPY_MODEL_91503c1281234c1998e2dff2694e6212"],"layout":"IPY_MODEL_e0e97393733c49768f3d46767a0bba5f"}},"ba26b496ded94fa1bd27c0375d446f20":{"model_module":"@jupyter-widgets/base","model_module_version":"1.2.0","model_name":"LayoutModel","state":{"_model_module":"@jupyter-widgets/base","_model_module_version":"1.2.0","_model_name":"LayoutModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"1.2.0","_view_name":"LayoutView","align_content":null,"align_items":null,"align_self":null,"border":null,"bottom":null,"display":null,"flex":null,"flex_flow":null,"grid_area":null,"grid_auto_columns":null,"grid_auto_flow":null,"grid_auto_rows":null,"grid_column":null,"grid_gap":null,"grid_row":null,"grid_template_areas":null,"grid_template_columns":null,"grid_template_rows":null,"height":null,"justify_content":null,"justify_items":null,"left":null,"margin":null,"max_height":null,"max_width":null,"min_height":null,"min_width":null,"object_fit":null,"object_position":null,"order":null,"overflow":null,"overflow_x":null,"overflow_y":null,"padding":null,"right":null,"top":null,"visibility":null,"width":null}},"d5153124f74049fca7b4ab6f58bc5e59":{"model_module":"@jupyter-widgets/controls","model_module_version":"1.5.0","model_name":"HTMLModel","state":{"_dom_classes":[],"_model_module":"@jupyter-widgets/controls","_model_module_version":"1.5.0","_model_name":"HTMLModel","_view_count":null,"_view_module":"@jupyter-widgets/controls","_view_module_version":"1.5.0","_view_name":"HTMLView","description":"","description_tooltip":null,"layout":"IPY_MODEL_0879f22e34814eb0be7367b475bbbcf4","placeholder":"​","style":"IPY_MODEL_6351025cc4f44815ad90b21943bd1a8e","value":"100%"}},"e0e97393733c49768f3d46767a0bba5f":{"model_module":"@jupyter-widgets/base","model_module_version":"1.2.0","model_name":"LayoutModel","state":{"_model_module":"@jupyter-widgets/base","_model_module_version":"1.2.0","_model_name":"LayoutModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"1.2.0","_view_name":"LayoutView","align_content":null,"align_items":null,"align_self":null,"border":null,"bottom":null,"display":null,"flex":null,"flex_flow":null,"grid_area":null,"grid_auto_columns":null,"grid_auto_flow":null,"grid_auto_rows":null,"grid_column":null,"grid_gap":null,"grid_row":null,"grid_template_areas":null,"grid_template_columns":null,"grid_template_rows":null,"height":null,"justify_content":null,"justify_items":null,"left":null,"margin":null,"max_height":null,"max_width":null,"min_height":null,"min_width":null,"object_fit":null,"object_position":null,"order":null,"overflow":null,"overflow_x":null,"overflow_y":null,"padding":null,"right":null,"top":null,"visibility":null,"width":null}},"ea212f1cc8db4da0a18d36f896a988c1":{"model_module":"@jupyter-widgets/controls","model_module_version":"1.5.0","model_name":"HBoxModel","state":{"_dom_classes":[],"_model_module":"@jupyter-widgets/controls","_model_module_version":"1.5.0","_model_name":"HBoxModel","_view_count":null,"_view_module":"@jupyter-widgets/controls","_view_module_version":"1.5.0","_view_name":"HBoxView","box_style":"","children":["IPY_MODEL_835eb82179254d678688e178d696b3d3","IPY_MODEL_f6e091686c184e869371ba88804e95d5","IPY_MODEL_4b7e3340261b4858a53ead0a3e742ba1"],"layout":"IPY_MODEL_98fc62e2d071497891255192b7225794"}},"efb773337d524adab0844262b00d9ab1":{"model_module":"@jupyter-widgets/controls","model_module_version":"1.5.0","model_name":"FloatProgressModel","state":{"_dom_classes":[],"_model_module":"@jupyter-widgets/controls","_model_module_version":"1.5.0","_model_name":"FloatProgressModel","_view_count":null,"_view_module":"@jupyter-widgets/controls","_view_module_version":"1.5.0","_view_name":"ProgressView","bar_style":"success","description":"","description_tooltip":null,"layout":"IPY_MODEL_597bbe32b951412da40eec041140a2e7","max":1648877,"min":0,"orientation":"horizontal","style":"IPY_MODEL_f0b6c39e704e476aa970764ba3498a55","value":1648877}},"f0b6c39e704e476aa970764ba3498a55":{"model_module":"@jupyter-widgets/controls","model_module_version":"1.5.0","model_name":"ProgressStyleModel","state":{"_model_module":"@jupyter-widgets/controls","_model_module_version":"1.5.0","_model_name":"ProgressStyleModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"1.2.0","_view_name":"StyleView","bar_color":null,"description_width":""}},"f2e1458a52944b3885b2f02eb623ba6d":{"model_module":"@jupyter-widgets/controls","model_module_version":"1.5.0","model_name":"HTMLModel","state":{"_dom_classes":[],"_model_module":"@jupyter-widgets/controls","_model_module_version":"1.5.0","_model_name":"HTMLModel","_view_count":null,"_view_module":"@jupyter-widgets/controls","_view_module_version":"1.5.0","_view_name":"HTMLView","description":"","description_tooltip":null,"layout":"IPY_MODEL_764db68947984d99968601e58e9977ef","placeholder":"​","style":"IPY_MODEL_2c655e9a08864307b359721cfe083fde","value":"100%"}},"f3996f2fe0104e10942e2b6d076a2e89":{"model_module":"@jupyter-widgets/base","model_module_version":"1.2.0","model_name":"LayoutModel","state":{"_model_module":"@jupyter-widgets/base","_model_module_version":"1.2.0","_model_name":"LayoutModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"1.2.0","_view_name":"LayoutView","align_content":null,"align_items":null,"align_self":null,"border":null,"bottom":null,"display":null,"flex":null,"flex_flow":null,"grid_area":null,"grid_auto_columns":null,"grid_auto_flow":null,"grid_auto_rows":null,"grid_column":null,"grid_gap":null,"grid_row":null,"grid_template_areas":null,"grid_template_columns":null,"grid_template_rows":null,"height":null,"justify_content":null,"justify_items":null,"left":null,"margin":null,"max_height":null,"max_width":null,"min_height":null,"min_width":null,"object_fit":null,"object_position":null,"order":null,"overflow":null,"overflow_x":null,"overflow_y":null,"padding":null,"right":null,"top":null,"visibility":null,"width":null}},"f63e73a5ed3d41998e16bdfbadb84ce9":{"model_module":"@jupyter-widgets/controls","model_module_version":"1.5.0","model_name":"DescriptionStyleModel","state":{"_model_module":"@jupyter-widgets/controls","_model_module_version":"1.5.0","_model_name":"DescriptionStyleModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"1.2.0","_view_name":"StyleView","description_width":""}},"f6e091686c184e869371ba88804e95d5":{"model_module":"@jupyter-widgets/controls","model_module_version":"1.5.0","model_name":"FloatProgressModel","state":{"_dom_classes":[],"_model_module":"@jupyter-widgets/controls","_model_module_version":"1.5.0","_model_name":"FloatProgressModel","_view_count":null,"_view_module":"@jupyter-widgets/controls","_view_module_version":"1.5.0","_view_name":"ProgressView","bar_style":"success","description":"","description_tooltip":null,"layout":"IPY_MODEL_331a16abfead4d38acb849e955001823","max":4542,"min":0,"orientation":"horizontal","style":"IPY_MODEL_5480e3830b604b0e9a87aa774f01f172","value":4542}}}
 </script>
 <script id="quarto-html-after-body" type="application/javascript">
-window.document.addEventListener("DOMContentLoaded", function (event) {
-  const toggleBodyColorMode = (bsSheetEl) => {
-    const mode = bsSheetEl.getAttribute("data-mode");
-    const bodyEl = window.document.querySelector("body");
-    if (mode === "dark") {
-      bodyEl.classList.add("quarto-dark");
-      bodyEl.classList.remove("quarto-light");
-    } else {
-      bodyEl.classList.add("quarto-light");
-      bodyEl.classList.remove("quarto-dark");
-    }
-  }
-  const toggleBodyColorPrimary = () => {
-    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
-    if (bsSheetEl) {
-      toggleBodyColorMode(bsSheetEl);
-    }
-  }
-  toggleBodyColorPrimary();  
-  const icon = "";
-  const anchorJS = new window.AnchorJS();
-  anchorJS.options = {
-    placement: 'right',
-    icon: icon
-  };
-  anchorJS.add('.anchored');
-  const isCodeAnnotation = (el) => {
-    for (const clz of el.classList) {
-      if (clz.startsWith('code-annotation-')) {                     
-        return true;
-      }
-    }
-    return false;
-  }
-  const onCopySuccess = function(e) {
-    // button target
-    const button = e.trigger;
-    // don't keep focus
-    button.blur();
-    // flash "checked"
-    button.classList.add('code-copy-button-checked');
-    var currentTitle = button.getAttribute("title");
-    button.setAttribute("title", "Copied!");
-    let tooltip;
-    if (window.bootstrap) {
-      button.setAttribute("data-bs-toggle", "tooltip");
-      button.setAttribute("data-bs-placement", "left");
-      button.setAttribute("data-bs-title", "Copied!");
-      tooltip = new bootstrap.Tooltip(button, 
-        { trigger: "manual", 
-          customClass: "code-copy-button-tooltip",
-          offset: [0, -8]});
-      tooltip.show();    
-    }
-    setTimeout(function() {
-      if (tooltip) {
-        tooltip.hide();
-        button.removeAttribute("data-bs-title");
-        button.removeAttribute("data-bs-toggle");
-        button.removeAttribute("data-bs-placement");
-      }
-      button.setAttribute("title", currentTitle);
-      button.classList.remove('code-copy-button-checked');
-    }, 1000);
-    // clear code selection
-    e.clearSelection();
-  }
-  const getTextToCopy = function(trigger) {
-      const codeEl = trigger.previousElementSibling.cloneNode(true);
-      for (const childEl of codeEl.children) {
-        if (isCodeAnnotation(childEl)) {
-          childEl.remove();
-        }
-      }
-      return codeEl.innerText;
-  }
-  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
-    text: getTextToCopy
-  });
-  clipboard.on('success', onCopySuccess);
-  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
-    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
-      text: getTextToCopy,
-      container: window.document.getElementById('quarto-embedded-source-code-modal')
-    });
-    clipboardModal.on('success', onCopySuccess);
-  }
-    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
-    var mailtoRegex = new RegExp(/^mailto:/);
-      var filterRegex = new RegExp('/' + window.location.host + '/');
-    var isInternal = (href) => {
-        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
-    }
-    // Inspect non-navigation links and adorn them if external
- 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
-    for (var i=0; i<links.length; i++) {
-      const link = links[i];
-      if (!isInternal(link.href)) {
-        // undo the damage that might have been done by quarto-nav.js in the case of
-        // links that we want to consider external
-        if (link.dataset.originalHref !== undefined) {
-          link.href = link.dataset.originalHref;
-        }
-      }
-    }
-  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
-    const config = {
-      allowHTML: true,
-      maxWidth: 500,
-      delay: 100,
-      arrow: false,
-      appendTo: function(el) {
-          return el.parentElement;
-      },
-      interactive: true,
-      interactiveBorder: 10,
-      theme: 'quarto',
-      placement: 'bottom-start',
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
     };
-    if (contentFn) {
-      config.content = contentFn;
-    }
-    if (onTriggerFn) {
-      config.onTrigger = onTriggerFn;
-    }
-    if (onUntriggerFn) {
-      config.onUntrigger = onUntriggerFn;
-    }
-    window.tippy(el, config); 
-  }
-  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
-  for (var i=0; i<noterefs.length; i++) {
-    const ref = noterefs[i];
-    tippyHover(ref, function() {
-      // use id or data attribute instead here
-      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
-      try { href = new URL(href).hash; } catch {}
-      const id = href.replace(/^#\/?/, "");
-      const note = window.document.getElementById(id);
-      if (note) {
-        return note.innerHTML;
-      } else {
-        return "";
-      }
-    });
-  }
-  const xrefs = window.document.querySelectorAll('a.quarto-xref');
-  const processXRef = (id, note) => {
-    // Strip column container classes
-    const stripColumnClz = (el) => {
-      el.classList.remove("page-full", "page-columns");
-      if (el.children) {
-        for (const child of el.children) {
-          stripColumnClz(child);
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
         }
       }
+      return false;
     }
-    stripColumnClz(note)
-    if (id === null || id.startsWith('sec-')) {
-      // Special case sections, only their first couple elements
-      const container = document.createElement("div");
-      if (note.children && note.children.length > 2) {
-        container.appendChild(note.children[0].cloneNode(true));
-        for (let i = 1; i < note.children.length; i++) {
-          const child = note.children[i];
-          if (child.tagName === "P" && child.innerText === "") {
-            continue;
-          } else {
-            container.appendChild(child.cloneNode(true));
-            break;
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
           }
         }
-        if (window.Quarto?.typesetMath) {
-          window.Quarto.typesetMath(container);
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
         }
-        return container.innerHTML
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
       } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
         if (window.Quarto?.typesetMath) {
           window.Quarto.typesetMath(note);
         }
-        return note.innerHTML;
-      }
-    } else {
-      // Remove any anchor links if they are present
-      const anchorLink = note.querySelector('a.anchorjs-link');
-      if (anchorLink) {
-        anchorLink.remove();
-      }
-      if (window.Quarto?.typesetMath) {
-        window.Quarto.typesetMath(note);
-      }
-      if (note.classList.contains("callout")) {
-        return note.outerHTML;
-      } else {
-        return note.innerHTML;
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
       }
     }
-  }
-  for (var i=0; i<xrefs.length; i++) {
-    const xref = xrefs[i];
-    tippyHover(xref, undefined, function(instance) {
-      instance.disable();
-      let url = xref.getAttribute('href');
-      let hash = undefined; 
-      if (url.startsWith('#')) {
-        hash = url;
-      } else {
-        try { hash = new URL(url).hash; } catch {}
-      }
-      if (hash) {
-        const id = hash.replace(/^#\/?/, "");
-        const note = window.document.getElementById(id);
-        if (note !== null) {
-          try {
-            const html = processXRef(id, note.cloneNode(true));
-            instance.setContent(html);
-          } finally {
-            instance.enable();
-            instance.show();
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
           }
         } else {
-          // See if we can fetch this
-          fetch(url.split('#')[0])
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
           .then(res => res.text())
           .then(html => {
             const parser = new DOMParser();
             const htmlDoc = parser.parseFromString(html, "text/html");
-            const note = htmlDoc.getElementById(id);
+            const note = htmlDoc.querySelector('main.content');
             if (note !== null) {
-              const html = processXRef(id, note);
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
               instance.setContent(html);
             } 
           }).finally(() => {
@@ -1466,185 +1474,161 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
             instance.show();
           });
         }
-      } else {
-        // See if we can fetch a full url (with no hash to target)
-        // This is a special case and we should probably do some content thinning / targeting
-        fetch(url)
-        .then(res => res.text())
-        .then(html => {
-          const parser = new DOMParser();
-          const htmlDoc = parser.parseFromString(html, "text/html");
-          const note = htmlDoc.querySelector('main.content');
-          if (note !== null) {
-            // This should only happen for chapter cross references
-            // (since there is no id in the URL)
-            // remove the first header
-            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
-              note.children[0].remove();
-            }
-            const html = processXRef(null, note);
-            instance.setContent(html);
-          } 
-        }).finally(() => {
-          instance.enable();
-          instance.show();
-        });
-      }
-    }, function(instance) {
-    });
-  }
-      let selectedAnnoteEl;
-      const selectorForAnnotation = ( cell, annotation) => {
-        let cellAttr = 'data-code-cell="' + cell + '"';
-        let lineAttr = 'data-code-annotation="' +  annotation + '"';
-        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
-        return selector;
-      }
-      const selectCodeLines = (annoteEl) => {
-        const doc = window.document;
-        const targetCell = annoteEl.getAttribute("data-target-cell");
-        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
-        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
-        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
-        const lineIds = lines.map((line) => {
-          return targetCell + "-" + line;
-        })
-        let top = null;
-        let height = null;
-        let parent = null;
-        if (lineIds.length > 0) {
-            //compute the position of the single el (top and bottom and make a div)
-            const el = window.document.getElementById(lineIds[0]);
-            top = el.offsetTop;
-            height = el.offsetHeight;
-            parent = el.parentElement.parentElement;
-          if (lineIds.length > 1) {
-            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
-            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
-            height = bottom - top;
-          }
-          if (top !== null && height !== null && parent !== null) {
-            // cook up a div (if necessary) and position it 
-            let div = window.document.getElementById("code-annotation-line-highlight");
-            if (div === null) {
-              div = window.document.createElement("div");
-              div.setAttribute("id", "code-annotation-line-highlight");
-              div.style.position = 'absolute';
-              parent.appendChild(div);
-            }
-            div.style.top = top - 2 + "px";
-            div.style.height = height + 4 + "px";
-            div.style.left = 0;
-            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
-            if (gutterDiv === null) {
-              gutterDiv = window.document.createElement("div");
-              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
-              gutterDiv.style.position = 'absolute';
-              const codeCell = window.document.getElementById(targetCell);
-              const gutter = codeCell.querySelector('.code-annotation-gutter');
-              gutter.appendChild(gutterDiv);
-            }
-            gutterDiv.style.top = top - 2 + "px";
-            gutterDiv.style.height = height + 4 + "px";
-          }
-          selectedAnnoteEl = annoteEl;
-        }
-      };
-      const unselectCodeLines = () => {
-        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
-        elementsIds.forEach((elId) => {
-          const div = window.document.getElementById(elId);
-          if (div) {
-            div.remove();
-          }
-        });
-        selectedAnnoteEl = undefined;
-      };
-        // Handle positioning of the toggle
-    window.addEventListener(
-      "resize",
-      throttle(() => {
-        elRect = undefined;
-        if (selectedAnnoteEl) {
-          selectCodeLines(selectedAnnoteEl);
-        }
-      }, 10)
-    );
-    function throttle(fn, ms) {
-    let throttle = false;
-    let timer;
-      return (...args) => {
-        if(!throttle) { // first call gets through
-            fn.apply(this, args);
-            throttle = true;
-        } else { // all the others get throttled
-            if(timer) clearTimeout(timer); // cancel #2
-            timer = setTimeout(() => {
-              fn.apply(this, args);
-              timer = throttle = false;
-            }, ms);
-        }
-      };
-    }
-      // Attach click handler to the DT
-      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
-      for (const annoteDlNode of annoteDls) {
-        annoteDlNode.addEventListener('click', (event) => {
-          const clickedEl = event.target;
-          if (clickedEl !== selectedAnnoteEl) {
-            unselectCodeLines();
-            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
-            if (activeEl) {
-              activeEl.classList.remove('code-annotation-active');
-            }
-            selectCodeLines(clickedEl);
-            clickedEl.classList.add('code-annotation-active');
-          } else {
-            // Unselect the line
-            unselectCodeLines();
-            clickedEl.classList.remove('code-annotation-active');
-          }
-        });
-      }
-  const findCites = (el) => {
-    const parentEl = el.parentElement;
-    if (parentEl) {
-      const cites = parentEl.dataset.cites;
-      if (cites) {
-        return {
-          el,
-          cites: cites.split(' ')
-        };
-      } else {
-        return findCites(el.parentElement)
-      }
-    } else {
-      return undefined;
-    }
-  };
-  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
-  for (var i=0; i<bibliorefs.length; i++) {
-    const ref = bibliorefs[i];
-    const citeInfo = findCites(ref);
-    if (citeInfo) {
-      tippyHover(citeInfo.el, function() {
-        var popup = window.document.createElement('div');
-        citeInfo.cites.forEach(function(cite) {
-          var citeDiv = window.document.createElement('div');
-          citeDiv.classList.add('hanging-indent');
-          citeDiv.classList.add('csl-entry');
-          var biblioDiv = window.document.getElementById('ref-' + cite);
-          if (biblioDiv) {
-            citeDiv.innerHTML = biblioDiv.innerHTML;
-          }
-          popup.appendChild(citeDiv);
-        });
-        return popup.innerHTML;
+      }, function(instance) {
       });
     }
-  }
-});
-</script>
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
 <script src="https://utteranc.es/client.js" repo="hassaanbinaslam/myblog_utterances" issue-term="pathname" theme="github-light" crossorigin="anonymous" async="">
 </script>
 </div> <!-- /content -->
