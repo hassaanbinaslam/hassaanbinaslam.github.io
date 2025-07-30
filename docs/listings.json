@@ -2,6 +2,7 @@
   {
     "listing": "/index.html",
     "items": [
+      "/posts/2025-07-30-the-horse-in-motion-ffmpeg-gotchas-part-2.html",
       "/posts/2025-07-28-the-horse-in-motion-ffmpeg-gotchas-part-1.html",
       "/posts/2025-02-18-diffusion-model-mnist-part3.html",
       "/posts/2025-02-15-diffusion-model-mnist-part2.html",
