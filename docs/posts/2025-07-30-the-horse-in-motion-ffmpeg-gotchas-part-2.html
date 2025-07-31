@@ -7,9 +7,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="dcterms.date" content="2025-07-30">
-<meta name="description" content="A practical, hands-on guide to getting started with FFmpeg, covering image sequences, codecs, filters, and common gotchas in a real-world example.">
+<meta name="description" content="A hands-on guide to deploying a Python-based FFmpeg workflow on AWS Lambda using SAM, covering layer creation, binary selection, and executing subprocesses in a serverless environment.">
 
-<title>The Horse in Motion and FFmpeg Gotchas Part 2 Serverless on AWS Lambda – Random Thoughts</title>
+<title>The Horse in Motion and FFmpeg Gotchas - Part 2 Serverless on AWS Lambda – Random Thoughts</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -78,6 +78,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="../site_libs/bootstrap/bootstrap-ec1a476101e3788554028e6f9c82f7c1.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="../site_libs/quarto-contrib/glightbox/glightbox.min.js"></script>
+<link href="../site_libs/quarto-contrib/glightbox/glightbox.min.css" rel="stylesheet">
+<link href="../site_libs/quarto-contrib/glightbox/lightbox.css" rel="stylesheet">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -117,11 +120,11 @@ gtag('config', 'G-D1ST9BH6HX', { 'anonymize_ip': true});
 
 
 <link rel="stylesheet" href="../styles.css">
-<meta property="og:title" content="The Horse in Motion and FFmpeg Gotchas - Part 2 : Serverless on AWS Lambda – Random Thoughts">
+<meta property="og:title" content="The Horse in Motion and FFmpeg Gotchas Part 2 Serverless on AWS Lambda – Random Thoughts">
 <meta property="og:description" content="A practical, hands-on guide to getting started with FFmpeg, covering image sequences, codecs, filters, and common gotchas in a real-world example.">
 <meta property="og:image" content="images/2025-07-30-the-horse-in-motion-ffmpeg-gotchas-part-2.jpg">
 <meta property="og:site_name" content="Random Thoughts">
-<meta name="twitter:title" content="The Horse in Motion and FFmpeg Gotchas - Part 2 : Serverless on AWS Lambda – Random Thoughts">
+<meta name="twitter:title" content="The Horse in Motion and FFmpeg Gotchas Part 2 Serverless on AWS Lambda – Random Thoughts">
 <meta name="twitter:description" content="A practical, hands-on guide to getting started with FFmpeg, covering image sequences, codecs, filters, and common gotchas in a real-world example.">
 <meta name="twitter:image" content="images/2025-07-30-the-horse-in-motion-ffmpeg-gotchas-part-2.jpg">
 <meta name="twitter:card" content="summary_large_image">
@@ -187,8 +190,15 @@ gtag('config', 'G-D1ST9BH6HX', { 'anonymize_ip': true});
   <ul class="collapse">
   <li><a href="#attempt-1-the-john-van-sickle-build" id="toc-attempt-1-the-john-van-sickle-build" class="nav-link" data-scroll-target="#attempt-1-the-john-van-sickle-build">Attempt #1: The John Van Sickle Build</a></li>
   <li><a href="#attempt-2-a-build-that-strikes-the-right-balance" id="toc-attempt-2-a-build-that-strikes-the-right-balance" class="nav-link" data-scroll-target="#attempt-2-a-build-that-strikes-the-right-balance">Attempt #2: A Build That Strikes the Right Balance</a></li>
-  <li><a href="#putting-it-all-together-building-the-layer-and-deploying-the-function" id="toc-putting-it-all-together-building-the-layer-and-deploying-the-function" class="nav-link" data-scroll-target="#putting-it-all-together-building-the-layer-and-deploying-the-function">Putting It All Together: Building the Layer and Deploying the Function</a></li>
   </ul></li>
+  <li><a href="#putting-it-all-together-building-the-layer-and-deploying-the-function" id="toc-putting-it-all-together-building-the-layer-and-deploying-the-function" class="nav-link" data-scroll-target="#putting-it-all-together-building-the-layer-and-deploying-the-function">Putting It All Together: Building the Layer and Deploying the Function</a>
+  <ul class="collapse">
+  <li><a href="#step-1-create-the-ffmpeg-lambda-layer" id="toc-step-1-create-the-ffmpeg-lambda-layer" class="nav-link" data-scroll-target="#step-1-create-the-ffmpeg-lambda-layer">Step 1: Create the FFmpeg Lambda Layer</a></li>
+  <li><a href="#step-2-update-the-sam-template" id="toc-step-2-update-the-sam-template" class="nav-link" data-scroll-target="#step-2-update-the-sam-template">Step 2: Update the SAM Template</a></li>
+  <li><a href="#step-3-update-the-lambda-function-code" id="toc-step-3-update-the-lambda-function-code" class="nav-link" data-scroll-target="#step-3-update-the-lambda-function-code">Step 3: Update the Lambda Function Code</a></li>
+  <li><a href="#step-4-deploy-and-test" id="toc-step-4-deploy-and-test" class="nav-link" data-scroll-target="#step-4-deploy-and-test">Step 4: Deploy and Test</a></li>
+  </ul></li>
+  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion">Conclusion</a></li>
   </ul>
 </nav>
     </div>
@@ -197,7 +207,7 @@ gtag('config', 'G-D1ST9BH6HX', { 'anonymize_ip': true});
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">The Horse in Motion and FFmpeg Gotchas Part 2 Serverless on AWS Lambda</h1>
+<h1 class="title">The Horse in Motion and FFmpeg Gotchas - Part 2 Serverless on AWS Lambda</h1>
   <div class="quarto-categories">
     <div class="quarto-category">python</div>
     <div class="quarto-category">aws</div>
@@ -206,7 +216,7 @@ gtag('config', 'G-D1ST9BH6HX', { 'anonymize_ip': true});
 
 <div>
   <div class="description">
-    A practical, hands-on guide to getting started with FFmpeg, covering image sequences, codecs, filters, and common gotchas in a real-world example.
+    A hands-on guide to deploying a Python-based FFmpeg workflow on AWS Lambda using SAM, covering layer creation, binary selection, and executing subprocesses in a serverless environment.
   </div>
 </div>
 
@@ -340,7 +350,33 @@ gtag('config', 'G-D1ST9BH6HX', { 'anonymize_ip': true});
 <span id="cb4-3"><a href="#cb4-3"></a></span>
 <span id="cb4-4"><a href="#cb4-4"></a><span class="co"># Deploy it to your AWS account with a guided process</span></span>
 <span id="cb4-5"><a href="#cb4-5"></a><span class="ex">sam</span> deploy <span class="at">--guided</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><a href="images/2025-07-28-the-horse-in-motion-ffmpeg-gotchas-part-2/sam-deploy-stack-output.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-1" title="SAM deploy"><img src="images/2025-07-28-the-horse-in-motion-ffmpeg-gotchas-part-2/sam-deploy-stack-output.PNG" class="img-fluid figure-img" alt="SAM deploy"></a></p>
+<figcaption>SAM deploy</figcaption>
+</figure>
+</div>
 <p>After deployment, you can test the function from the AWS Console. If it runs successfully, you’ll find a <code>test-output.txt</code> file in the newly created S3 bucket.</p>
+<div class="quarto-layout-panel" data-layout-ncol="2">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><a href="images/2025-07-28-the-horse-in-motion-ffmpeg-gotchas-part-2/lamda-test.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-2" title="Test Lambda function"><img src="images/2025-07-28-the-horse-in-motion-ffmpeg-gotchas-part-2/lamda-test.PNG" class="img-fluid figure-img" alt="Test Lambda function"></a></p>
+<figcaption>Test Lambda function</figcaption>
+</figure>
+</div>
+</div>
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><a href="images/2025-07-28-the-horse-in-motion-ffmpeg-gotchas-part-2/s3-test-output.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-3" title="S3 bucket output file"><img src="images/2025-07-28-the-horse-in-motion-ffmpeg-gotchas-part-2/s3-test-output.PNG" class="img-fluid figure-img" alt="S3 bucket output file"></a></p>
+<figcaption>S3 bucket output file</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div>
 <p>Now that our basic infrastructure is in place, it’s time to tackle the main challenge: getting FFmpeg to run.</p>
 <div class="callout callout-style-default callout-tip callout-titled" title="Code checkpoint">
 <div class="callout-header d-flex align-content-center">
@@ -383,7 +419,11 @@ ffmpeg-release-amd6 100%[===================&gt;]  39.95M  11.9MB/s    in 3.4s
 <div id="ELbWNdkcRJ80" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1"></a><span class="op">!</span>tar <span class="op">-</span>xf ffmpeg<span class="op">-</span>release<span class="op">-</span>amd64<span class="op">-</span>static.tar.xz</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Now, let’s inspect this build, just like we did in Part 1. We need two things: 1. An H.264 encoder (like <code>libx264</code>). 2. The <code>drawtext</code> filter for adding our title.</p>
+<p>Now, let’s inspect this build, just like we did in Part 1. We need two things:</p>
+<ol type="1">
+<li>An H.264 encoder (like <code>libx264</code>).</li>
+<li>The <code>drawtext</code> filter for adding our title.</li>
+</ol>
 <p>First, let’s check for <code>libx264</code> by listing the available codecs.</p>
 <div id="uxzxpTQxRmX4" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;colab&quot;,&quot;value&quot;:{&quot;base_uri&quot;:&quot;https://localhost:8080/&quot;}}" data-outputid="57dabe84-b50d-474e-c2a4-37d6768a5559" data-execution_count="7">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1"></a><span class="op">!/</span>content<span class="op">/</span>ffmpeg<span class="op">-</span><span class="fl">7.0.2</span><span class="op">-</span>amd64<span class="op">-</span>static<span class="op">/</span>ffmpeg <span class="op">-</span>codecs <span class="op">|</span> grep libx264</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -403,7 +443,7 @@ ffmpeg-release-amd6 100%[===================&gt;]  39.95M  11.9MB/s    in 3.4s
 </div>
 </div>
 <p>Great news! We see <code>(encoders: libx264 ...)</code>, so our preferred encoder is available.</p>
-<p>Now for the critical test: does this build support the <code>drawtext</code> filter? As we learned, this filter depends on the <code>libfreetype</code> library being enabled during compilation. Let’s check the build configuration.</p>
+<p>Now for the critical test: does this build support the <code>drawtext</code> filter? As we learned, this filter depends on the <code>libfreetype</code> library being enabled during compilation (check the ffmpeg <a href="https://ffmpeg.org/ffmpeg-filters.html#drawtext-1">drawtext docs</a>). Let’s check the build configuration.</p>
 <div id="3cjbXzYdR2Te" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;colab&quot;,&quot;value&quot;:{&quot;base_uri&quot;:&quot;https://localhost:8080/&quot;}}" data-outputid="6ed48d63-a84e-497c-a1fe-4424f7c95509" data-execution_count="8">
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1"></a><span class="op">!/</span>content<span class="op">/</span>ffmpeg<span class="op">-</span><span class="fl">7.0.2</span><span class="op">-</span>amd64<span class="op">-</span>static<span class="op">/</span>ffmpeg <span class="op">-</span>buildconf</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -490,9 +530,8 @@ ffmpeg-release-amd6 100%[===================&gt;]  39.95M  11.9MB/s    in 3.4s
 </section>
 <section id="attempt-2-a-build-that-strikes-the-right-balance" class="level3">
 <h3 class="anchored" data-anchor-id="attempt-2-a-build-that-strikes-the-right-balance">Attempt #2: A Build That Strikes the Right Balance</h3>
-<p>Our search for the perfect FFmpeg binary leads us to another highly-regarded source: the automated builds from GitHub user BtbN, which are linked from the <a href="https://ffmpeg.org/download.html">official FFmpeg download page</a>. These builds come in various flavors, so we have a better chance of finding one that fits our specific needs.</p>
+<p>Our search for the perfect FFmpeg binary leads us to another highly-regarded source: the automated builds from <a href="https://github.com/BtbN/FFmpeg-Builds">GitHub user BtbN</a>, which are linked from the <a href="https://ffmpeg.org/download.html">official FFmpeg download page</a>. These builds come in various flavors, so we have a better chance of finding one that fits our specific needs.</p>
 <p>We’ll try the <code>ffmpeg-n7.1-latest-linux64-lgpl-7.1.tar.xz</code> version.</p>
-<p>https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-n7.1-latest-linux64-lgpl-7.1.tar.xz</p>
 <div id="gDDN7xOpWRoB" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;colab&quot;,&quot;value&quot;:{&quot;base_uri&quot;:&quot;https://localhost:8080/&quot;}}" data-outputid="5f63b5f3-1597-49dc-abac-13b2cd1ff89a" data-execution_count="14">
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1"></a><span class="op">!</span>wget https:<span class="op">//</span>github.com<span class="op">/</span>BtbN<span class="op">/</span>FFmpeg<span class="op">-</span>Builds<span class="op">/</span>releases<span class="op">/</span>download<span class="op">/</span>latest<span class="op">/</span>ffmpeg<span class="op">-</span>n7<span class="fl">.1</span><span class="op">-</span>latest<span class="op">-</span>linux64<span class="op">-</span>lgpl<span class="op">-</span><span class="fl">7.1</span>.tar.xz</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -570,7 +609,7 @@ ffmpeg-n7.1-latest- 100%[===================&gt;] 100.23M  32.5MB/s    in 3.1s
  DEV.LS h264                 H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10 (decoders: h264 h264_v4l2m2m h264_qsv libopenh264 h264_cuvid) (encoders: libopenh264 h264_amf h264_nvenc h264_qsv h264_v4l2m2m h264_vaapi h264_vulkan)</code></pre>
 </div>
 </div>
-<p>This build includes <code>libopenh264</code>, an open-source H.264 encoder provided by Cisco. While <code>libx264</code> is often considered the highest-quality software encoder, <code>libopenh264</code> is more than capable for most use cases, including ours. Its more permissive license (BSD) makes it a popular choice for distributable builds.</p>
+<p>This build includes <code>libopenh264</code>, an <a href="https://github.com/cisco/openh264">open-source H.264 encoder provided by Cisco</a>. While <code>libx264</code> is often considered the highest-quality software encoder, <code>libopenh264</code> is more than capable for most use cases, including ours. Its more permissive license (BSD) makes it a popular choice for distributable builds.</p>
 <p>We have a winner! This build strikes the perfect balance for our needs:</p>
 <ul>
 <li>It’s a static binary, perfect for AWS Lambda.</li>
@@ -579,11 +618,12 @@ ffmpeg-n7.1-latest- 100%[===================&gt;] 100.23M  32.5MB/s    in 3.1s
 </ul>
 <p>Now that we’ve found our champion binary, it’s time to package it up as a Lambda Layer and put it to work.</p>
 </section>
-<section id="putting-it-all-together-building-the-layer-and-deploying-the-function" class="level3">
-<h3 class="anchored" data-anchor-id="putting-it-all-together-building-the-layer-and-deploying-the-function">Putting It All Together: Building the Layer and Deploying the Function</h3>
+</section>
+<section id="putting-it-all-together-building-the-layer-and-deploying-the-function" class="level2">
+<h2 class="anchored" data-anchor-id="putting-it-all-together-building-the-layer-and-deploying-the-function">Putting It All Together: Building the Layer and Deploying the Function</h2>
 <p>We’ve found our FFmpeg binary. Now it’s time to integrate it into our serverless application. This involves two main steps: packaging the binary into a Lambda Layer and updating our Python code to use it.</p>
-<section id="step-1-create-the-ffmpeg-lambda-layer" class="level4">
-<h4 class="anchored" data-anchor-id="step-1-create-the-ffmpeg-lambda-layer">Step 1: Create the FFmpeg Lambda Layer</h4>
+<section id="step-1-create-the-ffmpeg-lambda-layer" class="level3">
+<h3 class="anchored" data-anchor-id="step-1-create-the-ffmpeg-lambda-layer">Step 1: Create the FFmpeg Lambda Layer</h3>
 <p>A Lambda Layer is a .zip file archive that can contain additional code or data. By packaging FFmpeg as a layer, we can keep it separate from our function code. This makes our deployment package smaller and our project more organized.</p>
 <p>Lambda has a specific directory structure it expects for layers. For executables, they need to be placed in a <code>bin</code> directory inside the zip file.</p>
 <p>Let’s create this structure and package our chosen FFmpeg binary:</p>
@@ -610,9 +650,9 @@ ffmpeg-n7.1-latest- 100%[===================&gt;] 100.23M  32.5MB/s    in 3.1s
 <pre><code>/content/ffmpeg-layer</code></pre>
 </div>
 </div>
-<div id="4b2I_b6la1ki" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;colab&quot;,&quot;value&quot;:{&quot;base_uri&quot;:&quot;https://localhost:8080/&quot;}}" data-outputid="6485c7ac-3658-4a06-dbc2-5ea21bb0f255" data-execution_count="28">
-<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1"></a><span class="co"># Now, zip the CONTENTS of the current directory (which is 'ffmpeg_layer')</span></span>
-<span id="cb30-2"><a href="#cb30-2"></a><span class="co"># The '*' ensures you select all files/folders directly within ffmpeg_layer</span></span>
+<div id="4b2I_b6la1ki" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;colab&quot;,&quot;value&quot;:{&quot;base_uri&quot;:&quot;https://localhost:8080/&quot;}}" data-outputid="6485c7ac-3658-4a06-dbc2-5ea21bb0f255">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1"></a><span class="co"># Now, zip the CONTENTS of the current directory (which is 'ffmpeg-layer')</span></span>
+<span id="cb30-2"><a href="#cb30-2"></a><span class="co"># The '*' ensures you select all files/folders directly within ffmpeg-layer</span></span>
 <span id="cb30-3"><a href="#cb30-3"></a><span class="co"># The -D flag helps to not store directory entries (sometimes helps with cleaner zips)</span></span>
 <span id="cb30-4"><a href="#cb30-4"></a><span class="op">!</span><span class="bu">zip</span> <span class="op">-</span>r <span class="op">-</span>D ..<span class="op">/</span>ffmpeg<span class="op">-</span>layer.<span class="bu">zip</span> <span class="op">*</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -621,14 +661,249 @@ ffmpeg-n7.1-latest- 100%[===================&gt;] 100.23M  32.5MB/s    in 3.1s
 </div>
 <p>You should now have a <code>ffmpeg-layer.zip</code> file in your project’s root directory. This is our Lambda Layer, ready to be deployed.</p>
 </section>
-<section id="step-2-update-the-sam-template" class="level4">
-<h4 class="anchored" data-anchor-id="step-2-update-the-sam-template">Step 2: Update the SAM Template</h4>
+<section id="step-2-update-the-sam-template" class="level3">
+<h3 class="anchored" data-anchor-id="step-2-update-the-sam-template">Step 2: Update the SAM Template</h3>
 <p>Next, we need to tell our <code>template.yaml</code> file about this new layer and attach it to our function. We also need to give our function a bit more memory and a longer timeout, as video processing is resource-intensive.</p>
 <p>Here are the key additions to <code>template.yaml</code>:</p>
-
-
+<div id="5710e004" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;vscode&quot;,&quot;value&quot;:{&quot;languageId&quot;:&quot;shellscript&quot;}}">
+<details class="code-fold">
+<summary>Show the code</summary>
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1"></a>AWSTemplateFormatVersion: <span class="st">"2010-09-09"</span></span>
+<span id="cb32-2"><a href="#cb32-2"></a>Transform: AWS::Serverless<span class="op">-</span><span class="dv">2016</span><span class="op">-</span><span class="dv">10</span><span class="op">-</span><span class="dv">31</span></span>
+<span id="cb32-3"><a href="#cb32-3"></a>Description: <span class="op">&gt;</span></span>
+<span id="cb32-4"><a href="#cb32-4"></a>  ffmpeg<span class="op">-</span><span class="kw">lambda</span><span class="op">-</span>demo</span>
+<span id="cb32-5"><a href="#cb32-5"></a>  A simple Lambda function to process video <span class="cf">with</span> FFmpeg.</span>
+<span id="cb32-6"><a href="#cb32-6"></a></span>
+<span id="cb32-7"><a href="#cb32-7"></a>Globals:</span>
+<span id="cb32-8"><a href="#cb32-8"></a>  Function:</span>
+<span id="cb32-9"><a href="#cb32-9"></a>    Timeout: <span class="dv">90</span> <span class="co"># Increased timeout for video processing</span></span>
+<span id="cb32-10"><a href="#cb32-10"></a>    MemorySize: <span class="dv">1024</span> <span class="co"># Increased memory for FFmpeg</span></span>
+<span id="cb32-11"><a href="#cb32-11"></a></span>
+<span id="cb32-12"><a href="#cb32-12"></a>Resources:</span>
+<span id="cb32-13"><a href="#cb32-13"></a>  <span class="co"># The S3 bucket where our output videos will be stored</span></span>
+<span id="cb32-14"><a href="#cb32-14"></a>  OutputBucket:</span>
+<span id="cb32-15"><a href="#cb32-15"></a>    Type: AWS::S3::Bucket</span>
+<span id="cb32-16"><a href="#cb32-16"></a></span>
+<span id="cb32-17"><a href="#cb32-17"></a>    <span class="co"># Define the Lambda Layer</span></span>
+<span id="cb32-18"><a href="#cb32-18"></a>  FFmpegLayer:</span>
+<span id="cb32-19"><a href="#cb32-19"></a>    Type: AWS::Serverless::LayerVersion</span>
+<span id="cb32-20"><a href="#cb32-20"></a>    Properties:</span>
+<span id="cb32-21"><a href="#cb32-21"></a>      LayerName: ffmpeg<span class="op">-</span>layer</span>
+<span id="cb32-22"><a href="#cb32-22"></a>      Description: FFmpeg static build <span class="cf">for</span> video processing</span>
+<span id="cb32-23"><a href="#cb32-23"></a>      ContentUri: layers<span class="op">/</span>ffmpeg<span class="op">-</span>layer.<span class="bu">zip</span> <span class="co"># Points to our local zip file</span></span>
+<span id="cb32-24"><a href="#cb32-24"></a>      CompatibleRuntimes:</span>
+<span id="cb32-25"><a href="#cb32-25"></a>        <span class="op">-</span> python3<span class="fl">.12</span></span>
+<span id="cb32-26"><a href="#cb32-26"></a>        <span class="op">-</span> python3<span class="fl">.13</span></span>
+<span id="cb32-27"><a href="#cb32-27"></a></span>
+<span id="cb32-28"><a href="#cb32-28"></a>  <span class="co"># The Lambda function that will run our code</span></span>
+<span id="cb32-29"><a href="#cb32-29"></a>  FFmpegFunction:</span>
+<span id="cb32-30"><a href="#cb32-30"></a>    Type: AWS::Serverless::Function</span>
+<span id="cb32-31"><a href="#cb32-31"></a>    Properties:</span>
+<span id="cb32-32"><a href="#cb32-32"></a>      CodeUri: src<span class="op">/</span></span>
+<span id="cb32-33"><a href="#cb32-33"></a>      Handler: app.lambda_handler</span>
+<span id="cb32-34"><a href="#cb32-34"></a>      Runtime: python3<span class="fl">.13</span></span>
+<span id="cb32-35"><a href="#cb32-35"></a>      Architectures:</span>
+<span id="cb32-36"><a href="#cb32-36"></a>        <span class="op">-</span> x86_64</span>
+<span id="cb32-37"><a href="#cb32-37"></a></span>
+<span id="cb32-38"><a href="#cb32-38"></a>      <span class="co"># Pass the bucket name to the function as an environment variable</span></span>
+<span id="cb32-39"><a href="#cb32-39"></a>      Environment:</span>
+<span id="cb32-40"><a href="#cb32-40"></a>        Variables:</span>
+<span id="cb32-41"><a href="#cb32-41"></a>          OUTPUT_BUCKET: <span class="op">!</span>Ref OutputBucket</span>
+<span id="cb32-42"><a href="#cb32-42"></a></span>
+<span id="cb32-43"><a href="#cb32-43"></a>      <span class="co"># Give the function permission to write to the S3 bucket</span></span>
+<span id="cb32-44"><a href="#cb32-44"></a>      Policies:</span>
+<span id="cb32-45"><a href="#cb32-45"></a>        <span class="op">-</span> S3WritePolicy:</span>
+<span id="cb32-46"><a href="#cb32-46"></a>            BucketName: <span class="op">!</span>Ref OutputBucket</span>
+<span id="cb32-47"><a href="#cb32-47"></a></span>
+<span id="cb32-48"><a href="#cb32-48"></a>      <span class="co"># Attach the layer to the function</span></span>
+<span id="cb32-49"><a href="#cb32-49"></a>      Layers:</span>
+<span id="cb32-50"><a href="#cb32-50"></a>        <span class="op">-</span> <span class="op">!</span>Ref FFmpegLayer</span>
+<span id="cb32-51"><a href="#cb32-51"></a></span>
+<span id="cb32-52"><a href="#cb32-52"></a>Outputs:</span>
+<span id="cb32-53"><a href="#cb32-53"></a>  OutputBucketName:</span>
+<span id="cb32-54"><a href="#cb32-54"></a>    Description: <span class="st">"Name of the S3 bucket for output videos"</span></span>
+<span id="cb32-55"><a href="#cb32-55"></a>    Value: <span class="op">!</span>Ref OutputBucket</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="step-3-update-the-lambda-function-code" class="level3">
+<h3 class="anchored" data-anchor-id="step-3-update-the-lambda-function-code">Step 3: Update the Lambda Function Code</h3>
+<p>This is the final piece of the puzzle. We need to update our <code>src/app.py</code> to perform the full workflow:</p>
+<ol type="1">
+<li>Download the horse frames into the <code>/tmp</code> directory (the only writable location in a Lambda function).</li>
+<li>Use Python’s <code>subprocess</code> module to call the FFmpeg binary.</li>
+<li>Upload the resulting video from <code>/tmp</code> to our S3 bucket.</li>
+</ol>
+<div class="callout callout-style-default callout-note callout-titled" title="Important Note">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Important Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>To use the <code>drawtext</code> filter, FFmpeg needs a font file. Lambda environment does not have any so you need to provide it. Download a font like <a href="https://www.dafont.com/liberation-sans.font">Liberation Sans</a>, and place <code>LiberationSans-Regular.ttf</code> inside a new <code>src/fonts/</code> directory. We will package this font with our function code.</p>
+</div>
+</div>
+<p>Here is the final <code>src/app.py</code>:</p>
+<div id="024a1ded" class="cell">
+<details class="code-fold">
+<summary>Show the code</summary>
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1"></a><span class="co"># src/app.py</span></span>
+<span id="cb33-2"><a href="#cb33-2"></a><span class="im">import</span> os</span>
+<span id="cb33-3"><a href="#cb33-3"></a><span class="im">import</span> boto3</span>
+<span id="cb33-4"><a href="#cb33-4"></a><span class="im">import</span> requests</span>
+<span id="cb33-5"><a href="#cb33-5"></a><span class="im">import</span> subprocess</span>
+<span id="cb33-6"><a href="#cb33-6"></a></span>
+<span id="cb33-7"><a href="#cb33-7"></a>OUTPUT_BUCKET <span class="op">=</span> os.environ.get(<span class="st">"OUTPUT_BUCKET"</span>)</span>
+<span id="cb33-8"><a href="#cb33-8"></a>s3_client <span class="op">=</span> boto3.client(<span class="st">"s3"</span>)</span>
+<span id="cb33-9"><a href="#cb33-9"></a>TMP_DIR <span class="op">=</span> <span class="st">"/tmp"</span></span>
+<span id="cb33-10"><a href="#cb33-10"></a></span>
+<span id="cb33-11"><a href="#cb33-11"></a></span>
+<span id="cb33-12"><a href="#cb33-12"></a><span class="kw">def</span> download_frames():</span>
+<span id="cb33-13"><a href="#cb33-13"></a>    <span class="co">"""Downloads the 15 horse frames into /tmp/video_frames"""</span></span>
+<span id="cb33-14"><a href="#cb33-14"></a>    frames_dir <span class="op">=</span> os.path.join(TMP_DIR, <span class="st">"video_frames"</span>)</span>
+<span id="cb33-15"><a href="#cb33-15"></a>    os.makedirs(frames_dir, exist_ok<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb33-16"><a href="#cb33-16"></a></span>
+<span id="cb33-17"><a href="#cb33-17"></a>    base_url <span class="op">=</span> <span class="st">"https://raw.githubusercontent.com/hassaanbinaslam/myblog/5c15e72dde03112c5c8dea177bfed7c835aca399/posts/images/2025-07-28-the-horse-in-motion-ffmpeg-gotchas-part-1/video_frames"</span></span>
+<span id="cb33-18"><a href="#cb33-18"></a></span>
+<span id="cb33-19"><a href="#cb33-19"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, <span class="dv">16</span>):</span>
+<span id="cb33-20"><a href="#cb33-20"></a>        frame_number <span class="op">=</span> <span class="bu">str</span>(i).zfill(<span class="dv">2</span>)</span>
+<span id="cb33-21"><a href="#cb33-21"></a>        image_url <span class="op">=</span> <span class="ss">f"</span><span class="sc">{</span>base_url<span class="sc">}</span><span class="ss">/frame</span><span class="sc">{</span>frame_number<span class="sc">}</span><span class="ss">.png"</span></span>
+<span id="cb33-22"><a href="#cb33-22"></a>        response <span class="op">=</span> requests.get(image_url)</span>
+<span id="cb33-23"><a href="#cb33-23"></a>        <span class="cf">if</span> response.status_code <span class="op">==</span> <span class="dv">200</span>:</span>
+<span id="cb33-24"><a href="#cb33-24"></a>            <span class="cf">with</span> <span class="bu">open</span>(os.path.join(frames_dir, <span class="ss">f"frame</span><span class="sc">{</span>frame_number<span class="sc">}</span><span class="ss">.png"</span>), <span class="st">"wb"</span>) <span class="im">as</span> f:</span>
+<span id="cb33-25"><a href="#cb33-25"></a>                f.write(response.content)</span>
+<span id="cb33-26"><a href="#cb33-26"></a></span>
+<span id="cb33-27"><a href="#cb33-27"></a>    <span class="bu">print</span>(<span class="st">"All frames downloaded."</span>)</span>
+<span id="cb33-28"><a href="#cb33-28"></a>    <span class="co"># print("List the files names downloaded")</span></span>
+<span id="cb33-29"><a href="#cb33-29"></a>    <span class="co"># print(os.listdir(frames_dir))</span></span>
+<span id="cb33-30"><a href="#cb33-30"></a></span>
+<span id="cb33-31"><a href="#cb33-31"></a></span>
+<span id="cb33-32"><a href="#cb33-32"></a><span class="kw">def</span> lambda_handler(event, context):</span>
+<span id="cb33-33"><a href="#cb33-33"></a>    <span class="cf">try</span>:</span>
+<span id="cb33-34"><a href="#cb33-34"></a>        <span class="bu">print</span>(<span class="st">"Starting video creation process..."</span>)</span>
+<span id="cb33-35"><a href="#cb33-35"></a>        download_frames()</span>
+<span id="cb33-36"><a href="#cb33-36"></a></span>
+<span id="cb33-37"><a href="#cb33-37"></a>        <span class="co"># Paths in the Lambda's writable /tmp directory</span></span>
+<span id="cb33-38"><a href="#cb33-38"></a>        input_path <span class="op">=</span> os.path.join(TMP_DIR, <span class="st">"video_frames/frame</span><span class="sc">%02d</span><span class="st">.png"</span>)</span>
+<span id="cb33-39"><a href="#cb33-39"></a>        output_path <span class="op">=</span> os.path.join(TMP_DIR, <span class="st">"output.mp4"</span>)</span>
+<span id="cb33-40"><a href="#cb33-40"></a></span>
+<span id="cb33-41"><a href="#cb33-41"></a>        <span class="co"># Path to the font file packaged with our function</span></span>
+<span id="cb33-42"><a href="#cb33-42"></a>        font_file <span class="op">=</span> <span class="st">"./fonts/LiberationSans-Regular.ttf"</span></span>
+<span id="cb33-43"><a href="#cb33-43"></a></span>
+<span id="cb33-44"><a href="#cb33-44"></a>        <span class="co"># When a layer is used, its contents are available in the /opt directory.</span></span>
+<span id="cb33-45"><a href="#cb33-45"></a>        <span class="co"># Our FFmpeg binary is therefore at /opt/bin/ffmpeg.</span></span>
+<span id="cb33-46"><a href="#cb33-46"></a>        ffmpeg_cmd <span class="op">=</span> [</span>
+<span id="cb33-47"><a href="#cb33-47"></a>            <span class="st">"/opt/bin/ffmpeg"</span>,</span>
+<span id="cb33-48"><a href="#cb33-48"></a>            <span class="st">"-stream_loop"</span>,</span>
+<span id="cb33-49"><a href="#cb33-49"></a>            <span class="st">"-1"</span>,</span>
+<span id="cb33-50"><a href="#cb33-50"></a>            <span class="st">"-framerate"</span>,</span>
+<span id="cb33-51"><a href="#cb33-51"></a>            <span class="st">"1.5"</span>,</span>
+<span id="cb33-52"><a href="#cb33-52"></a>            <span class="st">"-i"</span>,</span>
+<span id="cb33-53"><a href="#cb33-53"></a>            input_path,</span>
+<span id="cb33-54"><a href="#cb33-54"></a>            <span class="st">"-vf"</span>,</span>
+<span id="cb33-55"><a href="#cb33-55"></a>            <span class="ss">f"drawtext=fontfile=</span><span class="sc">{</span>font_file<span class="sc">}</span><span class="ss">:text='The Horse in Motion and FFmpeg Gotchas Part 2':fontcolor=white:fontsize=13:box=1:boxcolor=black@0.8:boxborderw=5:x=(w-text_w)/2:y=(h-text_h)/2:enable='between(t,0,10)'"</span>,</span>
+<span id="cb33-56"><a href="#cb33-56"></a>            <span class="st">"-c:v"</span>,</span>
+<span id="cb33-57"><a href="#cb33-57"></a>            <span class="st">"libopenh264"</span>,  <span class="co"># Use the alternate H.264 encoder</span></span>
+<span id="cb33-58"><a href="#cb33-58"></a>            <span class="st">"-r"</span>,</span>
+<span id="cb33-59"><a href="#cb33-59"></a>            <span class="st">"30"</span>,</span>
+<span id="cb33-60"><a href="#cb33-60"></a>            <span class="st">"-pix_fmt"</span>,</span>
+<span id="cb33-61"><a href="#cb33-61"></a>            <span class="st">"yuv420p"</span>,</span>
+<span id="cb33-62"><a href="#cb33-62"></a>            <span class="st">"-t"</span>,</span>
+<span id="cb33-63"><a href="#cb33-63"></a>            <span class="st">"40"</span>,</span>
+<span id="cb33-64"><a href="#cb33-64"></a>            output_path,</span>
+<span id="cb33-65"><a href="#cb33-65"></a>        ]</span>
+<span id="cb33-66"><a href="#cb33-66"></a></span>
+<span id="cb33-67"><a href="#cb33-67"></a>        <span class="bu">print</span>(<span class="ss">f"Running FFmpeg command: </span><span class="sc">{</span><span class="st">' '</span><span class="sc">.</span>join(ffmpeg_cmd)<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb33-68"><a href="#cb33-68"></a></span>
+<span id="cb33-69"><a href="#cb33-69"></a>        <span class="co"># Execute the FFmpeg command</span></span>
+<span id="cb33-70"><a href="#cb33-70"></a>        result <span class="op">=</span> subprocess.run(ffmpeg_cmd, capture_output<span class="op">=</span><span class="va">True</span>, text<span class="op">=</span><span class="va">True</span>, check<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb33-71"><a href="#cb33-71"></a></span>
+<span id="cb33-72"><a href="#cb33-72"></a>        <span class="bu">print</span>(<span class="st">"FFmpeg stdout:"</span>, result.stdout)</span>
+<span id="cb33-73"><a href="#cb33-73"></a>        <span class="bu">print</span>(<span class="st">"FFmpeg stderr:"</span>, result.stderr)</span>
+<span id="cb33-74"><a href="#cb33-74"></a></span>
+<span id="cb33-75"><a href="#cb33-75"></a>        <span class="bu">print</span>(<span class="ss">f"FFmpeg command successful. Uploading </span><span class="sc">{</span>output_path<span class="sc">}</span><span class="ss"> to S3."</span>)</span>
+<span id="cb33-76"><a href="#cb33-76"></a></span>
+<span id="cb33-77"><a href="#cb33-77"></a>        s3_client.upload_file(output_path, OUTPUT_BUCKET, <span class="st">"horse-in-motion.mp4"</span>)</span>
+<span id="cb33-78"><a href="#cb33-78"></a></span>
+<span id="cb33-79"><a href="#cb33-79"></a>        <span class="cf">return</span> {</span>
+<span id="cb33-80"><a href="#cb33-80"></a>            <span class="st">"statusCode"</span>: <span class="dv">200</span>,</span>
+<span id="cb33-81"><a href="#cb33-81"></a>            <span class="st">"body"</span>: <span class="st">"Successfully created and uploaded horse-in-motion.mp4 to S3."</span>,</span>
+<span id="cb33-82"><a href="#cb33-82"></a>        }</span>
+<span id="cb33-83"><a href="#cb33-83"></a></span>
+<span id="cb33-84"><a href="#cb33-84"></a>    <span class="cf">except</span> subprocess.CalledProcessError <span class="im">as</span> e:</span>
+<span id="cb33-85"><a href="#cb33-85"></a>        <span class="bu">print</span>(<span class="st">"FFmpeg failed to execute."</span>)</span>
+<span id="cb33-86"><a href="#cb33-86"></a>        <span class="bu">print</span>(<span class="st">"Return code:"</span>, e.returncode)</span>
+<span id="cb33-87"><a href="#cb33-87"></a>        <span class="bu">print</span>(<span class="st">"stdout:"</span>, e.stdout)</span>
+<span id="cb33-88"><a href="#cb33-88"></a>        <span class="bu">print</span>(<span class="st">"stderr:"</span>, e.stderr)</span>
+<span id="cb33-89"><a href="#cb33-89"></a>        <span class="cf">raise</span> e</span>
+<span id="cb33-90"><a href="#cb33-90"></a>    <span class="cf">except</span> <span class="pp">Exception</span> <span class="im">as</span> e:</span>
+<span id="cb33-91"><a href="#cb33-91"></a>        <span class="bu">print</span>(e)</span>
+<span id="cb33-92"><a href="#cb33-92"></a>        <span class="cf">raise</span> e</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>Finally, make sure your <code>src/requirements.txt</code> file also includes <code>requests</code>:</p>
+<pre><code>boto3
+requests</code></pre>
+</section>
+<section id="step-4-deploy-and-test" class="level3">
+<h3 class="anchored" data-anchor-id="step-4-deploy-and-test">Step 4: Deploy and Test</h3>
+<p>With all the pieces in place, we can deploy our application.</p>
+<div class="sourceCode" id="cb35"><pre class="sourceCode numberSource bash number-lines code-with-copy"><code class="sourceCode bash"><span id="cb35-1"><a href="#cb35-1"></a><span class="co"># Build the application, including the layer and function code</span></span>
+<span id="cb35-2"><a href="#cb35-2"></a><span class="ex">sam</span> build</span>
+<span id="cb35-3"><a href="#cb35-3"></a></span>
+<span id="cb35-4"><a href="#cb35-4"></a><span class="co"># Deploy the changes to your AWS account</span></span>
+<span id="cb35-5"><a href="#cb35-5"></a><span class="ex">sam</span> deploy</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Once the deployment is complete, navigate to the AWS Lambda console, find the function, and invoke it with a test event. Monitor the logs in CloudWatch. If everything works as expected, you will see the logs from the <code>print</code> statements, and a new file named <code>horse-in-motion.mp4</code> will appear in your S3 bucket!</p>
+<div class="quarto-layout-panel" data-layout-ncol="2">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><a href="images/2025-07-28-the-horse-in-motion-ffmpeg-gotchas-part-2/lamda-test-2.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-4" title="Test Lambda function"><img src="images/2025-07-28-the-horse-in-motion-ffmpeg-gotchas-part-2/lamda-test-2.PNG" class="img-fluid figure-img" alt="Test Lambda function"></a></p>
+<figcaption>Test Lambda function</figcaption>
+</figure>
+</div>
+</div>
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><a href="images/2025-07-28-the-horse-in-motion-ffmpeg-gotchas-part-2/s3-final-output.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-5" title="S3 bucket output file"><img src="images/2025-07-28-the-horse-in-motion-ffmpeg-gotchas-part-2/s3-final-output.PNG" class="img-fluid figure-img" alt="S3 bucket output file"></a></p>
+<figcaption>S3 bucket output file</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled" title="Code checkpoint">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Code checkpoint
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>All the code for this post till this point is available in the Github repo <a href="https://github.com/hassaanbinaslam/horse-in-motion-ffmpeg-gotchas-part-2/tree/d756d84a2aaacbb9cb3daf0150f0c3f2f92dbe02">horse-in-motion-ffmpeg-gotchas-part-2 (d756d)</a></p>
+</div>
+</div>
 </section>
 </section>
+<section id="conclusion" class="level2">
+<h2 class="anchored" data-anchor-id="conclusion">Conclusion</h2>
+<p>Our serverless journey is complete! We successfully migrated our FFmpeg process from a local notebook to a scalable AWS Lambda function. Along the way, we navigated some of the most common real-world gotchas of working with FFmpeg in a constrained environment:</p>
+<ul>
+<li><strong>Finding the Right Build:</strong> We learned that not all static builds are created equal and that verifying the presence of specific codecs and filters is a critical first step.</li>
+<li><strong>Managing Dependencies:</strong> We discovered that a build might have one feature we need (<code>drawtext</code>) but lack another (<code>libx264</code>), forcing us to adapt and use alternatives like <code>libopenh264</code>.</li>
+<li><strong>Lambda Environment Constraints:</strong> We saw the importance of using the <code>/tmp</code> directory for file operations and learned how to package and access binaries and other assets using Lambda Layers.</li>
+</ul>
+<p>By packaging FFmpeg as a layer, you now have a reusable, serverless video processing engine that you can use to build powerful on-demand media applications.</p>
+
+
 </section>
 
 </main> <!-- /main -->
@@ -1034,6 +1309,38 @@ ffmpeg-n7.1-latest- 100%[===================&gt;] 100.23M  32.5MB/s    in 3.1s
 <script src="https://utteranc.es/client.js" repo="hassaanbinaslam/myblog_utterances" issue-term="pathname" theme="github-light" crossorigin="anonymous" async="">
 </script>
 </div> <!-- /content -->
+<script>var lightboxQuarto = GLightbox({"closeEffect":"zoom","descPosition":"bottom","loop":false,"openEffect":"zoom","selector":".lightbox"});
+(function() {
+  let previousOnload = window.onload;
+  window.onload = () => {
+    if (previousOnload) {
+      previousOnload();
+    }
+    lightboxQuarto.on('slide_before_load', (data) => {
+      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+      const href = trigger.getAttribute('href');
+      if (href !== null) {
+        const imgEl = window.document.querySelector(`a[href="${href}"] img`);
+        if (imgEl !== null) {
+          const srcAttr = imgEl.getAttribute("src");
+          if (srcAttr && srcAttr.startsWith("data:")) {
+            slideConfig.href = srcAttr;
+          }
+        }
+      } 
+    });
+  
+    lightboxQuarto.on('slide_after_load', (data) => {
+      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(slideNode);
+      }
+    });
+  
+  };
+  
+})();
+          </script>
 
 
 
