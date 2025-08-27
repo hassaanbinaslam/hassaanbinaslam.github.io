@@ -1,0 +1,2051 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.32">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="dcterms.date" content="2025-08-27">
+<meta name="description" content="In this step-by-step tutorial, we translate the groundbreaking SqueezeNet paper into a working PyTorch model, train it on CIFAR-10, and verify its incredible efficiency.">
+
+<title>Building SqueezeNet from Scratch with PyTorch: A Hands-On Implementation – Random Thoughts</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../images/favicon.ico" rel="icon">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-ec1a476101e3788554028e6f9c82f7c1.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="../site_libs/quarto-contrib/glightbox/glightbox.min.js"></script>
+<link href="../site_libs/quarto-contrib/glightbox/glightbox.min.css" rel="stylesheet">
+<link href="../site_libs/quarto-contrib/glightbox/lightbox.css" rel="stylesheet">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script async="" src="https://www.googletagmanager.com/gtag/js?id=G-D1ST9BH6HX"></script>
+
+<script type="text/javascript">
+
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-D1ST9BH6HX', { 'anonymize_ip': true});
+</script>
+
+
+<link rel="stylesheet" href="../styles.css">
+<meta property="og:title" content="Building SqueezeNet from Scratch with PyTorch: A Hands-On Implementation – Random Thoughts">
+<meta property="og:description" content="In this step-by-step tutorial, we translate the groundbreaking SqueezeNet paper into a working PyTorch model, train it on CIFAR-10, and verify its incredible efficiency.">
+<meta property="og:image" content="images/2025-08-27-squeezenet-implementation">
+<meta property="og:site_name" content="Random Thoughts">
+<meta name="twitter:title" content="Building SqueezeNet from Scratch with PyTorch: A Hands-On Implementation – Random Thoughts">
+<meta name="twitter:description" content="In this step-by-step tutorial, we translate the groundbreaking SqueezeNet paper into a working PyTorch model, train it on CIFAR-10, and verify its incredible efficiency.">
+<meta name="twitter:image" content="images/2025-08-27-squeezenet-implementation">
+<meta name="twitter:card" content="summary_large_image">
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">Random Thoughts</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://www.linkedin.com/in/hassaanbinaslam/"> <i class="bi bi-linkedin" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/hassaanbinaslam/"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://twitter.com/hassaanbinaslam"> <i class="bi bi-twitter" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a>
+  <ul class="collapse">
+  <li><a href="#our-training-ground-the-cifar-10-dataset" id="toc-our-training-ground-the-cifar-10-dataset" class="nav-link" data-scroll-target="#our-training-ground-the-cifar-10-dataset">Our Training Ground: The CIFAR-10 Dataset</a></li>
+  <li><a href="#our-roadmap-for-this-post" id="toc-our-roadmap-for-this-post" class="nav-link" data-scroll-target="#our-roadmap-for-this-post">Our Roadmap for this Post</a></li>
+  </ul></li>
+  <li><a href="#setting-the-stage---data-augmentation-and-optimization" id="toc-setting-the-stage---data-augmentation-and-optimization" class="nav-link" data-scroll-target="#setting-the-stage---data-augmentation-and-optimization">Setting the Stage - Data, Augmentation, and Optimization</a>
+  <ul class="collapse">
+  <li><a href="#step-1-environment-and-imports" id="toc-step-1-environment-and-imports" class="nav-link" data-scroll-target="#step-1-environment-and-imports">Step 1: Environment and Imports</a></li>
+  <li><a href="#step-2-data-augmentation-and-transformation" id="toc-step-2-data-augmentation-and-transformation" class="nav-link" data-scroll-target="#step-2-data-augmentation-and-transformation">Step 2: Data Augmentation and Transformation</a></li>
+  <li><a href="#step-3-creating-optimized-dataloaders" id="toc-step-3-creating-optimized-dataloaders" class="nav-link" data-scroll-target="#step-3-creating-optimized-dataloaders">Step 3: Creating Optimized DataLoaders</a></li>
+  <li><a href="#step-4-final-sanity-check---lets-see-the-data" id="toc-step-4-final-sanity-check---lets-see-the-data" class="nav-link" data-scroll-target="#step-4-final-sanity-check---lets-see-the-data">Step 4: Final Sanity Check - Let’s See the Data!</a></li>
+  </ul></li>
+  <li><a href="#implementing-the-fire-module-in-pytorch" id="toc-implementing-the-fire-module-in-pytorch" class="nav-link" data-scroll-target="#implementing-the-fire-module-in-pytorch">Implementing the <code>Fire</code> Module in PyTorch</a>
+  <ul class="collapse">
+  <li><a href="#the-code-fire-module" id="toc-the-code-fire-module" class="nav-link" data-scroll-target="#the-code-fire-module">The Code: <code>Fire</code> Module</a></li>
+  </ul></li>
+  <li><a href="#assembling-the-full-squeezenet-model" id="toc-assembling-the-full-squeezenet-model" class="nav-link" data-scroll-target="#assembling-the-full-squeezenet-model">Assembling the Full <code>SqueezeNet</code> Model</a>
+  <ul class="collapse">
+  <li><a href="#code-breakdown-1" id="toc-code-breakdown-1" class="nav-link" data-scroll-target="#code-breakdown-1">Code Breakdown</a></li>
+  </ul></li>
+  <li><a href="#training-squeezenet-and-analyzing-the-results" id="toc-training-squeezenet-and-analyzing-the-results" class="nav-link" data-scroll-target="#training-squeezenet-and-analyzing-the-results">Training SqueezeNet and Analyzing the Results</a>
+  <ul class="collapse">
+  <li><a href="#step-1-the-training-setup" id="toc-step-1-the-training-setup" class="nav-link" data-scroll-target="#step-1-the-training-setup">Step 1: The Training Setup</a></li>
+  <li><a href="#step-2-the-training-loop-and-output" id="toc-step-2-the-training-loop-and-output" class="nav-link" data-scroll-target="#step-2-the-training-loop-and-output">Step 2: The Training Loop and Output</a></li>
+  <li><a href="#step-3-visualizing-the-training-progress" id="toc-step-3-visualizing-the-training-progress" class="nav-link" data-scroll-target="#step-3-visualizing-the-training-progress">Step 3: Visualizing the Training Progress</a></li>
+  <li><a href="#step-5-the-final-report-card---per-class-accuracy" id="toc-step-5-the-final-report-card---per-class-accuracy" class="nav-link" data-scroll-target="#step-5-the-final-report-card---per-class-accuracy">Step 5: The Final Report Card - Per-Class Accuracy</a></li>
+  </ul></li>
+  <li><a href="#the-verdict---did-we-fulfill-the-squeeze-promise" id="toc-the-verdict---did-we-fulfill-the-squeeze-promise" class="nav-link" data-scroll-target="#the-verdict---did-we-fulfill-the-squeeze-promise">The Verdict - Did We Fulfill the “Squeeze” Promise?</a>
+  <ul class="collapse">
+  <li><a href="#measuring-the-model-parameters-and-file-size" id="toc-measuring-the-model-parameters-and-file-size" class="nav-link" data-scroll-target="#measuring-the-model-parameters-and-file-size">Measuring the Model: Parameters and File Size</a></li>
+  </ul></li>
+  <li><a href="#pushing-the-limits---an-experiment-with-batch-size" id="toc-pushing-the-limits---an-experiment-with-batch-size" class="nav-link" data-scroll-target="#pushing-the-limits---an-experiment-with-batch-size">Pushing the Limits - An Experiment with Batch Size</a></li>
+  <li><a href="#conclusion-from-theory-to-reality" id="toc-conclusion-from-theory-to-reality" class="nav-link" data-scroll-target="#conclusion-from-theory-to-reality">Conclusion: From Theory to Reality</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Building SqueezeNet from Scratch with PyTorch: A Hands-On Implementation</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">papers</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    In this step-by-step tutorial, we translate the groundbreaking SqueezeNet paper into a working PyTorch model, train it on CIFAR-10, and verify its incredible efficiency.
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">August 27, 2025</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p><img src="images/2025-08-27-squeezenet-implementation.png" class="img-fluid"></p>
+<section id="introduction" class="level2">
+<h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
+<p>In our <a href="https://hassaanbinaslam.github.io/myblog/posts/2025-08-21-squeezenet-reading-notes.html">previous post</a>, we took a deep dive into the theory behind the landmark SqueezeNet paper. We deconstructed the “why”—the motivations and the brilliant design strategies that allowed researchers to achieve AlexNet-level performance with a model over 500 times smaller.</p>
+<p>Now, it’s time to get our hands dirty and build the “how.”</p>
+<p>Reading a paper is one thing, but true understanding often comes from implementation. The goal of this post is to translate the concepts from the SqueezeNet paper into a complete, working PyTorch model. We’ll walk through the code step-by-step, build the architecture from the ground up, train it on a real dataset, and analyze the results to see if we can replicate the incredible efficiency that made SqueezeNet famous.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The complete Jupyter Notebook for this post is available on GitHub. You can view it, download it, and run the code yourself at the following link:</p>
+<p><a href="https://github.com/hassaanbinaslam/myblog/blob/main/posts/2025-08-27-squeezenet-implementation.ipynb">2025-08-27-squeezenet-implementation.ipynb</a></p>
+</div>
+</div>
+<section id="our-training-ground-the-cifar-10-dataset" class="level3">
+<h3 class="anchored" data-anchor-id="our-training-ground-the-cifar-10-dataset">Our Training Ground: The CIFAR-10 Dataset</h3>
+<p>The original SqueezeNet was trained on the massive ImageNet dataset, which contains over a million images across 1000 categories. Training on ImageNet from scratch requires immense computational resources and time.</p>
+<p>For this post, we’ll use the popular <strong>CIFAR-10</strong> dataset. It consists of 60,000 <code>32x32</code> color images in 10 classes, such as ‘plane’, ‘car’, ‘bird’, and ‘dog’. CIFAR-10 is a fantastic learning tool because it’s complex enough to be a meaningful challenge, but small enough that we can train our network in a reasonable amount of time on a single GPU. It’s the perfect environment to validate our SqueezeNet implementation.</p>
+</section>
+<section id="our-roadmap-for-this-post" class="level3">
+<h3 class="anchored" data-anchor-id="our-roadmap-for-this-post">Our Roadmap for this Post</h3>
+<p>We will follow the logical flow of a machine learning project, from data preparation to final analysis. Here’s what we’ll cover:</p>
+<ol type="1">
+<li><strong>Setting the Stage:</strong> We’ll begin by setting up our environment, importing the necessary libraries, and creating our data loaders with powerful augmentations to help our model generalize.</li>
+<li><strong>Building the <code>Fire</code> Module:</strong> We’ll implement the heart of SqueezeNet, the <code>Fire</code> module, as a custom <code>nn.Module</code> in PyTorch.</li>
+<li><strong>Assembling the Full <code>SqueezeNet</code>:</strong> Using our <code>Fire</code> module as a building block, we’ll construct the complete SqueezeNet macroarchitecture.</li>
+<li><strong>Training and Analysis:</strong> We’ll write a complete training loop, train the model on CIFAR-10, and visualize its performance with detailed plots.</li>
+<li><strong>The Final Verdict:</strong> Finally, we’ll calculate our trained model’s parameter count and file size to see how it stacks up against the paper’s promise of extreme efficiency.</li>
+</ol>
+<p>Let’s dive in and start writing some code!</p>
+</section>
+</section>
+<section id="setting-the-stage---data-augmentation-and-optimization" class="level2">
+<h2 class="anchored" data-anchor-id="setting-the-stage---data-augmentation-and-optimization">Setting the Stage - Data, Augmentation, and Optimization</h2>
+<p>Before we can build our network, we need to prepare our data. A robust and efficient data pipeline is the foundation of any successful deep learning project. In this section, we’ll handle three key steps: setting up our environment, defining our data transformations (including augmentation), and creating optimized data loaders to feed the GPU.</p>
+<section id="step-1-environment-and-imports" class="level3">
+<h3 class="anchored" data-anchor-id="step-1-environment-and-imports">Step 1: Environment and Imports</h3>
+<p>First, we’ll import all the necessary libraries. We’re using PyTorch for building and training the model, Matplotlib for plotting, and a few other helpful utilities. For reproducibility, it’s great practice to log the versions of our key libraries using <code>watermark</code>. This helps ensure that others (or our future selves!) can recreate the same environment.</p>
+<div id="cell-4" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1"></a><span class="op">%%</span>capture</span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="op">!</span>pip install watermark</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-5" class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1"></a><span class="op">%</span>load_ext watermark</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-6" class="cell" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1"></a><span class="im">import</span> torch</span>
+<span id="cb3-2"><a href="#cb3-2"></a><span class="im">import</span> torchvision</span>
+<span id="cb3-3"><a href="#cb3-3"></a><span class="im">import</span> torchvision.transforms <span class="im">as</span> transforms</span>
+<span id="cb3-4"><a href="#cb3-4"></a><span class="im">import</span> torch.nn <span class="im">as</span> nn</span>
+<span id="cb3-5"><a href="#cb3-5"></a><span class="im">import</span> torch.optim <span class="im">as</span> optim</span>
+<span id="cb3-6"><a href="#cb3-6"></a><span class="im">import</span> torch.nn.init <span class="im">as</span> init</span>
+<span id="cb3-7"><a href="#cb3-7"></a><span class="im">import</span> os</span>
+<span id="cb3-8"><a href="#cb3-8"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb3-9"><a href="#cb3-9"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb3-10"><a href="#cb3-10"></a></span>
+<span id="cb3-11"><a href="#cb3-11"></a><span class="im">from</span> torch.optim.lr_scheduler <span class="im">import</span> ReduceLROnPlateau</span>
+<span id="cb3-12"><a href="#cb3-12"></a><span class="im">from</span> tqdm <span class="im">import</span> tqdm</span>
+<span id="cb3-13"><a href="#cb3-13"></a></span>
+<span id="cb3-14"><a href="#cb3-14"></a><span class="op">%</span>matplotlib inline</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-7" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;colab&quot;,&quot;value&quot;:{&quot;base_uri&quot;:&quot;https://localhost:8080/&quot;}}" data-outputid="56995df8-0431-4ad3-b2f9-a865890ffd6e" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1"></a><span class="op">%</span>watermark <span class="op">-</span>v <span class="op">-</span>m <span class="op">-</span>p torch,torchvision,matplotlib,watermark,tqdm</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Python implementation: CPython
+Python version       : 3.10.18
+IPython version      : 8.37.0
+
+torch      : 2.6.0+cu124
+torchvision: 0.21.0+cu124
+matplotlib : 3.10.5
+watermark  : 2.5.0
+tqdm       : 4.67.1
+
+Compiler    : GCC 13.3.0
+OS          : Linux
+Release     : 5.10.240-238.959.amzn2.x86_64
+Machine     : x86_64
+Processor   : x86_64
+CPU cores   : 4
+Architecture: 64bit
+</code></pre>
+</div>
+</div>
+</section>
+<section id="step-2-data-augmentation-and-transformation" class="level3">
+<h3 class="anchored" data-anchor-id="step-2-data-augmentation-and-transformation">Step 2: Data Augmentation and Transformation</h3>
+<p>Raw image data is rarely fed directly into a neural network. We need to process it first. We’ll define two separate transformation pipelines: one for our training data and one for our validation/testing data.</p>
+<p><strong>For Training Data:</strong></p>
+<p>Our <code>train_transform</code> is a sequence of operations designed to prepare the data and also to <em>augment</em> it. Data augmentation is a powerful technique to artificially increase the diversity of your training set and prevent the model from overfitting.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1"></a><span class="co"># For training: resize, augment, convert to tensor, normalize</span></span>
+<span id="cb6-2"><a href="#cb6-2"></a>train_transform <span class="op">=</span> transforms.Compose([</span>
+<span id="cb6-3"><a href="#cb6-3"></a>    transforms.Resize(<span class="dv">224</span>),</span>
+<span id="cb6-4"><a href="#cb6-4"></a>    transforms.RandomHorizontalFlip(),</span>
+<span id="cb6-5"><a href="#cb6-5"></a>    transforms.RandomRotation(<span class="dv">10</span>),</span>
+<span id="cb6-6"><a href="#cb6-6"></a>    transforms.ToTensor(),</span>
+<span id="cb6-7"><a href="#cb6-7"></a>    transforms.Normalize((<span class="fl">0.5</span>, <span class="fl">0.5</span>, <span class="fl">0.5</span>), (<span class="fl">0.5</span>, <span class="fl">0.5</span>, <span class="fl">0.5</span>))</span>
+<span id="cb6-8"><a href="#cb6-8"></a>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Let’s break down what each step does:</p>
+<ul>
+<li><code>transforms.Resize(224)</code>: The original SqueezeNet was designed for 224x224 pixel images from ImageNet. We resize our smaller 32x32 CIFAR-10 images to match this expected input size.</li>
+<li><code>transforms.RandomHorizontalFlip()</code>: This randomly flips half of the images horizontally. This teaches the model that a car facing left is still a car, making it more robust.</li>
+<li><code>transforms.RandomRotation(10)</code>: This randomly rotates images by a small amount (up to 10 degrees). This helps the model become invariant to slight changes in orientation.</li>
+<li><code>transforms.ToTensor()</code>: This converts the image from a PIL Image format into a PyTorch tensor, the fundamental data structure used by the framework.</li>
+<li><code>transforms.Normalize(...)</code>: This standardizes the pixel values of the tensor. By normalizing them to have a mean of 0.5 and a standard deviation of 0.5, we ensure the data is in a range that’s ideal for the network to learn from, which can lead to faster and more stable training.</li>
+</ul>
+<p><strong>For Validation/Testing Data:</strong></p>
+<p>Our <code>test_transform</code> is simpler. We perform the necessary resizing, conversion to a tensor, and normalization, but we <strong>do not</strong> use augmentation. We want to evaluate our model on the clean, original test data, not modified versions of it.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1"></a><span class="co"># For validation/testing: just resize, convert to tensor, normalize</span></span>
+<span id="cb7-2"><a href="#cb7-2"></a>test_transform <span class="op">=</span> transforms.Compose([</span>
+<span id="cb7-3"><a href="#cb7-3"></a>    transforms.Resize(<span class="dv">224</span>),</span>
+<span id="cb7-4"><a href="#cb7-4"></a>    transforms.ToTensor(),</span>
+<span id="cb7-5"><a href="#cb7-5"></a>    transforms.Normalize((<span class="fl">0.5</span>, <span class="fl">0.5</span>, <span class="fl">0.5</span>), (<span class="fl">0.5</span>, <span class="fl">0.5</span>, <span class="fl">0.5</span>))</span>
+<span id="cb7-6"><a href="#cb7-6"></a>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="step-3-creating-optimized-dataloaders" class="level3">
+<h3 class="anchored" data-anchor-id="step-3-creating-optimized-dataloaders">Step 3: Creating Optimized DataLoaders</h3>
+<p>Now that we have our transformation pipelines, we’ll create PyTorch <code>DataLoaders</code>. A DataLoader is a powerful utility that automatically handles batching our data, shuffling it, and loading it in parallel.</p>
+<p>We’ll pay attention to a few key parameters to make our data pipeline as fast as possible:</p>
+<ul>
+<li><code>batch_size = 128</code>: We’ll process the data in batches of 128 images. This is more efficient for the GPU than processing images one by one.</li>
+<li><code>num_workers</code>: This tells the DataLoader to use multiple subprocesses to load data in the background. A good starting point is the number of CPU cores you have. This prevents the CPU from becoming a bottleneck while the GPU waits for data.</li>
+<li><code>pin_memory=True</code>: This is a great optimization. It tells PyTorch to place the data tensors in a special “pinned” memory region, which allows for much faster, non-blocking data transfer from the CPU to the GPU.</li>
+</ul>
+<div id="cell-9" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;colab&quot;,&quot;value&quot;:{&quot;base_uri&quot;:&quot;https://localhost:8080/&quot;}}" data-outputid="962cb49e-c461-4535-ab2d-fa6b74155cbf">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1"></a><span class="co"># --- Data Loading and Augmentation ---</span></span>
+<span id="cb8-2"><a href="#cb8-2"></a><span class="co"># For training: resize, augment, convert to tensor, normalize</span></span>
+<span id="cb8-3"><a href="#cb8-3"></a>train_transform <span class="op">=</span> transforms.Compose([</span>
+<span id="cb8-4"><a href="#cb8-4"></a>    transforms.Resize(<span class="dv">224</span>),</span>
+<span id="cb8-5"><a href="#cb8-5"></a>    transforms.RandomHorizontalFlip(),</span>
+<span id="cb8-6"><a href="#cb8-6"></a>    transforms.RandomRotation(<span class="dv">10</span>),</span>
+<span id="cb8-7"><a href="#cb8-7"></a>    transforms.ToTensor(),</span>
+<span id="cb8-8"><a href="#cb8-8"></a>    transforms.Normalize((<span class="fl">0.5</span>, <span class="fl">0.5</span>, <span class="fl">0.5</span>), (<span class="fl">0.5</span>, <span class="fl">0.5</span>, <span class="fl">0.5</span>))</span>
+<span id="cb8-9"><a href="#cb8-9"></a>])</span>
+<span id="cb8-10"><a href="#cb8-10"></a></span>
+<span id="cb8-11"><a href="#cb8-11"></a><span class="co"># For validation/testing: just resize, convert to tensor, normalize</span></span>
+<span id="cb8-12"><a href="#cb8-12"></a>test_transform <span class="op">=</span> transforms.Compose([</span>
+<span id="cb8-13"><a href="#cb8-13"></a>    transforms.Resize(<span class="dv">224</span>),</span>
+<span id="cb8-14"><a href="#cb8-14"></a>    transforms.ToTensor(),</span>
+<span id="cb8-15"><a href="#cb8-15"></a>    transforms.Normalize((<span class="fl">0.5</span>, <span class="fl">0.5</span>, <span class="fl">0.5</span>), (<span class="fl">0.5</span>, <span class="fl">0.5</span>, <span class="fl">0.5</span>))</span>
+<span id="cb8-16"><a href="#cb8-16"></a>])</span>
+<span id="cb8-17"><a href="#cb8-17"></a></span>
+<span id="cb8-18"><a href="#cb8-18"></a><span class="co"># --- Data Loader Optimizations ---</span></span>
+<span id="cb8-19"><a href="#cb8-19"></a><span class="co"># Increased batch size for better GPU utilization</span></span>
+<span id="cb8-20"><a href="#cb8-20"></a>batch_size <span class="op">=</span> <span class="dv">128</span></span>
+<span id="cb8-21"><a href="#cb8-21"></a><span class="co"># Use more workers to load data in parallel</span></span>
+<span id="cb8-22"><a href="#cb8-22"></a><span class="co"># Use os.cpu_count() for a good starting point, but you may need to tune this</span></span>
+<span id="cb8-23"><a href="#cb8-23"></a>num_workers <span class="op">=</span> <span class="bu">min</span>(os.cpu_count(), <span class="dv">8</span>)</span>
+<span id="cb8-24"><a href="#cb8-24"></a><span class="bu">print</span>(<span class="st">"num_workers: "</span>, num_workers)</span>
+<span id="cb8-25"><a href="#cb8-25"></a></span>
+<span id="cb8-26"><a href="#cb8-26"></a>trainset <span class="op">=</span> torchvision.datasets.CIFAR10(root<span class="op">=</span><span class="st">'./data'</span>, train<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb8-27"><a href="#cb8-27"></a>                                        download<span class="op">=</span><span class="va">True</span>, transform<span class="op">=</span>train_transform)</span>
+<span id="cb8-28"><a href="#cb8-28"></a><span class="co"># Enabled pin_memory=True for faster CPU to GPU data transfer</span></span>
+<span id="cb8-29"><a href="#cb8-29"></a>trainloader <span class="op">=</span> torch.utils.data.DataLoader(trainset, batch_size<span class="op">=</span>batch_size,</span>
+<span id="cb8-30"><a href="#cb8-30"></a>                                          shuffle<span class="op">=</span><span class="va">True</span>, num_workers<span class="op">=</span>num_workers, pin_memory<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb8-31"><a href="#cb8-31"></a></span>
+<span id="cb8-32"><a href="#cb8-32"></a>testset <span class="op">=</span> torchvision.datasets.CIFAR10(root<span class="op">=</span><span class="st">'./data'</span>, train<span class="op">=</span><span class="va">False</span>,</span>
+<span id="cb8-33"><a href="#cb8-33"></a>                                       download<span class="op">=</span><span class="va">True</span>, transform<span class="op">=</span>test_transform)</span>
+<span id="cb8-34"><a href="#cb8-34"></a>testloader <span class="op">=</span> torch.utils.data.DataLoader(testset, batch_size<span class="op">=</span>batch_size,</span>
+<span id="cb8-35"><a href="#cb8-35"></a>                                         shuffle<span class="op">=</span><span class="va">False</span>, num_workers<span class="op">=</span>num_workers, pin_memory<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb8-36"><a href="#cb8-36"></a></span>
+<span id="cb8-37"><a href="#cb8-37"></a>classes <span class="op">=</span> (<span class="st">'plane'</span>, <span class="st">'car'</span>, <span class="st">'bird'</span>, <span class="st">'cat'</span>, <span class="st">'deer'</span>, <span class="st">'dog'</span>, <span class="st">'frog'</span>, <span class="st">'horse'</span>, <span class="st">'ship'</span>, <span class="st">'truck'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>num_workers:  4</code></pre>
+</div>
+</div>
+</section>
+<section id="step-4-final-sanity-check---lets-see-the-data" class="level3">
+<h3 class="anchored" data-anchor-id="step-4-final-sanity-check---lets-see-the-data">Step 4: Final Sanity Check - Let’s See the Data!</h3>
+<p>Before we move on to building our model, it’s always a good idea to perform a quick sanity check to make sure our data pipeline is working as expected. Let’s grab one batch of images from our <code>trainloader</code> and display them with their correct labels.</p>
+<div id="cell-11" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;colab&quot;,&quot;value&quot;:{&quot;base_uri&quot;:&quot;https://localhost:8080/&quot;,&quot;height&quot;:333}}" data-outputid="94add44e-66d1-4492-b92a-3bc65c1d4886">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1"></a><span class="co"># --- Get a batch of training data ---</span></span>
+<span id="cb10-2"><a href="#cb10-2"></a><span class="co"># Create an iterator from the dataloader</span></span>
+<span id="cb10-3"><a href="#cb10-3"></a>dataiter <span class="op">=</span> <span class="bu">iter</span>(trainloader)</span>
+<span id="cb10-4"><a href="#cb10-4"></a><span class="co"># Get the first batch of images and labels</span></span>
+<span id="cb10-5"><a href="#cb10-5"></a>images, labels <span class="op">=</span> <span class="bu">next</span>(dataiter)</span>
+<span id="cb10-6"><a href="#cb10-6"></a></span>
+<span id="cb10-7"><a href="#cb10-7"></a><span class="co"># --- Define a function to display an image ---</span></span>
+<span id="cb10-8"><a href="#cb10-8"></a><span class="co"># This function will un-normalize and display a single image tensor</span></span>
+<span id="cb10-9"><a href="#cb10-9"></a><span class="kw">def</span> imshow(img):</span>
+<span id="cb10-10"><a href="#cb10-10"></a>    img <span class="op">=</span> img <span class="op">/</span> <span class="dv">2</span> <span class="op">+</span> <span class="fl">0.5</span>     <span class="co"># Un-normalize the image</span></span>
+<span id="cb10-11"><a href="#cb10-11"></a>    npimg <span class="op">=</span> img.numpy()</span>
+<span id="cb10-12"><a href="#cb10-12"></a>    plt.imshow(np.transpose(npimg, (<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">0</span>))) <span class="co"># Convert from Tensor image</span></span>
+<span id="cb10-13"><a href="#cb10-13"></a></span>
+<span id="cb10-14"><a href="#cb10-14"></a><span class="co"># --- Create a grid of images and display them ---</span></span>
+<span id="cb10-15"><a href="#cb10-15"></a><span class="co"># Number of images to display</span></span>
+<span id="cb10-16"><a href="#cb10-16"></a>num_images_to_show <span class="op">=</span> <span class="dv">10</span></span>
+<span id="cb10-17"><a href="#cb10-17"></a></span>
+<span id="cb10-18"><a href="#cb10-18"></a><span class="co"># Create a figure with a grid of subplots</span></span>
+<span id="cb10-19"><a href="#cb10-19"></a><span class="co"># We'll use 2 rows and 5 columns to display 10 images</span></span>
+<span id="cb10-20"><a href="#cb10-20"></a>fig, axes <span class="op">=</span> plt.subplots(nrows<span class="op">=</span><span class="dv">2</span>, ncols<span class="op">=</span><span class="dv">5</span>, figsize<span class="op">=</span>(<span class="dv">15</span>, <span class="dv">6</span>))</span>
+<span id="cb10-21"><a href="#cb10-21"></a></span>
+<span id="cb10-22"><a href="#cb10-22"></a><span class="co"># Flatten the axes array to make it easy to loop over</span></span>
+<span id="cb10-23"><a href="#cb10-23"></a>axes <span class="op">=</span> axes.flatten()</span>
+<span id="cb10-24"><a href="#cb10-24"></a></span>
+<span id="cb10-25"><a href="#cb10-25"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(num_images_to_show):</span>
+<span id="cb10-26"><a href="#cb10-26"></a>    ax <span class="op">=</span> axes[i]</span>
+<span id="cb10-27"><a href="#cb10-27"></a></span>
+<span id="cb10-28"><a href="#cb10-28"></a>    <span class="co"># Detach the image tensor, move to CPU, and un-normalize</span></span>
+<span id="cb10-29"><a href="#cb10-29"></a>    img <span class="op">=</span> images[i].cpu()</span>
+<span id="cb10-30"><a href="#cb10-30"></a>    img <span class="op">=</span> img <span class="op">/</span> <span class="dv">2</span> <span class="op">+</span> <span class="fl">0.5</span>  <span class="co"># Un-normalize</span></span>
+<span id="cb10-31"><a href="#cb10-31"></a>    npimg <span class="op">=</span> img.numpy()</span>
+<span id="cb10-32"><a href="#cb10-32"></a></span>
+<span id="cb10-33"><a href="#cb10-33"></a>    <span class="co"># Display the image</span></span>
+<span id="cb10-34"><a href="#cb10-34"></a>    ax.imshow(np.transpose(npimg, (<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">0</span>)))</span>
+<span id="cb10-35"><a href="#cb10-35"></a></span>
+<span id="cb10-36"><a href="#cb10-36"></a>    <span class="co"># Set the title of the subplot to the corresponding class label</span></span>
+<span id="cb10-37"><a href="#cb10-37"></a>    ax.set_title(classes[labels[i]])</span>
+<span id="cb10-38"><a href="#cb10-38"></a></span>
+<span id="cb10-39"><a href="#cb10-39"></a>    <span class="co"># Remove the x and y axis ticks for a cleaner look</span></span>
+<span id="cb10-40"><a href="#cb10-40"></a>    ax.set_xticks([])</span>
+<span id="cb10-41"><a href="#cb10-41"></a>    ax.set_yticks([])</span>
+<span id="cb10-42"><a href="#cb10-42"></a></span>
+<span id="cb10-43"><a href="#cb10-43"></a><span class="co"># Add a title for the entire figure and adjust layout</span></span>
+<span id="cb10-44"><a href="#cb10-44"></a>plt.suptitle(<span class="st">'Sample Training Images with Labels'</span>, fontsize<span class="op">=</span><span class="dv">16</span>)</span>
+<span id="cb10-45"><a href="#cb10-45"></a>plt.tight_layout(rect<span class="op">=</span>[<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="fl">0.96</span>]) <span class="co"># Adjust layout to make room for suptitle</span></span>
+<span id="cb10-46"><a href="#cb10-46"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="2025-08-27-squeezenet-implementation_files/figure-html/cell-7-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="implementing-the-fire-module-in-pytorch" class="level2">
+<h2 class="anchored" data-anchor-id="implementing-the-fire-module-in-pytorch">Implementing the <code>Fire</code> Module in PyTorch</h2>
+<p>With our data pipeline ready, it’s time to build the engine of SqueezeNet: the <code>Fire</code> module. As we learned in our theory deep-dive, this compact and efficient module is the key to SqueezeNet’s small size and high performance.</p>
+<p>We’ll implement the <code>Fire</code> module as a custom class that inherits from PyTorch’s <code>nn.Module</code>. This allows us to define its constituent layers in the <code>__init__</code> method and specify how data flows through them in the <code>forward</code> method.</p>
+<section id="the-code-fire-module" class="level3">
+<h3 class="anchored" data-anchor-id="the-code-fire-module">The Code: <code>Fire</code> Module</h3>
+<p>Here is the complete PyTorch implementation of the Fire module:</p>
+<div id="cell-13" class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1"></a><span class="kw">class</span> Fire(nn.Module):</span>
+<span id="cb11-2"><a href="#cb11-2"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, inplanes: <span class="bu">int</span>, squeeze_planes: <span class="bu">int</span>, expand1x1_planes: <span class="bu">int</span>, expand3x3_planes: <span class="bu">int</span>) <span class="op">-&gt;</span> <span class="va">None</span>:</span>
+<span id="cb11-3"><a href="#cb11-3"></a>        <span class="bu">super</span>().<span class="fu">__init__</span>()</span>
+<span id="cb11-4"><a href="#cb11-4"></a>        <span class="va">self</span>.inplanes <span class="op">=</span> inplanes</span>
+<span id="cb11-5"><a href="#cb11-5"></a>        </span>
+<span id="cb11-6"><a href="#cb11-6"></a>        <span class="co"># Squeeze Layer</span></span>
+<span id="cb11-7"><a href="#cb11-7"></a>        <span class="va">self</span>.squeeze <span class="op">=</span> nn.Conv2d(inplanes, squeeze_planes, kernel_size<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb11-8"><a href="#cb11-8"></a>        <span class="va">self</span>.squeeze_activation <span class="op">=</span> nn.ReLU(inplace<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb11-9"><a href="#cb11-9"></a>        </span>
+<span id="cb11-10"><a href="#cb11-10"></a>        <span class="co"># Expand Layer - 1x1 branch</span></span>
+<span id="cb11-11"><a href="#cb11-11"></a>        <span class="va">self</span>.expand1x1 <span class="op">=</span> nn.Conv2d(squeeze_planes, expand1x1_planes, kernel_size<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb11-12"><a href="#cb11-12"></a>        <span class="va">self</span>.expand1x1_activation <span class="op">=</span> nn.ReLU(inplace<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb11-13"><a href="#cb11-13"></a></span>
+<span id="cb11-14"><a href="#cb11-14"></a>        <span class="co"># Expand Layer - 3x3 branch</span></span>
+<span id="cb11-15"><a href="#cb11-15"></a>        <span class="va">self</span>.expand3x3 <span class="op">=</span> nn.Conv2d(squeeze_planes, expand3x3_planes, kernel_size<span class="op">=</span><span class="dv">3</span>, padding<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb11-16"><a href="#cb11-16"></a>        <span class="va">self</span>.expand3x3_activation <span class="op">=</span> nn.ReLU(inplace<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb11-17"><a href="#cb11-17"></a></span>
+<span id="cb11-18"><a href="#cb11-18"></a>    <span class="kw">def</span> forward(<span class="va">self</span>, x: torch.Tensor) <span class="op">-&gt;</span> torch.Tensor:</span>
+<span id="cb11-19"><a href="#cb11-19"></a>        <span class="co"># Squeeze the input</span></span>
+<span id="cb11-20"><a href="#cb11-20"></a>        x <span class="op">=</span> <span class="va">self</span>.squeeze_activation(<span class="va">self</span>.squeeze(x))</span>
+<span id="cb11-21"><a href="#cb11-21"></a>        </span>
+<span id="cb11-22"><a href="#cb11-22"></a>        <span class="co"># Pass through both expand branches and concatenate the results</span></span>
+<span id="cb11-23"><a href="#cb11-23"></a>        <span class="cf">return</span> torch.cat(</span>
+<span id="cb11-24"><a href="#cb11-24"></a>            [<span class="va">self</span>.expand1x1_activation(<span class="va">self</span>.expand1x1(x)), <span class="va">self</span>.expand3x3_activation(<span class="va">self</span>.expand3x3(x))], <span class="dv">1</span></span>
+<span id="cb11-25"><a href="#cb11-25"></a>        )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<section id="code-breakdown" class="level4">
+<h4 class="anchored" data-anchor-id="code-breakdown">Code Breakdown</h4>
+<p>Let’s walk through this code to see how it perfectly mirrors the paper’s design.</p>
+<p><strong>The <code>__init__</code> Method (The Blueprint):</strong></p>
+<p>This is where we define all the layers our module will use.</p>
+<ul>
+<li><code>self.squeeze</code>: This is our bottleneck layer, a simple <code>nn.Conv2d</code> with a <code>kernel_size=1</code>. Its purpose is to take the input (<code>inplanes</code>) and reduce its channel dimension down to <code>squeeze_planes</code>.</li>
+<li><code>self.expand1x1</code>: This is the 1x1 branch of the expand layer. It takes the squeezed feature map and applies <code>expand1x1_planes</code> number of 1x1 filters.</li>
+<li><code>self.expand3x3</code>: This is the 3x3 branch. It <em>also</em> takes the squeezed feature map and applies <code>expand3x3_planes</code> number of 3x3 filters.
+<ul>
+<li><strong>Crucial Detail:</strong> Notice the <code>padding=1</code> argument. A 3x3 convolution would normally shrink the feature map’s height and width. This padding ensures the output of the 3x3 branch has the exact same spatial dimensions as the output of the 1x1 branch, which is essential for the next step.</li>
+</ul></li>
+<li><code>ReLU(inplace=True)</code>: We use the standard ReLU activation function after each convolution. <code>inplace=True</code> is a small memory optimization.</li>
+</ul>
+<p><strong>The <code>forward</code> Method (The Assembly Line):</strong></p>
+<p>This method defines how data flows through the layers we just created.</p>
+<ol type="1">
+<li>First, the input tensor <code>x</code> is passed through the squeeze convolution and its activation function. This creates our thin, bottlenecked feature map.</li>
+<li>Next, this single squeezed tensor is fed into <em>both</em> the <code>expand1x1</code> and <code>expand3x3</code> branches in parallel.</li>
+<li>Finally, the magic happens with <code>torch.cat([...], 1)</code>. We take the outputs of the two expand branches and concatenate them along <strong>dimension 1</strong> (the channel dimension). This stacks the feature maps from both branches together, creating the final, wider output of the Fire module.</li>
+</ol>
+<p>This clean and modular implementation gives us the reusable building block we need to construct the full SqueezeNet architecture.</p>
+</section>
+</section>
+</section>
+<section id="assembling-the-full-squeezenet-model" class="level2">
+<h2 class="anchored" data-anchor-id="assembling-the-full-squeezenet-model">Assembling the Full <code>SqueezeNet</code> Model</h2>
+<p>Now that we have our <code>Fire</code> module “LEGO brick,” we can stack them together to build the complete SqueezeNet macroarchitecture, just as described in <a href="https://hassaanbinaslam.github.io/myblog/posts/2025-08-21-squeezenet-reading-notes.html#the-results---proof-in-the-numbers">Table 1 of the paper</a>.</p>
+<div id="cell-16" class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1"></a><span class="kw">class</span> SqueezeNet(nn.Module):</span>
+<span id="cb12-2"><a href="#cb12-2"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, num_classes: <span class="bu">int</span> <span class="op">=</span> <span class="dv">10</span>, dropout: <span class="bu">float</span> <span class="op">=</span> <span class="fl">0.5</span>) <span class="op">-&gt;</span> <span class="va">None</span>:</span>
+<span id="cb12-3"><a href="#cb12-3"></a>        <span class="bu">super</span>().<span class="fu">__init__</span>()</span>
+<span id="cb12-4"><a href="#cb12-4"></a>        <span class="va">self</span>.num_classes <span class="op">=</span> num_classes</span>
+<span id="cb12-5"><a href="#cb12-5"></a></span>
+<span id="cb12-6"><a href="#cb12-6"></a>        <span class="co"># Feature extractor, following the paper's architecture</span></span>
+<span id="cb12-7"><a href="#cb12-7"></a>        <span class="va">self</span>.features <span class="op">=</span> nn.Sequential(</span>
+<span id="cb12-8"><a href="#cb12-8"></a>            nn.Conv2d(<span class="dv">3</span>, <span class="dv">96</span>, kernel_size<span class="op">=</span><span class="dv">7</span>, stride<span class="op">=</span><span class="dv">2</span>),</span>
+<span id="cb12-9"><a href="#cb12-9"></a>            nn.ReLU(inplace<span class="op">=</span><span class="va">True</span>),</span>
+<span id="cb12-10"><a href="#cb12-10"></a>            nn.MaxPool2d(kernel_size<span class="op">=</span><span class="dv">3</span>, stride<span class="op">=</span><span class="dv">2</span>, ceil_mode<span class="op">=</span><span class="va">True</span>),</span>
+<span id="cb12-11"><a href="#cb12-11"></a>            Fire(<span class="dv">96</span>, <span class="dv">16</span>, <span class="dv">64</span>, <span class="dv">64</span>),</span>
+<span id="cb12-12"><a href="#cb12-12"></a>            Fire(<span class="dv">128</span>, <span class="dv">16</span>, <span class="dv">64</span>, <span class="dv">64</span>),</span>
+<span id="cb12-13"><a href="#cb12-13"></a>            Fire(<span class="dv">128</span>, <span class="dv">32</span>, <span class="dv">128</span>, <span class="dv">128</span>),</span>
+<span id="cb12-14"><a href="#cb12-14"></a>            nn.MaxPool2d(kernel_size<span class="op">=</span><span class="dv">3</span>, stride<span class="op">=</span><span class="dv">2</span>, ceil_mode<span class="op">=</span><span class="va">True</span>),</span>
+<span id="cb12-15"><a href="#cb12-15"></a>            Fire(<span class="dv">256</span>, <span class="dv">32</span>, <span class="dv">128</span>, <span class="dv">128</span>),</span>
+<span id="cb12-16"><a href="#cb12-16"></a>            Fire(<span class="dv">256</span>, <span class="dv">48</span>, <span class="dv">192</span>, <span class="dv">192</span>),</span>
+<span id="cb12-17"><a href="#cb12-17"></a>            Fire(<span class="dv">384</span>, <span class="dv">48</span>, <span class="dv">192</span>, <span class="dv">192</span>),</span>
+<span id="cb12-18"><a href="#cb12-18"></a>            Fire(<span class="dv">384</span>, <span class="dv">64</span>, <span class="dv">256</span>, <span class="dv">256</span>),</span>
+<span id="cb12-19"><a href="#cb12-19"></a>            nn.MaxPool2d(kernel_size<span class="op">=</span><span class="dv">3</span>, stride<span class="op">=</span><span class="dv">2</span>, ceil_mode<span class="op">=</span><span class="va">True</span>),</span>
+<span id="cb12-20"><a href="#cb12-20"></a>            Fire(<span class="dv">512</span>, <span class="dv">64</span>, <span class="dv">256</span>, <span class="dv">256</span>),</span>
+<span id="cb12-21"><a href="#cb12-21"></a>        )</span>
+<span id="cb12-22"><a href="#cb12-22"></a></span>
+<span id="cb12-23"><a href="#cb12-23"></a>        <span class="co"># Final convolution is initialized differently from the rest</span></span>
+<span id="cb12-24"><a href="#cb12-24"></a>        final_conv <span class="op">=</span> nn.Conv2d(<span class="dv">512</span>, <span class="va">self</span>.num_classes, kernel_size<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb12-25"><a href="#cb12-25"></a></span>
+<span id="cb12-26"><a href="#cb12-26"></a>        <span class="co"># Classifier head</span></span>
+<span id="cb12-27"><a href="#cb12-27"></a>        <span class="va">self</span>.classifier <span class="op">=</span> nn.Sequential(</span>
+<span id="cb12-28"><a href="#cb12-28"></a>            nn.Dropout(p<span class="op">=</span>dropout), final_conv, nn.ReLU(inplace<span class="op">=</span><span class="va">True</span>), nn.AdaptiveAvgPool2d((<span class="dv">1</span>, <span class="dv">1</span>))</span>
+<span id="cb12-29"><a href="#cb12-29"></a>        )</span>
+<span id="cb12-30"><a href="#cb12-30"></a></span>
+<span id="cb12-31"><a href="#cb12-31"></a>        <span class="cf">for</span> m <span class="kw">in</span> <span class="va">self</span>.modules():</span>
+<span id="cb12-32"><a href="#cb12-32"></a>            <span class="cf">if</span> <span class="bu">isinstance</span>(m, nn.Conv2d):</span>
+<span id="cb12-33"><a href="#cb12-33"></a>                <span class="cf">if</span> m <span class="kw">is</span> final_conv:</span>
+<span id="cb12-34"><a href="#cb12-34"></a>                    init.normal_(m.weight, mean<span class="op">=</span><span class="fl">0.0</span>, std<span class="op">=</span><span class="fl">0.01</span>)</span>
+<span id="cb12-35"><a href="#cb12-35"></a>                <span class="cf">else</span>:</span>
+<span id="cb12-36"><a href="#cb12-36"></a>                    init.kaiming_uniform_(m.weight)</span>
+<span id="cb12-37"><a href="#cb12-37"></a>                <span class="cf">if</span> m.bias <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span>:</span>
+<span id="cb12-38"><a href="#cb12-38"></a>                    init.constant_(m.bias, <span class="dv">0</span>)</span>
+<span id="cb12-39"><a href="#cb12-39"></a></span>
+<span id="cb12-40"><a href="#cb12-40"></a>    <span class="kw">def</span> forward(<span class="va">self</span>, x: torch.Tensor) <span class="op">-&gt;</span> torch.Tensor:</span>
+<span id="cb12-41"><a href="#cb12-41"></a>        x <span class="op">=</span> <span class="va">self</span>.features(x)</span>
+<span id="cb12-42"><a href="#cb12-42"></a>        x <span class="op">=</span> <span class="va">self</span>.classifier(x)</span>
+<span id="cb12-43"><a href="#cb12-43"></a>        <span class="cf">return</span> torch.flatten(x, <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<section id="code-breakdown-1" class="level3">
+<h3 class="anchored" data-anchor-id="code-breakdown-1">Code Breakdown</h3>
+<ul>
+<li><strong><code>self.features</code></strong>: We use the convenient <code>nn.Sequential</code> to define the main body of the network. You can literally trace the layers in this code and match them to the architecture in the paper’s Table 1. Notice the <code>MaxPool2d</code> layers are spaced out, perfectly implementing <strong>Strategy #3 (Late Downsampling)</strong>. The numbers inside each <code>Fire(...)</code> call correspond exactly to the <code>inplanes</code>, <code>squeeze_planes</code>, and <code>expand_planes</code> for that stage of the network.</li>
+<li><strong><code>self.classifier</code></strong>: This is our modern, efficient classifier.
+<ul>
+<li><code>nn.Dropout</code>: A standard regularization technique to prevent overfitting.</li>
+<li><code>final_conv</code>: A simple <code>nn.Conv2d</code> with a 1x1 kernel that maps the 512 channels from the feature extractor down to the final <code>num_classes</code> (10 for CIFAR-10).</li>
+<li><code>nn.AdaptiveAvgPool2d((1, 1))</code>: This is PyTorch’s implementation of Global Average Pooling. It takes the feature maps from the final convolution, no matter their height and width, and averages them down to a <code>1x1</code> size. This is what allows us to avoid the bulky, parameter-heavy <code>Linear</code> layers used in older models.</li>
+</ul></li>
+<li><strong><code>forward</code> method</strong>: The data flow is beautifully simple. The input <code>x</code> goes through the <code>features</code> block, then the <code>classifier</code> block. The final <code>torch.flatten(x, 1)</code> converts the output from a <code>(batch_size, num_classes, 1, 1)</code> tensor into the standard <code>(batch_size, num_classes)</code> shape expected by the loss function.</li>
+</ul>
+<p>With just these two classes, we have a complete implementation of the entire SqueezeNet architecture. Now, let’s train it!</p>
+</section>
+</section>
+<section id="training-squeezenet-and-analyzing-the-results" class="level2">
+<h2 class="anchored" data-anchor-id="training-squeezenet-and-analyzing-the-results">Training SqueezeNet and Analyzing the Results</h2>
+<p>We have our data pipeline and our model architecture. Now, let’s put them together and train our SqueezeNet model on the CIFAR-10 dataset. We’ll set up a robust training loop and then analyze the output to understand how our model learned over time.</p>
+<section id="step-1-the-training-setup" class="level3">
+<h3 class="anchored" data-anchor-id="step-1-the-training-setup">Step 1: The Training Setup</h3>
+<p>Before we start the main loop, we need to define a few key components for training:</p>
+<ul>
+<li><strong>Device:</strong> We’ll automatically detect if a CUDA-enabled GPU is available and use it; otherwise, we’ll fall back to the CPU. Training on a GPU is dramatically faster.</li>
+<li><strong>Optimizer:</strong> We’ll use <code>AdamW</code>, a popular and effective optimizer that often converges faster than standard SGD.</li>
+<li><strong>Loss Function:</strong> Since this is a multi-class classification problem, <code>nn.CrossEntropyLoss</code> is the standard choice.</li>
+<li><strong>Learning Rate Scheduler:</strong> We’ll use <code>ReduceLROnPlateau</code>. This is a smart scheduler that monitors the validation loss. If the loss stops improving for a set number of epochs (a “patience” of 2 in our case), it will automatically reduce the learning rate. This helps the model fine-tune its weights in the later stages of training.</li>
+<li><strong>Early Stopping:</strong> To save time and prevent overfitting, we’ll implement early stopping. We’ll monitor the validation loss at the end of each epoch and save a copy of the model only when it achieves a new “best” (lowest) validation loss.</li>
+</ul>
+<div id="cell-19" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;colab&quot;,&quot;value&quot;:{&quot;base_uri&quot;:&quot;https://localhost:8080/&quot;}}" data-outputid="7bd25731-d191-46ce-b0a9-a74b19eda87f">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1"></a><span class="co"># --- Model, Optimizer, and Training Setup ---</span></span>
+<span id="cb13-2"><a href="#cb13-2"></a>device <span class="op">=</span> torch.device(<span class="st">'cuda:0'</span> <span class="cf">if</span> torch.cuda.is_available() <span class="cf">else</span> <span class="st">'cpu'</span>)</span>
+<span id="cb13-3"><a href="#cb13-3"></a><span class="bu">print</span>(<span class="ss">f"Using device: </span><span class="sc">{</span>device<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb13-4"><a href="#cb13-4"></a></span>
+<span id="cb13-5"><a href="#cb13-5"></a>net <span class="op">=</span> SqueezeNet() <span class="co"># initialize your model</span></span>
+<span id="cb13-6"><a href="#cb13-6"></a>net.to(device)</span>
+<span id="cb13-7"><a href="#cb13-7"></a></span>
+<span id="cb13-8"><a href="#cb13-8"></a><span class="co"># --- Compile the model (PyTorch 2.0+ feature) ---</span></span>
+<span id="cb13-9"><a href="#cb13-9"></a><span class="co"># This is a massive speedup!</span></span>
+<span id="cb13-10"><a href="#cb13-10"></a><span class="cf">if</span> torch.__version__[<span class="dv">0</span>] <span class="op">==</span> <span class="st">'2'</span>:</span>
+<span id="cb13-11"><a href="#cb13-11"></a>    <span class="bu">print</span>(<span class="st">"PyTorch 2.0+ detected. Compiling the model..."</span>)</span>
+<span id="cb13-12"><a href="#cb13-12"></a>    net <span class="op">=</span> torch.<span class="bu">compile</span>(net)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Using device: cuda:0
+PyTorch 2.0+ detected. Compiling the model...</code></pre>
+</div>
+</div>
+<div id="cell-20" class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1"></a>criterion <span class="op">=</span> nn.CrossEntropyLoss()</span>
+<span id="cb15-2"><a href="#cb15-2"></a><span class="co"># Using a potentially faster-converging optimizer</span></span>
+<span id="cb15-3"><a href="#cb15-3"></a>optimizer <span class="op">=</span> optim.AdamW(net.parameters(), lr<span class="op">=</span><span class="fl">0.001</span>, weight_decay<span class="op">=</span><span class="fl">1e-4</span>)</span>
+<span id="cb15-4"><a href="#cb15-4"></a></span>
+<span id="cb15-5"><a href="#cb15-5"></a>num_epochs <span class="op">=</span> <span class="dv">40</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-21" class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1"></a><span class="co"># --- DEFINE THE ReduceLROnPlateau SCHEDULER ---</span></span>
+<span id="cb16-2"><a href="#cb16-2"></a><span class="co"># This scheduler monitors the validation loss.</span></span>
+<span id="cb16-3"><a href="#cb16-3"></a><span class="co"># 'patience=2': Wait for 2 epochs of no improvement before reducing LR.</span></span>
+<span id="cb16-4"><a href="#cb16-4"></a><span class="co"># 'factor=0.1': Reduce LR by a factor of 10 (e.g., 0.001 -&gt; 0.0001).</span></span>
+<span id="cb16-5"><a href="#cb16-5"></a><span class="co"># 'mode=min': It's monitoring a value that should be minimized (loss).</span></span>
+<span id="cb16-6"><a href="#cb16-6"></a>scheduler <span class="op">=</span> ReduceLROnPlateau(optimizer, mode<span class="op">=</span><span class="st">'min'</span>, factor<span class="op">=</span><span class="fl">0.1</span>, patience<span class="op">=</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-22" class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1"></a><span class="co"># --- EARLY STOPPING SETUP ---</span></span>
+<span id="cb17-2"><a href="#cb17-2"></a><span class="co"># Path to save the best model</span></span>
+<span id="cb17-3"><a href="#cb17-3"></a>SAVE_PATH <span class="op">=</span> <span class="st">'best_model.pth'</span></span>
+<span id="cb17-4"><a href="#cb17-4"></a><span class="co"># Initialize variables to track the best performance</span></span>
+<span id="cb17-5"><a href="#cb17-5"></a>best_val_loss <span class="op">=</span> <span class="bu">float</span>(<span class="st">'inf'</span>)</span>
+<span id="cb17-6"><a href="#cb17-6"></a>best_epoch <span class="op">=</span> <span class="dv">0</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-23" class="cell" data-execution_count="13">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1"></a><span class="co"># --- History Tracking ---</span></span>
+<span id="cb18-2"><a href="#cb18-2"></a>history <span class="op">=</span> {</span>
+<span id="cb18-3"><a href="#cb18-3"></a>    <span class="st">'train_loss'</span>: [],</span>
+<span id="cb18-4"><a href="#cb18-4"></a>    <span class="st">'val_loss'</span>: [],</span>
+<span id="cb18-5"><a href="#cb18-5"></a>    <span class="st">'train_acc'</span>: [],</span>
+<span id="cb18-6"><a href="#cb18-6"></a>    <span class="st">'val_acc'</span>: [],</span>
+<span id="cb18-7"><a href="#cb18-7"></a>    <span class="st">'learning_rate'</span>: [] <span class="co"># Let's also track the learning rate to plot it!</span></span>
+<span id="cb18-8"><a href="#cb18-8"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="step-2-the-training-loop-and-output" class="level3">
+<h3 class="anchored" data-anchor-id="step-2-the-training-loop-and-output">Step 2: The Training Loop and Output</h3>
+<p>Our training loop runs for a total of 40 epochs. In each epoch, it performs a full pass over the training data to update the model’s weights, followed by a full pass over the validation data to check its performance on unseen images.</p>
+<div id="cell-25" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;colab&quot;,&quot;value&quot;:{&quot;base_uri&quot;:&quot;https://localhost:8080/&quot;}}" data-outputid="bcebe73f-0212-48b9-859e-bd083021eff6">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1"></a><span class="bu">print</span>(<span class="st">"Starting Training..."</span>)</span>
+<span id="cb19-2"><a href="#cb19-2"></a><span class="cf">for</span> epoch <span class="kw">in</span> <span class="bu">range</span>(num_epochs):</span>
+<span id="cb19-3"><a href="#cb19-3"></a>    <span class="co"># --- Training Phase ---</span></span>
+<span id="cb19-4"><a href="#cb19-4"></a>    net.train()</span>
+<span id="cb19-5"><a href="#cb19-5"></a>    <span class="co"># (The training part of the loop remains the same)</span></span>
+<span id="cb19-6"><a href="#cb19-6"></a>    train_loss <span class="op">=</span> <span class="fl">0.0</span></span>
+<span id="cb19-7"><a href="#cb19-7"></a>    correct_train <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb19-8"><a href="#cb19-8"></a>    total_train <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb19-9"><a href="#cb19-9"></a>    current_lr <span class="op">=</span> optimizer.param_groups[<span class="dv">0</span>][<span class="st">'lr'</span>]</span>
+<span id="cb19-10"><a href="#cb19-10"></a>    train_bar <span class="op">=</span> tqdm(trainloader, desc<span class="op">=</span><span class="ss">f"Epoch </span><span class="sc">{</span>epoch<span class="op">+</span><span class="dv">1</span><span class="sc">}</span><span class="ss">/</span><span class="sc">{</span>num_epochs<span class="sc">}</span><span class="ss"> [Training] LR: </span><span class="sc">{</span>current_lr<span class="sc">:.6f}</span><span class="ss">"</span>)</span>
+<span id="cb19-11"><a href="#cb19-11"></a>    <span class="cf">for</span> data <span class="kw">in</span> train_bar:</span>
+<span id="cb19-12"><a href="#cb19-12"></a>        inputs, labels <span class="op">=</span> data[<span class="dv">0</span>].to(device, non_blocking<span class="op">=</span><span class="va">True</span>), data[<span class="dv">1</span>].to(device, non_blocking<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb19-13"><a href="#cb19-13"></a>        optimizer.zero_grad(set_to_none<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb19-14"><a href="#cb19-14"></a>        outputs <span class="op">=</span> net(inputs)</span>
+<span id="cb19-15"><a href="#cb19-15"></a>        loss <span class="op">=</span> criterion(outputs, labels)</span>
+<span id="cb19-16"><a href="#cb19-16"></a>        loss.backward()</span>
+<span id="cb19-17"><a href="#cb19-17"></a>        optimizer.step()</span>
+<span id="cb19-18"><a href="#cb19-18"></a>        train_loss <span class="op">+=</span> loss.item()</span>
+<span id="cb19-19"><a href="#cb19-19"></a>        _, predicted <span class="op">=</span> torch.<span class="bu">max</span>(outputs.data, <span class="dv">1</span>)</span>
+<span id="cb19-20"><a href="#cb19-20"></a>        total_train <span class="op">+=</span> labels.size(<span class="dv">0</span>)</span>
+<span id="cb19-21"><a href="#cb19-21"></a>        correct_train <span class="op">+=</span> (predicted <span class="op">==</span> labels).<span class="bu">sum</span>().item()</span>
+<span id="cb19-22"><a href="#cb19-22"></a>        train_bar.set_postfix(loss<span class="op">=</span>loss.item())</span>
+<span id="cb19-23"><a href="#cb19-23"></a></span>
+<span id="cb19-24"><a href="#cb19-24"></a>    avg_train_loss <span class="op">=</span> train_loss <span class="op">/</span> <span class="bu">len</span>(trainloader)</span>
+<span id="cb19-25"><a href="#cb19-25"></a>    train_accuracy <span class="op">=</span> <span class="dv">100</span> <span class="op">*</span> correct_train <span class="op">/</span> total_train</span>
+<span id="cb19-26"><a href="#cb19-26"></a>    history[<span class="st">'train_loss'</span>].append(avg_train_loss)</span>
+<span id="cb19-27"><a href="#cb19-27"></a>    history[<span class="st">'train_acc'</span>].append(train_accuracy)</span>
+<span id="cb19-28"><a href="#cb19-28"></a>    history[<span class="st">'learning_rate'</span>].append(current_lr)</span>
+<span id="cb19-29"><a href="#cb19-29"></a></span>
+<span id="cb19-30"><a href="#cb19-30"></a>    <span class="co"># --- Validation Phase ---</span></span>
+<span id="cb19-31"><a href="#cb19-31"></a>    net.<span class="bu">eval</span>()</span>
+<span id="cb19-32"><a href="#cb19-32"></a>    val_loss <span class="op">=</span> <span class="fl">0.0</span></span>
+<span id="cb19-33"><a href="#cb19-33"></a>    correct_val <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb19-34"><a href="#cb19-34"></a>    total_val <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb19-35"><a href="#cb19-35"></a>    val_bar <span class="op">=</span> tqdm(testloader, desc<span class="op">=</span><span class="ss">f"Epoch </span><span class="sc">{</span>epoch<span class="op">+</span><span class="dv">1</span><span class="sc">}</span><span class="ss">/</span><span class="sc">{</span>num_epochs<span class="sc">}</span><span class="ss"> [Validation]"</span>)</span>
+<span id="cb19-36"><a href="#cb19-36"></a>    <span class="cf">with</span> torch.no_grad():</span>
+<span id="cb19-37"><a href="#cb19-37"></a>        <span class="cf">for</span> data <span class="kw">in</span> val_bar:</span>
+<span id="cb19-38"><a href="#cb19-38"></a>            inputs, labels <span class="op">=</span> data[<span class="dv">0</span>].to(device, non_blocking<span class="op">=</span><span class="va">True</span>), data[<span class="dv">1</span>].to(device, non_blocking<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb19-39"><a href="#cb19-39"></a>            outputs <span class="op">=</span> net(inputs)</span>
+<span id="cb19-40"><a href="#cb19-40"></a>            loss <span class="op">=</span> criterion(outputs, labels)</span>
+<span id="cb19-41"><a href="#cb19-41"></a>            val_loss <span class="op">+=</span> loss.item()</span>
+<span id="cb19-42"><a href="#cb19-42"></a>            _, predicted <span class="op">=</span> torch.<span class="bu">max</span>(outputs.data, <span class="dv">1</span>)</span>
+<span id="cb19-43"><a href="#cb19-43"></a>            total_val <span class="op">+=</span> labels.size(<span class="dv">0</span>)</span>
+<span id="cb19-44"><a href="#cb19-44"></a>            correct_val <span class="op">+=</span> (predicted <span class="op">==</span> labels).<span class="bu">sum</span>().item()</span>
+<span id="cb19-45"><a href="#cb19-45"></a>            val_bar.set_postfix(loss<span class="op">=</span>loss.item())</span>
+<span id="cb19-46"><a href="#cb19-46"></a></span>
+<span id="cb19-47"><a href="#cb19-47"></a>    avg_val_loss <span class="op">=</span> val_loss <span class="op">/</span> <span class="bu">len</span>(testloader)</span>
+<span id="cb19-48"><a href="#cb19-48"></a>    val_accuracy <span class="op">=</span> <span class="dv">100</span> <span class="op">*</span> correct_val <span class="op">/</span> total_val</span>
+<span id="cb19-49"><a href="#cb19-49"></a>    history[<span class="st">'val_loss'</span>].append(avg_val_loss)</span>
+<span id="cb19-50"><a href="#cb19-50"></a>    history[<span class="st">'val_acc'</span>].append(val_accuracy)</span>
+<span id="cb19-51"><a href="#cb19-51"></a></span>
+<span id="cb19-52"><a href="#cb19-52"></a>    <span class="co"># --- EARLY STOPPING LOGIC ---</span></span>
+<span id="cb19-53"><a href="#cb19-53"></a>    <span class="co"># This is the most critical part.</span></span>
+<span id="cb19-54"><a href="#cb19-54"></a>    <span class="co"># Check if the current validation loss is the best we've seen so far.</span></span>
+<span id="cb19-55"><a href="#cb19-55"></a>    <span class="cf">if</span> avg_val_loss <span class="op">&lt;</span> best_val_loss:</span>
+<span id="cb19-56"><a href="#cb19-56"></a>        best_val_loss <span class="op">=</span> avg_val_loss</span>
+<span id="cb19-57"><a href="#cb19-57"></a>        best_epoch <span class="op">=</span> epoch <span class="op">+</span> <span class="dv">1</span></span>
+<span id="cb19-58"><a href="#cb19-58"></a>        <span class="co"># Save the model's state dictionary</span></span>
+<span id="cb19-59"><a href="#cb19-59"></a>        torch.save(net._orig_mod.state_dict(), SAVE_PATH)</span>
+<span id="cb19-60"><a href="#cb19-60"></a>        <span class="bu">print</span>(<span class="ss">f"</span><span class="ch">\n</span><span class="ss">---&gt; New best model saved at epoch </span><span class="sc">{</span>best_epoch<span class="sc">}</span><span class="ss"> with validation loss: </span><span class="sc">{</span>best_val_loss<span class="sc">:.4f}</span><span class="ch">\n</span><span class="ss">"</span>)</span>
+<span id="cb19-61"><a href="#cb19-61"></a></span>
+<span id="cb19-62"><a href="#cb19-62"></a>    scheduler.step(avg_val_loss)</span>
+<span id="cb19-63"><a href="#cb19-63"></a></span>
+<span id="cb19-64"><a href="#cb19-64"></a>    <span class="bu">print</span>(<span class="ss">f"</span><span class="ch">\n</span><span class="ss">Epoch </span><span class="sc">{</span>epoch<span class="op">+</span><span class="dv">1</span><span class="sc">}</span><span class="ss">/</span><span class="sc">{</span>num_epochs<span class="sc">}</span><span class="ss"> Summary:"</span>)</span>
+<span id="cb19-65"><a href="#cb19-65"></a>    <span class="bu">print</span>(<span class="ss">f"  Train Loss: </span><span class="sc">{</span>avg_train_loss<span class="sc">:.4f}</span><span class="ss"> | Train Acc: </span><span class="sc">{</span>train_accuracy<span class="sc">:.2f}</span><span class="ss">%"</span>)</span>
+<span id="cb19-66"><a href="#cb19-66"></a>    <span class="bu">print</span>(<span class="ss">f"  Valid Loss: </span><span class="sc">{</span>avg_val_loss<span class="sc">:.4f}</span><span class="ss"> | Valid Acc: </span><span class="sc">{</span>val_accuracy<span class="sc">:.2f}</span><span class="ss">%"</span>)</span>
+<span id="cb19-67"><a href="#cb19-67"></a>    <span class="bu">print</span>(<span class="ss">f"  Current LR: </span><span class="sc">{</span>optimizer<span class="sc">.</span>param_groups[<span class="dv">0</span>][<span class="st">'lr'</span>]<span class="sc">:.6f}</span><span class="ch">\n</span><span class="ss">"</span>)</span>
+<span id="cb19-68"><a href="#cb19-68"></a></span>
+<span id="cb19-69"><a href="#cb19-69"></a><span class="bu">print</span>(<span class="st">'Finished Training'</span>)</span>
+<span id="cb19-70"><a href="#cb19-70"></a><span class="bu">print</span>(<span class="ss">f"The best model was saved from epoch </span><span class="sc">{</span>best_epoch<span class="sc">}</span><span class="ss"> at path: </span><span class="sc">{</span>SAVE_PATH<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Starting Training...</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Epoch 1/40 [Training] LR: 0.001000: 100%|██████████| 391/391 [01:47&lt;00:00,  3.64it/s, loss=1.93]
+Epoch 1/40 [Validation]: 100%|██████████| 79/79 [00:10&lt;00:00,  7.34it/s, loss=1.75]</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+---&gt; New best model saved at epoch 1 with validation loss: 1.8390
+
+
+Epoch 1/40 Summary:
+  Train Loss: 2.0931 | Train Acc: 21.73%
+  Valid Loss: 1.8390 | Valid Acc: 31.86%
+  Current LR: 0.001000
+</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Epoch 2/40 [Training] LR: 0.001000: 100%|██████████| 391/391 [01:39&lt;00:00,  3.94it/s, loss=1.6] 
+Epoch 2/40 [Validation]: 100%|██████████| 79/79 [00:08&lt;00:00,  8.80it/s, loss=1.72]</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+---&gt; New best model saved at epoch 2 with validation loss: 1.6319
+
+
+Epoch 2/40 Summary:
+  Train Loss: 1.7570 | Train Acc: 36.83%
+  Valid Loss: 1.6319 | Valid Acc: 41.62%
+  Current LR: 0.001000
+</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Epoch 3/40 [Training] LR: 0.001000: 100%|██████████| 391/391 [01:39&lt;00:00,  3.93it/s, loss=1.65]
+Epoch 3/40 [Validation]: 100%|██████████| 79/79 [00:09&lt;00:00,  8.70it/s, loss=1.76]</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+---&gt; New best model saved at epoch 3 with validation loss: 1.5504
+
+
+Epoch 3/40 Summary:
+  Train Loss: 1.5792 | Train Acc: 45.08%
+  Valid Loss: 1.5504 | Valid Acc: 46.14%
+  Current LR: 0.001000
+</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Epoch 4/40 [Training] LR: 0.001000: 100%|██████████| 391/391 [01:39&lt;00:00,  3.93it/s, loss=1.31] 
+Epoch 4/40 [Validation]: 100%|██████████| 79/79 [00:08&lt;00:00,  8.81it/s, loss=1.59] </code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+---&gt; New best model saved at epoch 4 with validation loss: 1.1688
+
+
+Epoch 4/40 Summary:
+  Train Loss: 1.3565 | Train Acc: 52.19%
+  Valid Loss: 1.1688 | Valid Acc: 58.67%
+  Current LR: 0.001000
+</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Epoch 5/40 [Training] LR: 0.001000: 100%|██████████| 391/391 [01:39&lt;00:00,  3.92it/s, loss=1.18] 
+Epoch 5/40 [Validation]: 100%|██████████| 79/79 [00:08&lt;00:00,  8.78it/s, loss=1.56] </code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+---&gt; New best model saved at epoch 5 with validation loss: 1.1274
+
+
+Epoch 5/40 Summary:
+  Train Loss: 1.1526 | Train Acc: 58.94%
+  Valid Loss: 1.1274 | Valid Acc: 61.63%
+  Current LR: 0.001000
+</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Epoch 6/40 [Training] LR: 0.001000: 100%|██████████| 391/391 [01:39&lt;00:00,  3.92it/s, loss=1.02] 
+Epoch 6/40 [Validation]: 100%|██████████| 79/79 [00:08&lt;00:00,  8.79it/s, loss=1.23] </code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+---&gt; New best model saved at epoch 6 with validation loss: 0.9898
+
+
+Epoch 6/40 Summary:
+  Train Loss: 1.0576 | Train Acc: 62.63%
+  Valid Loss: 0.9898 | Valid Acc: 65.36%
+  Current LR: 0.001000
+</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Epoch 7/40 [Training] LR: 0.001000: 100%|██████████| 391/391 [01:39&lt;00:00,  3.93it/s, loss=1.11] 
+Epoch 7/40 [Validation]: 100%|██████████| 79/79 [00:09&lt;00:00,  8.71it/s, loss=1.07] </code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+---&gt; New best model saved at epoch 7 with validation loss: 0.9031
+
+
+Epoch 7/40 Summary:
+  Train Loss: 0.9776 | Train Acc: 65.39%
+  Valid Loss: 0.9031 | Valid Acc: 68.49%
+  Current LR: 0.001000
+</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Epoch 8/40 [Training] LR: 0.001000: 100%|██████████| 391/391 [01:39&lt;00:00,  3.93it/s, loss=0.938]
+Epoch 8/40 [Validation]: 100%|██████████| 79/79 [00:09&lt;00:00,  8.74it/s, loss=1.17] </code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+---&gt; New best model saved at epoch 8 with validation loss: 0.8737
+
+
+Epoch 8/40 Summary:
+  Train Loss: 0.9200 | Train Acc: 67.50%
+  Valid Loss: 0.8737 | Valid Acc: 69.74%
+  Current LR: 0.001000
+</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Epoch 9/40 [Training] LR: 0.001000: 100%|██████████| 391/391 [01:39&lt;00:00,  3.93it/s, loss=1.02] 
+Epoch 9/40 [Validation]: 100%|██████████| 79/79 [00:09&lt;00:00,  8.65it/s, loss=1.17] </code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+---&gt; New best model saved at epoch 9 with validation loss: 0.8723
+
+
+Epoch 9/40 Summary:
+  Train Loss: 0.8787 | Train Acc: 69.02%
+  Valid Loss: 0.8723 | Valid Acc: 69.43%
+  Current LR: 0.001000
+</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Epoch 10/40 [Training] LR: 0.001000: 100%|██████████| 391/391 [01:39&lt;00:00,  3.92it/s, loss=0.826]
+Epoch 10/40 [Validation]: 100%|██████████| 79/79 [00:09&lt;00:00,  8.60it/s, loss=1.01] </code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Epoch 10/40 Summary:
+  Train Loss: 0.8413 | Train Acc: 70.54%
+  Valid Loss: 0.9084 | Valid Acc: 68.65%
+  Current LR: 0.001000
+</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Epoch 11/40 [Training] LR: 0.001000: 100%|██████████| 391/391 [01:39&lt;00:00,  3.92it/s, loss=0.689]
+Epoch 11/40 [Validation]: 100%|██████████| 79/79 [00:09&lt;00:00,  8.58it/s, loss=0.941]</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+---&gt; New best model saved at epoch 11 with validation loss: 0.8162
+
+
+Epoch 11/40 Summary:
+  Train Loss: 0.8002 | Train Acc: 71.84%
+  Valid Loss: 0.8162 | Valid Acc: 71.49%
+  Current LR: 0.001000
+</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Epoch 12/40 [Training] LR: 0.001000: 100%|██████████| 391/391 [01:39&lt;00:00,  3.93it/s, loss=0.683]
+Epoch 12/40 [Validation]: 100%|██████████| 79/79 [00:09&lt;00:00,  8.68it/s, loss=1.09] </code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+---&gt; New best model saved at epoch 12 with validation loss: 0.7833
+
+
+Epoch 12/40 Summary:
+  Train Loss: 0.7779 | Train Acc: 72.71%
+  Valid Loss: 0.7833 | Valid Acc: 72.92%
+  Current LR: 0.001000
+</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Epoch 13/40 [Training] LR: 0.001000: 100%|██████████| 391/391 [01:39&lt;00:00,  3.92it/s, loss=0.838]
+Epoch 13/40 [Validation]: 100%|██████████| 79/79 [00:09&lt;00:00,  8.73it/s, loss=0.779]</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Epoch 13/40 Summary:
+  Train Loss: 0.7426 | Train Acc: 73.95%
+  Valid Loss: 0.7906 | Valid Acc: 73.53%
+  Current LR: 0.001000
+</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Epoch 14/40 [Training] LR: 0.001000: 100%|██████████| 391/391 [01:39&lt;00:00,  3.93it/s, loss=0.911]
+Epoch 14/40 [Validation]: 100%|██████████| 79/79 [00:09&lt;00:00,  8.64it/s, loss=0.651]</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+---&gt; New best model saved at epoch 14 with validation loss: 0.7424
+
+
+Epoch 14/40 Summary:
+  Train Loss: 0.7237 | Train Acc: 74.84%
+  Valid Loss: 0.7424 | Valid Acc: 74.53%
+  Current LR: 0.001000
+</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Epoch 15/40 [Training] LR: 0.001000: 100%|██████████| 391/391 [01:39&lt;00:00,  3.93it/s, loss=0.681]
+Epoch 15/40 [Validation]: 100%|██████████| 79/79 [00:09&lt;00:00,  8.68it/s, loss=0.989]</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+---&gt; New best model saved at epoch 15 with validation loss: 0.6920
+
+
+Epoch 15/40 Summary:
+  Train Loss: 0.7021 | Train Acc: 75.52%
+  Valid Loss: 0.6920 | Valid Acc: 76.06%
+  Current LR: 0.001000
+</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Epoch 16/40 [Training] LR: 0.001000: 100%|██████████| 391/391 [01:39&lt;00:00,  3.93it/s, loss=0.608]
+Epoch 16/40 [Validation]: 100%|██████████| 79/79 [00:09&lt;00:00,  8.68it/s, loss=0.713]</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+---&gt; New best model saved at epoch 16 with validation loss: 0.6897
+
+
+Epoch 16/40 Summary:
+  Train Loss: 0.6817 | Train Acc: 76.48%
+  Valid Loss: 0.6897 | Valid Acc: 76.15%
+  Current LR: 0.001000
+</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Epoch 17/40 [Training] LR: 0.001000: 100%|██████████| 391/391 [01:39&lt;00:00,  3.94it/s, loss=0.516]
+Epoch 17/40 [Validation]: 100%|██████████| 79/79 [00:09&lt;00:00,  8.66it/s, loss=0.491]</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+---&gt; New best model saved at epoch 17 with validation loss: 0.6855
+
+
+Epoch 17/40 Summary:
+  Train Loss: 0.6645 | Train Acc: 76.98%
+  Valid Loss: 0.6855 | Valid Acc: 76.53%
+  Current LR: 0.001000
+</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Epoch 18/40 [Training] LR: 0.001000: 100%|██████████| 391/391 [01:39&lt;00:00,  3.93it/s, loss=0.684]
+Epoch 18/40 [Validation]: 100%|██████████| 79/79 [00:09&lt;00:00,  8.63it/s, loss=0.584]</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Epoch 18/40 Summary:
+  Train Loss: 0.6430 | Train Acc: 77.51%
+  Valid Loss: 0.6882 | Valid Acc: 76.71%
+  Current LR: 0.001000
+</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Epoch 19/40 [Training] LR: 0.001000: 100%|██████████| 391/391 [01:39&lt;00:00,  3.94it/s, loss=0.686]
+Epoch 19/40 [Validation]: 100%|██████████| 79/79 [00:09&lt;00:00,  8.51it/s, loss=0.602]</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+---&gt; New best model saved at epoch 19 with validation loss: 0.6528
+
+
+Epoch 19/40 Summary:
+  Train Loss: 0.6260 | Train Acc: 78.59%
+  Valid Loss: 0.6528 | Valid Acc: 77.44%
+  Current LR: 0.001000
+</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Epoch 20/40 [Training] LR: 0.001000: 100%|██████████| 391/391 [01:39&lt;00:00,  3.93it/s, loss=0.597]
+Epoch 20/40 [Validation]: 100%|██████████| 79/79 [00:09&lt;00:00,  8.63it/s, loss=0.985]</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Epoch 20/40 Summary:
+  Train Loss: 0.6112 | Train Acc: 78.84%
+  Valid Loss: 0.6556 | Valid Acc: 78.34%
+  Current LR: 0.001000
+</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Epoch 21/40 [Training] LR: 0.001000: 100%|██████████| 391/391 [01:39&lt;00:00,  3.93it/s, loss=0.619]
+Epoch 21/40 [Validation]: 100%|██████████| 79/79 [00:09&lt;00:00,  8.66it/s, loss=0.469]</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+---&gt; New best model saved at epoch 21 with validation loss: 0.6311
+
+
+Epoch 21/40 Summary:
+  Train Loss: 0.6036 | Train Acc: 79.25%
+  Valid Loss: 0.6311 | Valid Acc: 77.80%
+  Current LR: 0.001000
+</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Epoch 22/40 [Training] LR: 0.001000: 100%|██████████| 391/391 [01:39&lt;00:00,  3.93it/s, loss=0.489]
+Epoch 22/40 [Validation]: 100%|██████████| 79/79 [00:09&lt;00:00,  8.60it/s, loss=0.933]</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+---&gt; New best model saved at epoch 22 with validation loss: 0.6292
+
+
+Epoch 22/40 Summary:
+  Train Loss: 0.5879 | Train Acc: 79.67%
+  Valid Loss: 0.6292 | Valid Acc: 78.66%
+  Current LR: 0.001000
+</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Epoch 23/40 [Training] LR: 0.001000: 100%|██████████| 391/391 [01:39&lt;00:00,  3.93it/s, loss=0.591]
+Epoch 23/40 [Validation]: 100%|██████████| 79/79 [00:09&lt;00:00,  8.60it/s, loss=0.809]</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Epoch 23/40 Summary:
+  Train Loss: 0.5719 | Train Acc: 80.13%
+  Valid Loss: 0.6631 | Valid Acc: 78.27%
+  Current LR: 0.001000
+</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Epoch 24/40 [Training] LR: 0.001000: 100%|██████████| 391/391 [01:39&lt;00:00,  3.93it/s, loss=0.582]
+Epoch 24/40 [Validation]: 100%|██████████| 79/79 [00:09&lt;00:00,  8.59it/s, loss=0.523]</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Epoch 24/40 Summary:
+  Train Loss: 0.5611 | Train Acc: 80.51%
+  Valid Loss: 0.6358 | Valid Acc: 78.58%
+  Current LR: 0.001000
+</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Epoch 25/40 [Training] LR: 0.001000: 100%|██████████| 391/391 [01:39&lt;00:00,  3.93it/s, loss=0.651]
+Epoch 25/40 [Validation]: 100%|██████████| 79/79 [00:09&lt;00:00,  8.69it/s, loss=0.522]</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+---&gt; New best model saved at epoch 25 with validation loss: 0.6080
+
+
+Epoch 25/40 Summary:
+  Train Loss: 0.5564 | Train Acc: 80.69%
+  Valid Loss: 0.6080 | Valid Acc: 79.01%
+  Current LR: 0.001000
+</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Epoch 26/40 [Training] LR: 0.001000: 100%|██████████| 391/391 [01:39&lt;00:00,  3.93it/s, loss=0.42] 
+Epoch 26/40 [Validation]: 100%|██████████| 79/79 [00:09&lt;00:00,  8.62it/s, loss=0.701]</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Epoch 26/40 Summary:
+  Train Loss: 0.5376 | Train Acc: 81.27%
+  Valid Loss: 0.6286 | Valid Acc: 79.54%
+  Current LR: 0.001000
+</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Epoch 27/40 [Training] LR: 0.001000: 100%|██████████| 391/391 [01:39&lt;00:00,  3.93it/s, loss=0.586]
+Epoch 27/40 [Validation]: 100%|██████████| 79/79 [00:09&lt;00:00,  8.60it/s, loss=0.558]</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Epoch 27/40 Summary:
+  Train Loss: 0.5353 | Train Acc: 81.31%
+  Valid Loss: 0.6098 | Valid Acc: 79.64%
+  Current LR: 0.001000
+</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Epoch 28/40 [Training] LR: 0.001000: 100%|██████████| 391/391 [01:39&lt;00:00,  3.93it/s, loss=0.319]
+Epoch 28/40 [Validation]: 100%|██████████| 79/79 [00:09&lt;00:00,  8.44it/s, loss=0.325]</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+---&gt; New best model saved at epoch 28 with validation loss: 0.5744
+
+
+Epoch 28/40 Summary:
+  Train Loss: 0.5299 | Train Acc: 81.55%
+  Valid Loss: 0.5744 | Valid Acc: 80.60%
+  Current LR: 0.001000
+</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Epoch 29/40 [Training] LR: 0.001000: 100%|██████████| 391/391 [01:39&lt;00:00,  3.94it/s, loss=0.504]
+Epoch 29/40 [Validation]: 100%|██████████| 79/79 [00:09&lt;00:00,  8.65it/s, loss=0.484]</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Epoch 29/40 Summary:
+  Train Loss: 0.5223 | Train Acc: 81.90%
+  Valid Loss: 0.5836 | Valid Acc: 80.31%
+  Current LR: 0.001000
+</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Epoch 30/40 [Training] LR: 0.001000: 100%|██████████| 391/391 [01:39&lt;00:00,  3.93it/s, loss=0.315]
+Epoch 30/40 [Validation]: 100%|██████████| 79/79 [00:09&lt;00:00,  8.58it/s, loss=0.412]</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+---&gt; New best model saved at epoch 30 with validation loss: 0.5589
+
+
+Epoch 30/40 Summary:
+  Train Loss: 0.5080 | Train Acc: 82.46%
+  Valid Loss: 0.5589 | Valid Acc: 80.98%
+  Current LR: 0.001000
+</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Epoch 31/40 [Training] LR: 0.001000: 100%|██████████| 391/391 [01:39&lt;00:00,  3.92it/s, loss=0.469]
+Epoch 31/40 [Validation]: 100%|██████████| 79/79 [00:09&lt;00:00,  8.59it/s, loss=0.582]</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Epoch 31/40 Summary:
+  Train Loss: 0.5047 | Train Acc: 82.40%
+  Valid Loss: 0.5764 | Valid Acc: 80.59%
+  Current LR: 0.001000
+</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Epoch 32/40 [Training] LR: 0.001000: 100%|██████████| 391/391 [01:39&lt;00:00,  3.92it/s, loss=0.304]
+Epoch 32/40 [Validation]: 100%|██████████| 79/79 [00:10&lt;00:00,  7.80it/s, loss=0.51] </code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Epoch 32/40 Summary:
+  Train Loss: 0.4902 | Train Acc: 83.11%
+  Valid Loss: 0.5664 | Valid Acc: 81.12%
+  Current LR: 0.001000
+</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Epoch 33/40 [Training] LR: 0.001000: 100%|██████████| 391/391 [01:39&lt;00:00,  3.92it/s, loss=0.494]
+Epoch 33/40 [Validation]: 100%|██████████| 79/79 [00:09&lt;00:00,  8.72it/s, loss=0.756]</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Epoch 33/40 Summary:
+  Train Loss: 0.4846 | Train Acc: 83.10%
+  Valid Loss: 0.5599 | Valid Acc: 81.43%
+  Current LR: 0.000100
+</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Epoch 34/40 [Training] LR: 0.000100: 100%|██████████| 391/391 [01:39&lt;00:00,  3.93it/s, loss=0.434]
+Epoch 34/40 [Validation]: 100%|██████████| 79/79 [00:09&lt;00:00,  8.73it/s, loss=0.296]</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+---&gt; New best model saved at epoch 34 with validation loss: 0.4800
+
+
+Epoch 34/40 Summary:
+  Train Loss: 0.3871 | Train Acc: 86.55%
+  Valid Loss: 0.4800 | Valid Acc: 83.42%
+  Current LR: 0.000100
+</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Epoch 35/40 [Training] LR: 0.000100: 100%|██████████| 391/391 [01:39&lt;00:00,  3.93it/s, loss=0.488]
+Epoch 35/40 [Validation]: 100%|██████████| 79/79 [00:09&lt;00:00,  8.58it/s, loss=0.267]</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Epoch 35/40 Summary:
+  Train Loss: 0.3628 | Train Acc: 87.45%
+  Valid Loss: 0.4835 | Valid Acc: 83.83%
+  Current LR: 0.000100
+</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Epoch 36/40 [Training] LR: 0.000100: 100%|██████████| 391/391 [01:39&lt;00:00,  3.93it/s, loss=0.363]
+Epoch 36/40 [Validation]: 100%|██████████| 79/79 [00:09&lt;00:00,  8.60it/s, loss=0.309]</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+---&gt; New best model saved at epoch 36 with validation loss: 0.4772
+
+
+Epoch 36/40 Summary:
+  Train Loss: 0.3519 | Train Acc: 87.70%
+  Valid Loss: 0.4772 | Valid Acc: 84.23%
+  Current LR: 0.000100
+</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Epoch 37/40 [Training] LR: 0.000100: 100%|██████████| 391/391 [01:39&lt;00:00,  3.92it/s, loss=0.473]
+Epoch 37/40 [Validation]: 100%|██████████| 79/79 [00:10&lt;00:00,  7.84it/s, loss=0.342]</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Epoch 37/40 Summary:
+  Train Loss: 0.3442 | Train Acc: 87.98%
+  Valid Loss: 0.4817 | Valid Acc: 83.88%
+  Current LR: 0.000100
+</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Epoch 38/40 [Training] LR: 0.000100: 100%|██████████| 391/391 [01:39&lt;00:00,  3.92it/s, loss=0.585]
+Epoch 38/40 [Validation]: 100%|██████████| 79/79 [00:09&lt;00:00,  8.63it/s, loss=0.274]</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Epoch 38/40 Summary:
+  Train Loss: 0.3441 | Train Acc: 88.03%
+  Valid Loss: 0.4802 | Valid Acc: 84.05%
+  Current LR: 0.000100
+</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Epoch 39/40 [Training] LR: 0.000100: 100%|██████████| 391/391 [01:39&lt;00:00,  3.92it/s, loss=0.342]
+Epoch 39/40 [Validation]: 100%|██████████| 79/79 [00:09&lt;00:00,  8.64it/s, loss=0.271]</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Epoch 39/40 Summary:
+  Train Loss: 0.3385 | Train Acc: 88.23%
+  Valid Loss: 0.4807 | Valid Acc: 84.42%
+  Current LR: 0.000010
+</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Epoch 40/40 [Training] LR: 0.000010: 100%|██████████| 391/391 [01:39&lt;00:00,  3.93it/s, loss=0.388]
+Epoch 40/40 [Validation]: 100%|██████████| 79/79 [00:09&lt;00:00,  8.45it/s, loss=0.247]</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+---&gt; New best model saved at epoch 40 with validation loss: 0.4746
+
+
+Epoch 40/40 Summary:
+  Train Loss: 0.3228 | Train Acc: 88.80%
+  Valid Loss: 0.4746 | Valid Acc: 84.46%
+  Current LR: 0.000010
+
+Finished Training
+The best model was saved from epoch 40 at path: best_model.pth</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code></code></pre>
+</div>
+</div>
+<p>As we can see from the logs, the model steadily improves. The training loss decreases, and both training and validation accuracy increase, which is exactly what we want to see.</p>
+</section>
+<section id="step-3-visualizing-the-training-progress" class="level3">
+<h3 class="anchored" data-anchor-id="step-3-visualizing-the-training-progress">Step 3: Visualizing the Training Progress</h3>
+<p>While logs are useful, plots give us a much more intuitive understanding of the training dynamics. Let’s visualize the loss, accuracy, and learning rate over all 40 epochs.</p>
+<div id="cell-28" class="cell" data-execution_count="15">
+<div class="sourceCode cell-code" id="cb102"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb102-1"><a href="#cb102-1"></a><span class="co"># --- Modified Plotting Function for Per-Epoch LR ---</span></span>
+<span id="cb102-2"><a href="#cb102-2"></a><span class="kw">def</span> plot_metrics_and_lr(history):</span>
+<span id="cb102-3"><a href="#cb102-3"></a>    fig, (ax1, ax2, ax3) <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">3</span>, figsize<span class="op">=</span>(<span class="dv">22</span>, <span class="dv">6</span>))</span>
+<span id="cb102-4"><a href="#cb102-4"></a>    epochs <span class="op">=</span> <span class="bu">range</span>(<span class="dv">1</span>, <span class="bu">len</span>(history[<span class="st">'train_loss'</span>]) <span class="op">+</span> <span class="dv">1</span>)</span>
+<span id="cb102-5"><a href="#cb102-5"></a></span>
+<span id="cb102-6"><a href="#cb102-6"></a>    <span class="co"># Plot Loss</span></span>
+<span id="cb102-7"><a href="#cb102-7"></a>    ax1.plot(epochs, history[<span class="st">'train_loss'</span>], <span class="st">'bo-'</span>, label<span class="op">=</span><span class="st">'Training Loss'</span>)</span>
+<span id="cb102-8"><a href="#cb102-8"></a>    ax1.plot(epochs, history[<span class="st">'val_loss'</span>], <span class="st">'ro-'</span>, label<span class="op">=</span><span class="st">'Validation Loss'</span>)</span>
+<span id="cb102-9"><a href="#cb102-9"></a>    ax1.set_title(<span class="st">'Loss Over Epochs'</span>)</span>
+<span id="cb102-10"><a href="#cb102-10"></a>    ax1.set_xlabel(<span class="st">'Epoch'</span>)</span>
+<span id="cb102-11"><a href="#cb102-11"></a>    ax1.set_ylabel(<span class="st">'Loss'</span>)</span>
+<span id="cb102-12"><a href="#cb102-12"></a>    ax1.legend()</span>
+<span id="cb102-13"><a href="#cb102-13"></a>    ax1.grid(<span class="va">True</span>)</span>
+<span id="cb102-14"><a href="#cb102-14"></a></span>
+<span id="cb102-15"><a href="#cb102-15"></a>    <span class="co"># Plot Accuracy</span></span>
+<span id="cb102-16"><a href="#cb102-16"></a>    ax2.plot(epochs, history[<span class="st">'train_acc'</span>], <span class="st">'bo-'</span>, label<span class="op">=</span><span class="st">'Training Accuracy'</span>)</span>
+<span id="cb102-17"><a href="#cb102-17"></a>    ax2.plot(epochs, history[<span class="st">'val_acc'</span>], <span class="st">'ro-'</span>, label<span class="op">=</span><span class="st">'Validation Accuracy'</span>)</span>
+<span id="cb102-18"><a href="#cb102-18"></a>    ax2.set_title(<span class="st">'Accuracy Over Epochs'</span>)</span>
+<span id="cb102-19"><a href="#cb102-19"></a>    ax2.set_xlabel(<span class="st">'Epoch'</span>)</span>
+<span id="cb102-20"><a href="#cb102-20"></a>    ax2.set_ylabel(<span class="st">'Accuracy (%)'</span>)</span>
+<span id="cb102-21"><a href="#cb102-21"></a>    ax2.legend()</span>
+<span id="cb102-22"><a href="#cb102-22"></a>    ax2.grid(<span class="va">True</span>)</span>
+<span id="cb102-23"><a href="#cb102-23"></a></span>
+<span id="cb102-24"><a href="#cb102-24"></a>    <span class="co"># Plot Learning Rate (now per epoch)</span></span>
+<span id="cb102-25"><a href="#cb102-25"></a>    ax3.plot(epochs, history[<span class="st">'learning_rate'</span>], <span class="st">'go-'</span>)</span>
+<span id="cb102-26"><a href="#cb102-26"></a>    ax3.set_title(<span class="st">'Learning Rate Over Epochs'</span>)</span>
+<span id="cb102-27"><a href="#cb102-27"></a>    ax3.set_xlabel(<span class="st">'Epoch'</span>)</span>
+<span id="cb102-28"><a href="#cb102-28"></a>    ax3.set_ylabel(<span class="st">'Learning Rate'</span>)</span>
+<span id="cb102-29"><a href="#cb102-29"></a>    ax3.grid(<span class="va">True</span>)</span>
+<span id="cb102-30"><a href="#cb102-30"></a></span>
+<span id="cb102-31"><a href="#cb102-31"></a>    fig.suptitle(<span class="st">'Model Training Progress'</span>, fontsize<span class="op">=</span><span class="dv">20</span>)</span>
+<span id="cb102-32"><a href="#cb102-32"></a>    plt.tight_layout(rect<span class="op">=</span>[<span class="dv">0</span>, <span class="fl">0.03</span>, <span class="dv">1</span>, <span class="fl">0.95</span>])</span>
+<span id="cb102-33"><a href="#cb102-33"></a>    plt.show()</span>
+<span id="cb102-34"><a href="#cb102-34"></a></span>
+<span id="cb102-35"><a href="#cb102-35"></a><span class="co"># --- Call the updated plotting function ---</span></span>
+<span id="cb102-36"><a href="#cb102-36"></a>plot_metrics_and_lr(history)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="2025-08-27-squeezenet-implementation_files/figure-html/cell-16-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>Interpreting the Plots:</strong></p>
+<ul>
+<li><strong>Loss Over Epochs (Left Plot):</strong> This is the classic sign of a healthy training process. Both the training loss (blue) and validation loss (red) decrease steadily and start to converge. Importantly, the validation loss doesn’t start to climb, which would be a sign of overfitting.</li>
+<li><strong>Accuracy Over Epochs (Middle Plot):</strong> This plot mirrors the loss plot. Both training and validation accuracy climb consistently, reaching a final validation accuracy of over <strong>84%</strong>. The gap between the two curves is small, again indicating that our model is generalizing well.</li>
+<li><strong>Learning Rate Over Epochs (Right Plot):</strong> This plot shows our <code>ReduceLROnPlateau</code> scheduler in action. The learning rate stays constant for the first ~32 epochs, and then, as the validation loss plateaus, the scheduler drops the LR twice to allow for more precise fine-tuning.</li>
+</ul>
+<p>These plots confirm that our SqueezeNet implementation not only works but learns very effectively on the CIFAR-10 dataset.</p>
+<div id="cell-30" class="cell" data-execution_count="16">
+<div class="sourceCode cell-code" id="cb103"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb103-1"><a href="#cb103-1"></a><span class="co"># 1. Create a new instance of your model architecture</span></span>
+<span id="cb103-2"><a href="#cb103-2"></a>final_model <span class="op">=</span> SqueezeNet()</span>
+<span id="cb103-3"><a href="#cb103-3"></a></span>
+<span id="cb103-4"><a href="#cb103-4"></a><span class="co"># 2. Load the saved state dictionary</span></span>
+<span id="cb103-5"><a href="#cb103-5"></a>final_model.load_state_dict(torch.load(SAVE_PATH))</span>
+<span id="cb103-6"><a href="#cb103-6"></a></span>
+<span id="cb103-7"><a href="#cb103-7"></a><span class="co"># 3. Move the model to the correct device and set to evaluation mode</span></span>
+<span id="cb103-8"><a href="#cb103-8"></a>final_model.to(device)</span>
+<span id="cb103-9"><a href="#cb103-9"></a>final_model.<span class="bu">eval</span>()</span>
+<span id="cb103-10"><a href="#cb103-10"></a></span>
+<span id="cb103-11"><a href="#cb103-11"></a><span class="co"># Now `final_model` is ready for inference and contains the weights</span></span>
+<span id="cb103-12"><a href="#cb103-12"></a><span class="co"># from the epoch with the lowest validation loss.</span></span>
+<span id="cb103-13"><a href="#cb103-13"></a><span class="bu">print</span>(<span class="st">"Successfully loaded the best model for inference!"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Successfully loaded the best model for inference!</code></pre>
+</div>
+</div>
+</section>
+<section id="step-5-the-final-report-card---per-class-accuracy" class="level3">
+<h3 class="anchored" data-anchor-id="step-5-the-final-report-card---per-class-accuracy">Step 5: The Final Report Card - Per-Class Accuracy</h3>
+<p>A single accuracy number can sometimes be misleading. Let’s break down the performance for each of the 10 classes in CIFAR-10 to get a more nuanced view.</p>
+<div id="cell-32" class="cell">
+<div class="sourceCode cell-code" id="cb105"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb105-1"><a href="#cb105-1"></a><span class="kw">def</span> visualize_model_predictions(model, dataloader, num_images<span class="op">=</span><span class="dv">10</span>):</span>
+<span id="cb105-2"><a href="#cb105-2"></a>    was_training <span class="op">=</span> model.training</span>
+<span id="cb105-3"><a href="#cb105-3"></a>    model.<span class="bu">eval</span>()</span>
+<span id="cb105-4"><a href="#cb105-4"></a>    images_so_far <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb105-5"><a href="#cb105-5"></a>    fig <span class="op">=</span> plt.figure(figsize<span class="op">=</span>(<span class="dv">15</span>, <span class="dv">7</span>))</span>
+<span id="cb105-6"><a href="#cb105-6"></a></span>
+<span id="cb105-7"><a href="#cb105-7"></a>    <span class="cf">with</span> torch.no_grad():</span>
+<span id="cb105-8"><a href="#cb105-8"></a>        <span class="co"># Get one batch of test images</span></span>
+<span id="cb105-9"><a href="#cb105-9"></a>        dataiter <span class="op">=</span> <span class="bu">iter</span>(dataloader)</span>
+<span id="cb105-10"><a href="#cb105-10"></a>        images, labels <span class="op">=</span> <span class="bu">next</span>(dataiter)</span>
+<span id="cb105-11"><a href="#cb105-11"></a></span>
+<span id="cb105-12"><a href="#cb105-12"></a>        <span class="co"># Move data to the same device as the model</span></span>
+<span id="cb105-13"><a href="#cb105-13"></a>        images <span class="op">=</span> images.to(device)</span>
+<span id="cb105-14"><a href="#cb105-14"></a>        labels <span class="op">=</span> labels.to(device)</span>
+<span id="cb105-15"><a href="#cb105-15"></a></span>
+<span id="cb105-16"><a href="#cb105-16"></a>        <span class="co"># Get model predictions</span></span>
+<span id="cb105-17"><a href="#cb105-17"></a>        outputs <span class="op">=</span> model(images)</span>
+<span id="cb105-18"><a href="#cb105-18"></a>        <span class="co"># Convert outputs to probabilities and then to class predictions</span></span>
+<span id="cb105-19"><a href="#cb105-19"></a>        _, preds <span class="op">=</span> torch.<span class="bu">max</span>(outputs, <span class="dv">1</span>)</span>
+<span id="cb105-20"><a href="#cb105-20"></a></span>
+<span id="cb105-21"><a href="#cb105-21"></a>        <span class="co"># Plot the first `num_images` from the batch</span></span>
+<span id="cb105-22"><a href="#cb105-22"></a>        <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(num_images):</span>
+<span id="cb105-23"><a href="#cb105-23"></a>            ax <span class="op">=</span> plt.subplot(<span class="dv">2</span>, num_images<span class="op">//</span><span class="dv">2</span>, i<span class="op">+</span><span class="dv">1</span>)</span>
+<span id="cb105-24"><a href="#cb105-24"></a>            ax.axis(<span class="st">'off'</span>)</span>
+<span id="cb105-25"><a href="#cb105-25"></a></span>
+<span id="cb105-26"><a href="#cb105-26"></a>            <span class="co"># Get the predicted and true labels</span></span>
+<span id="cb105-27"><a href="#cb105-27"></a>            pred_label <span class="op">=</span> classes[preds[i]]</span>
+<span id="cb105-28"><a href="#cb105-28"></a>            true_label <span class="op">=</span> classes[labels[i]]</span>
+<span id="cb105-29"><a href="#cb105-29"></a></span>
+<span id="cb105-30"><a href="#cb105-30"></a>            <span class="co"># Set title color based on correctness</span></span>
+<span id="cb105-31"><a href="#cb105-31"></a>            title_color <span class="op">=</span> <span class="st">'green'</span> <span class="cf">if</span> pred_label <span class="op">==</span> true_label <span class="cf">else</span> <span class="st">'red'</span></span>
+<span id="cb105-32"><a href="#cb105-32"></a>            ax.set_title(<span class="ss">f'Pred: </span><span class="sc">{</span>pred_label<span class="sc">}</span><span class="ch">\n</span><span class="ss">True: </span><span class="sc">{</span>true_label<span class="sc">}</span><span class="ss">'</span>, color<span class="op">=</span>title_color)</span>
+<span id="cb105-33"><a href="#cb105-33"></a></span>
+<span id="cb105-34"><a href="#cb105-34"></a>            <span class="co"># Un-normalize and display the image</span></span>
+<span id="cb105-35"><a href="#cb105-35"></a>            img <span class="op">=</span> images[i].cpu().numpy().transpose((<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">0</span>))</span>
+<span id="cb105-36"><a href="#cb105-36"></a>            mean <span class="op">=</span> np.array([<span class="fl">0.5</span>, <span class="fl">0.5</span>, <span class="fl">0.5</span>])</span>
+<span id="cb105-37"><a href="#cb105-37"></a>            std <span class="op">=</span> np.array([<span class="fl">0.5</span>, <span class="fl">0.5</span>, <span class="fl">0.5</span>])</span>
+<span id="cb105-38"><a href="#cb105-38"></a>            img <span class="op">=</span> std <span class="op">*</span> img <span class="op">+</span> mean</span>
+<span id="cb105-39"><a href="#cb105-39"></a>            img <span class="op">=</span> np.clip(img, <span class="dv">0</span>, <span class="dv">1</span>) <span class="co"># Ensure pixel values are valid</span></span>
+<span id="cb105-40"><a href="#cb105-40"></a>            plt.imshow(img)</span>
+<span id="cb105-41"><a href="#cb105-41"></a></span>
+<span id="cb105-42"><a href="#cb105-42"></a>        model.train(mode<span class="op">=</span>was_training)</span>
+<span id="cb105-43"><a href="#cb105-43"></a>        plt.tight_layout()</span>
+<span id="cb105-44"><a href="#cb105-44"></a>        plt.show()</span>
+<span id="cb105-45"><a href="#cb105-45"></a></span>
+<span id="cb105-46"><a href="#cb105-46"></a><span class="co"># --- Run the Visualization ---</span></span>
+<span id="cb105-47"><a href="#cb105-47"></a><span class="co"># Use the testloader to get unseen images</span></span>
+<span id="cb105-48"><a href="#cb105-48"></a>visualize_model_predictions(final_model, testloader)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="2025-08-27-squeezenet-implementation_files/figure-html/cell-18-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<div id="cell-33" class="cell">
+<div class="sourceCode cell-code" id="cb106"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb106-1"><a href="#cb106-1"></a><span class="co"># Dictionary to store correct predictions for each class</span></span>
+<span id="cb106-2"><a href="#cb106-2"></a>correct_pred <span class="op">=</span> {classname: <span class="dv">0</span> <span class="cf">for</span> classname <span class="kw">in</span> classes}</span>
+<span id="cb106-3"><a href="#cb106-3"></a><span class="co"># Dictionary to store total count of each class</span></span>
+<span id="cb106-4"><a href="#cb106-4"></a>total_pred <span class="op">=</span> {classname: <span class="dv">0</span> <span class="cf">for</span> classname <span class="kw">in</span> classes}</span>
+<span id="cb106-5"><a href="#cb106-5"></a></span>
+<span id="cb106-6"><a href="#cb106-6"></a><span class="co"># --- Iterate Over the Entire Test Dataset ---</span></span>
+<span id="cb106-7"><a href="#cb106-7"></a><span class="cf">with</span> torch.no_grad(): <span class="co"># No need to calculate gradients during evaluation</span></span>
+<span id="cb106-8"><a href="#cb106-8"></a>    <span class="cf">for</span> data <span class="kw">in</span> tqdm(testloader, desc<span class="op">=</span><span class="st">"Calculating class accuracies"</span>):</span>
+<span id="cb106-9"><a href="#cb106-9"></a>        images, labels <span class="op">=</span> data[<span class="dv">0</span>].to(device), data[<span class="dv">1</span>].to(device)</span>
+<span id="cb106-10"><a href="#cb106-10"></a>        outputs <span class="op">=</span> final_model(images)</span>
+<span id="cb106-11"><a href="#cb106-11"></a>        _, predictions <span class="op">=</span> torch.<span class="bu">max</span>(outputs, <span class="dv">1</span>)</span>
+<span id="cb106-12"><a href="#cb106-12"></a></span>
+<span id="cb106-13"><a href="#cb106-13"></a>        <span class="co"># Collect the correct predictions for each class</span></span>
+<span id="cb106-14"><a href="#cb106-14"></a>        <span class="cf">for</span> label, prediction <span class="kw">in</span> <span class="bu">zip</span>(labels, predictions):</span>
+<span id="cb106-15"><a href="#cb106-15"></a>            <span class="cf">if</span> label <span class="op">==</span> prediction:</span>
+<span id="cb106-16"><a href="#cb106-16"></a>                correct_pred[classes[label]] <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb106-17"><a href="#cb106-17"></a>            total_pred[classes[label]] <span class="op">+=</span> <span class="dv">1</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Calculating class accuracies: 100%|██████████| 79/79 [00:11&lt;00:00,  7.09it/s]</code></pre>
+</div>
+</div>
+<div id="cell-34" class="cell">
+<div class="sourceCode cell-code" id="cb108"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb108-1"><a href="#cb108-1"></a><span class="co"># --- Print Accuracies and Prepare Data for Plotting ---</span></span>
+<span id="cb108-2"><a href="#cb108-2"></a>class_accuracies <span class="op">=</span> []</span>
+<span id="cb108-3"><a href="#cb108-3"></a><span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">"</span> <span class="op">+</span> <span class="st">"="</span><span class="op">*</span><span class="dv">30</span>)</span>
+<span id="cb108-4"><a href="#cb108-4"></a><span class="bu">print</span>(<span class="st">"PER-CLASS ACCURACY REPORT"</span>)</span>
+<span id="cb108-5"><a href="#cb108-5"></a><span class="bu">print</span>(<span class="st">"="</span><span class="op">*</span><span class="dv">30</span>)</span>
+<span id="cb108-6"><a href="#cb108-6"></a><span class="cf">for</span> classname, correct_count <span class="kw">in</span> correct_pred.items():</span>
+<span id="cb108-7"><a href="#cb108-7"></a>    total_count <span class="op">=</span> total_pred[classname]</span>
+<span id="cb108-8"><a href="#cb108-8"></a>    accuracy <span class="op">=</span> (<span class="dv">100</span> <span class="op">*</span> <span class="bu">float</span>(correct_count) <span class="op">/</span> total_count) <span class="cf">if</span> total_count <span class="op">&gt;</span> <span class="dv">0</span> <span class="cf">else</span> <span class="dv">0</span></span>
+<span id="cb108-9"><a href="#cb108-9"></a>    class_accuracies.append(accuracy)</span>
+<span id="cb108-10"><a href="#cb108-10"></a>    <span class="bu">print</span>(<span class="ss">f'Accuracy for class: </span><span class="sc">{</span>classname<span class="sc">:5s}</span><span class="ss"> is </span><span class="sc">{</span>accuracy<span class="sc">:.1f}</span><span class="ss"> %'</span>)</span>
+<span id="cb108-11"><a href="#cb108-11"></a><span class="bu">print</span>(<span class="st">"="</span><span class="op">*</span><span class="dv">30</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+==============================
+PER-CLASS ACCURACY REPORT
+==============================
+Accuracy for class: plane is 89.1 %
+Accuracy for class: car   is 92.4 %
+Accuracy for class: bird  is 76.8 %
+Accuracy for class: cat   is 71.4 %
+Accuracy for class: deer  is 82.6 %
+Accuracy for class: dog   is 76.5 %
+Accuracy for class: frog  is 85.9 %
+Accuracy for class: horse is 86.9 %
+Accuracy for class: ship  is 90.8 %
+Accuracy for class: truck is 92.2 %
+==============================</code></pre>
+</div>
+</div>
+<div id="cell-35" class="cell">
+<div class="sourceCode cell-code" id="cb110"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb110-1"><a href="#cb110-1"></a><span class="co"># --- Create and Display the Bar Chart ---</span></span>
+<span id="cb110-2"><a href="#cb110-2"></a>plt.style.use(<span class="st">'seaborn-v0_8-whitegrid'</span>) <span class="co"># A nice-looking style</span></span>
+<span id="cb110-3"><a href="#cb110-3"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">12</span>, <span class="dv">7</span>))</span>
+<span id="cb110-4"><a href="#cb110-4"></a></span>
+<span id="cb110-5"><a href="#cb110-5"></a><span class="co"># Create bars</span></span>
+<span id="cb110-6"><a href="#cb110-6"></a>bars <span class="op">=</span> ax.bar(classes, class_accuracies, color<span class="op">=</span>plt.cm.viridis(np.linspace(<span class="fl">0.1</span>, <span class="fl">0.9</span>, <span class="bu">len</span>(classes))))</span>
+<span id="cb110-7"><a href="#cb110-7"></a></span>
+<span id="cb110-8"><a href="#cb110-8"></a><span class="co"># Add labels and title</span></span>
+<span id="cb110-9"><a href="#cb110-9"></a>ax.set_ylabel(<span class="st">'Accuracy (%)'</span>, fontsize<span class="op">=</span><span class="dv">12</span>)</span>
+<span id="cb110-10"><a href="#cb110-10"></a>ax.set_title(<span class="st">'Per-Class Model Accuracy'</span>, fontsize<span class="op">=</span><span class="dv">16</span>)</span>
+<span id="cb110-11"><a href="#cb110-11"></a>ax.set_xticklabels(classes, rotation<span class="op">=</span><span class="dv">45</span>, ha<span class="op">=</span><span class="st">"right"</span>)</span>
+<span id="cb110-12"><a href="#cb110-12"></a>ax.set_ylim([<span class="dv">0</span>, <span class="dv">100</span>]) <span class="co"># Set y-axis from 0 to 100</span></span>
+<span id="cb110-13"><a href="#cb110-13"></a></span>
+<span id="cb110-14"><a href="#cb110-14"></a><span class="co"># Add the accuracy value on top of each bar</span></span>
+<span id="cb110-15"><a href="#cb110-15"></a><span class="cf">for</span> bar <span class="kw">in</span> bars:</span>
+<span id="cb110-16"><a href="#cb110-16"></a>    yval <span class="op">=</span> bar.get_height()</span>
+<span id="cb110-17"><a href="#cb110-17"></a>    ax.text(bar.get_x() <span class="op">+</span> bar.get_width()<span class="op">/</span><span class="fl">2.0</span>, yval <span class="op">+</span> <span class="dv">1</span>, <span class="ss">f'</span><span class="sc">{</span>yval<span class="sc">:.1f}</span><span class="ss">%'</span>, ha<span class="op">=</span><span class="st">'center'</span>, va<span class="op">=</span><span class="st">'bottom'</span>)</span>
+<span id="cb110-18"><a href="#cb110-18"></a></span>
+<span id="cb110-19"><a href="#cb110-19"></a>plt.tight_layout()</span>
+<span id="cb110-20"><a href="#cb110-20"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>/tmp/ipykernel_28907/1062035383.py:11: UserWarning: set_ticklabels() should only be used with a fixed number of ticks, i.e. after set_ticks() or using a FixedLocator.
+  ax.set_xticklabels(classes, rotation=45, ha="right")</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="2025-08-27-squeezenet-implementation_files/figure-html/cell-21-output-2.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>This gives us a much clearer picture. We can see that the model is excellent at identifying ‘car’, ‘ship’, and ‘truck’ (all over 90% accuracy), but finds ‘cat’ a bit more challenging (around 71% accuracy). This is a common result on CIFAR-10 and provides valuable insight into the model’s specific strengths and weaknesses.</p>
+<p>With training complete and performance thoroughly analyzed, there’s only one thing left to do: verify if our model lives up to the “Squeeze” promise of efficiency.</p>
+</section>
+</section>
+<section id="the-verdict---did-we-fulfill-the-squeeze-promise" class="level2">
+<h2 class="anchored" data-anchor-id="the-verdict---did-we-fulfill-the-squeeze-promise">The Verdict - Did We Fulfill the “Squeeze” Promise?</h2>
+<p>We’ve built it, we’ve trained it, and we’ve proven that our SqueezeNet implementation is an effective classifier for the CIFAR-10 dataset, achieving over 84% validation accuracy.</p>
+<p>But we started this journey with one primary goal in mind, inspired by the SqueezeNet paper: to create a model that is not just accurate, but <strong>radically efficient</strong>. It’s time for the moment of truth. Let’s measure our final model and see how it stacks up.</p>
+<section id="measuring-the-model-parameters-and-file-size" class="level3">
+<h3 class="anchored" data-anchor-id="measuring-the-model-parameters-and-file-size">Measuring the Model: Parameters and File Size</h3>
+<p>There are two key metrics for model efficiency:</p>
+<ol type="1">
+<li><strong>Number of Trainable Parameters:</strong> This is an intrinsic measure of the model’s complexity. Fewer parameters generally mean less computation and a lower risk of overfitting.</li>
+<li><strong>File Size on Disk:</strong> This is a practical measure of the model’s storage footprint. This is what matters for over-the-air updates and fitting a model into the limited memory of an edge device.</li>
+</ol>
+<p>We can easily calculate both of these for our saved PyTorch model.</p>
+<div id="cell-38" class="cell">
+<div class="sourceCode cell-code" id="cb112"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb112-1"><a href="#cb112-1"></a><span class="co"># --- Calculate the Number of Trainable Parameters ---</span></span>
+<span id="cb112-2"><a href="#cb112-2"></a></span>
+<span id="cb112-3"><a href="#cb112-3"></a><span class="co"># Use a function to make it reusable and clean</span></span>
+<span id="cb112-4"><a href="#cb112-4"></a><span class="kw">def</span> count_parameters(model):</span>
+<span id="cb112-5"><a href="#cb112-5"></a>    <span class="co">"""Counts the number of trainable parameters in a model."""</span></span>
+<span id="cb112-6"><a href="#cb112-6"></a>    <span class="cf">return</span> <span class="bu">sum</span>(p.numel() <span class="cf">for</span> p <span class="kw">in</span> model.parameters() <span class="cf">if</span> p.requires_grad)</span>
+<span id="cb112-7"><a href="#cb112-7"></a></span>
+<span id="cb112-8"><a href="#cb112-8"></a>num_params <span class="op">=</span> count_parameters(final_model)</span>
+<span id="cb112-9"><a href="#cb112-9"></a><span class="bu">print</span>(<span class="ss">f"Number of Trainable Parameters: </span><span class="sc">{</span>num_params<span class="sc">:,}</span><span class="ss">"</span>) <span class="co"># {:,} adds commas for readability</span></span>
+<span id="cb112-10"><a href="#cb112-10"></a></span>
+<span id="cb112-11"><a href="#cb112-11"></a><span class="co"># --- Calculate the File Size on Disk ---</span></span>
+<span id="cb112-12"><a href="#cb112-12"></a></span>
+<span id="cb112-13"><a href="#cb112-13"></a><span class="co"># The size of the saved state_dict file is what we want</span></span>
+<span id="cb112-14"><a href="#cb112-14"></a><span class="co"># os.path.getsize returns the size in bytes</span></span>
+<span id="cb112-15"><a href="#cb112-15"></a>file_size_bytes <span class="op">=</span> os.path.getsize(SAVE_PATH)</span>
+<span id="cb112-16"><a href="#cb112-16"></a><span class="co"># Convert bytes to megabytes (MB)</span></span>
+<span id="cb112-17"><a href="#cb112-17"></a>file_size_mb <span class="op">=</span> file_size_bytes <span class="op">/</span> (<span class="dv">1024</span> <span class="op">*</span> <span class="dv">1024</span>)</span>
+<span id="cb112-18"><a href="#cb112-18"></a></span>
+<span id="cb112-19"><a href="#cb112-19"></a><span class="bu">print</span>(<span class="ss">f"Model File Size on Disk: </span><span class="sc">{</span>file_size_mb<span class="sc">:.2f}</span><span class="ss"> MB"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Number of Trainable Parameters: 740,554
+Model File Size on Disk: 2.84 MB</code></pre>
+</div>
+</div>
+<p>Let’s pause and appreciate these numbers. Our model, which achieved a very respectable 84% accuracy on a non-trivial dataset, has:</p>
+<ul>
+<li><strong>Fewer than 750,000 parameters.</strong></li>
+<li>A total file size of <strong>less than 3 megabytes</strong>.</li>
+</ul>
+<p>To put this in perspective, the classic VGG-16 model has <strong>138 million parameters</strong> and a file size of over <strong>500 MB</strong>. Our SqueezeNet implementation achieves strong performance while being orders of magnitude more efficient. This is a direct and powerful validation of the design principles laid out in the original paper.</p>
+</section>
+</section>
+<section id="pushing-the-limits---an-experiment-with-batch-size" class="level2">
+<h2 class="anchored" data-anchor-id="pushing-the-limits---an-experiment-with-batch-size">Pushing the Limits - An Experiment with Batch Size</h2>
+<p>After achieving these great baseline results, I was curious: could we push the training even further? A common technique to speed up training and potentially improve model performance is to use the largest batch size that your GPU memory can handle. My baseline model was trained with a batch size of 128. I decided to see what would happen if I increased it.</p>
+<p><strong>The Experiment:</strong></p>
+<p>I was using a T4 GPU on Google Colab. My first attempt was to push the batch size to <strong>512</strong>. Unfortunately, this was too ambitious—the session ran out of GPU memory and the kernel crashed. This is a very common and practical limitation that developers face.</p>
+<p>My second attempt was to use a more moderate batch size of <strong>384</strong>. This time, the training completed successfully. Here are the results from that run:</p>
+<div class="quarto-layout-panel" data-layout-ncol="2">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<p><a href="images/2025-08-27-squeezenet-implementation/squeezenet-v8-accuracy.png" class="lightbox" data-gallery="quarto-lightbox-gallery-1"><img src="images/2025-08-27-squeezenet-implementation/squeezenet-v8-accuracy.png" class="img-fluid"></a></p>
+</div>
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<p><a href="images/2025-08-27-squeezenet-implementation/squeezenet-v8-training.png" class="lightbox" data-gallery="quarto-lightbox-gallery-2"><img src="images/2025-08-27-squeezenet-implementation/squeezenet-v8-training.png" class="img-fluid"></a></p>
+</div>
+</div>
+</div>
+<p><strong>Analysis of the Results:</strong></p>
+<p>Interestingly, while the training was faster per epoch, the final model’s performance was slightly <em>lower</em> than the baseline:</p>
+<p><strong>The Lesson:</strong> While larger batch sizes can speed up training, they don’t always guarantee a better final model. There’s a complex interplay between batch size, learning rate, and model convergence, and sometimes a smaller batch size can act as a form of regularization, helping the model find a more generalizable solution. It highlights that finding the optimal hyperparameters often requires experimentation and iteration.</p>
+</section>
+<section id="conclusion-from-theory-to-reality" class="level2">
+<h2 class="anchored" data-anchor-id="conclusion-from-theory-to-reality">Conclusion: From Theory to Reality</h2>
+<p>This journey from paper to code has been incredibly rewarding. We’ve seen firsthand how SqueezeNet’s elegant design principles translate into a real, working PyTorch model that is both compact and powerful. The follow-up experiment further reminds us that deep learning is an empirical science, where pushing the limits can reveal fascinating and practical trade-offs.</p>
+<p>I encourage you to take this code, experiment with it yourself, and continue exploring the vast and exciting design space of efficient neural networks.</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<script src="https://utteranc.es/client.js" repo="hassaanbinaslam/myblog_utterances" issue-term="pathname" theme="github-light" crossorigin="anonymous" async="">
+</script>
+</div> <!-- /content -->
+<script>var lightboxQuarto = GLightbox({"closeEffect":"zoom","descPosition":"bottom","loop":false,"openEffect":"zoom","selector":".lightbox"});
+(function() {
+  let previousOnload = window.onload;
+  window.onload = () => {
+    if (previousOnload) {
+      previousOnload();
+    }
+    lightboxQuarto.on('slide_before_load', (data) => {
+      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+      const href = trigger.getAttribute('href');
+      if (href !== null) {
+        const imgEl = window.document.querySelector(`a[href="${href}"] img`);
+        if (imgEl !== null) {
+          const srcAttr = imgEl.getAttribute("src");
+          if (srcAttr && srcAttr.startsWith("data:")) {
+            slideConfig.href = srcAttr;
+          }
+        }
+      } 
+    });
+  
+    lightboxQuarto.on('slide_after_load', (data) => {
+      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(slideNode);
+      }
+    });
+  
+  };
+  
+})();
+          </script>
+
+
+
+
+</body></html>
