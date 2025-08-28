@@ -274,6 +274,10 @@ Tip
 <div class="callout-body-container callout-body">
 <p>The complete Jupyter Notebook for this post is available on GitHub. You can view it, download it, and run the code yourself at the following link:</p>
 <p><a href="https://github.com/hassaanbinaslam/myblog/blob/main/posts/2025-08-27-squeezenet-implementation.ipynb">2025-08-27-squeezenet-implementation.ipynb</a></p>
+<p><strong>Where to run this notebook?</strong></p>
+<p>I ran this notebook on an <strong>AWS SageMaker Notebook Instance</strong> with the instance type <code>ml.g4dn.xlarge</code> and platform identifier <strong>Amazon Linux 2, JupyterLab 4</strong>. The <code>g4dn.xlarge</code> instance belongs to the GPU family and comes with <strong>4 vCPUs, 16 GiB of memory, and 1 NVIDIA T4 Tensor Core GPU</strong>.</p>
+<p>Alternatively, you can use <strong>Google Colab</strong>, which provides free access to the same type of GPU and is an excellent platform for running Jupyter notebooks. I tested the notebook on Colab with the free-tier T4 GPU, and it worked seamlessly. The training loop takes around <strong>1.5 hours</strong> to complete on Colab.</p>
+<p>In my experience, training completes faster on the <code>g4dn.xlarge</code> instance compared to Colab.</p>
 </div>
 </div>
 <section id="our-training-ground-the-cifar-10-dataset" class="level3">
@@ -684,55 +688,55 @@ PyTorch 2.0+ detected. Compiling the model...</code></pre>
 <span id="cb19-2"><a href="#cb19-2"></a><span class="cf">for</span> epoch <span class="kw">in</span> <span class="bu">range</span>(num_epochs):</span>
 <span id="cb19-3"><a href="#cb19-3"></a>    <span class="co"># --- Training Phase ---</span></span>
 <span id="cb19-4"><a href="#cb19-4"></a>    net.train()</span>
-<span id="cb19-5"><a href="#cb19-5"></a>    <span class="co"># (The training part of the loop remains the same)</span></span>
+<span id="cb19-5"><a href="#cb19-5"></a>    </span>
 <span id="cb19-6"><a href="#cb19-6"></a>    train_loss <span class="op">=</span> <span class="fl">0.0</span></span>
 <span id="cb19-7"><a href="#cb19-7"></a>    correct_train <span class="op">=</span> <span class="dv">0</span></span>
 <span id="cb19-8"><a href="#cb19-8"></a>    total_train <span class="op">=</span> <span class="dv">0</span></span>
 <span id="cb19-9"><a href="#cb19-9"></a>    current_lr <span class="op">=</span> optimizer.param_groups[<span class="dv">0</span>][<span class="st">'lr'</span>]</span>
 <span id="cb19-10"><a href="#cb19-10"></a>    train_bar <span class="op">=</span> tqdm(trainloader, desc<span class="op">=</span><span class="ss">f"Epoch </span><span class="sc">{</span>epoch<span class="op">+</span><span class="dv">1</span><span class="sc">}</span><span class="ss">/</span><span class="sc">{</span>num_epochs<span class="sc">}</span><span class="ss"> [Training] LR: </span><span class="sc">{</span>current_lr<span class="sc">:.6f}</span><span class="ss">"</span>)</span>
-<span id="cb19-11"><a href="#cb19-11"></a>    <span class="cf">for</span> data <span class="kw">in</span> train_bar:</span>
-<span id="cb19-12"><a href="#cb19-12"></a>        inputs, labels <span class="op">=</span> data[<span class="dv">0</span>].to(device, non_blocking<span class="op">=</span><span class="va">True</span>), data[<span class="dv">1</span>].to(device, non_blocking<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb19-13"><a href="#cb19-13"></a>        optimizer.zero_grad(set_to_none<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb19-14"><a href="#cb19-14"></a>        outputs <span class="op">=</span> net(inputs)</span>
-<span id="cb19-15"><a href="#cb19-15"></a>        loss <span class="op">=</span> criterion(outputs, labels)</span>
-<span id="cb19-16"><a href="#cb19-16"></a>        loss.backward()</span>
-<span id="cb19-17"><a href="#cb19-17"></a>        optimizer.step()</span>
-<span id="cb19-18"><a href="#cb19-18"></a>        train_loss <span class="op">+=</span> loss.item()</span>
-<span id="cb19-19"><a href="#cb19-19"></a>        _, predicted <span class="op">=</span> torch.<span class="bu">max</span>(outputs.data, <span class="dv">1</span>)</span>
-<span id="cb19-20"><a href="#cb19-20"></a>        total_train <span class="op">+=</span> labels.size(<span class="dv">0</span>)</span>
-<span id="cb19-21"><a href="#cb19-21"></a>        correct_train <span class="op">+=</span> (predicted <span class="op">==</span> labels).<span class="bu">sum</span>().item()</span>
-<span id="cb19-22"><a href="#cb19-22"></a>        train_bar.set_postfix(loss<span class="op">=</span>loss.item())</span>
-<span id="cb19-23"><a href="#cb19-23"></a></span>
-<span id="cb19-24"><a href="#cb19-24"></a>    avg_train_loss <span class="op">=</span> train_loss <span class="op">/</span> <span class="bu">len</span>(trainloader)</span>
-<span id="cb19-25"><a href="#cb19-25"></a>    train_accuracy <span class="op">=</span> <span class="dv">100</span> <span class="op">*</span> correct_train <span class="op">/</span> total_train</span>
-<span id="cb19-26"><a href="#cb19-26"></a>    history[<span class="st">'train_loss'</span>].append(avg_train_loss)</span>
-<span id="cb19-27"><a href="#cb19-27"></a>    history[<span class="st">'train_acc'</span>].append(train_accuracy)</span>
-<span id="cb19-28"><a href="#cb19-28"></a>    history[<span class="st">'learning_rate'</span>].append(current_lr)</span>
-<span id="cb19-29"><a href="#cb19-29"></a></span>
-<span id="cb19-30"><a href="#cb19-30"></a>    <span class="co"># --- Validation Phase ---</span></span>
-<span id="cb19-31"><a href="#cb19-31"></a>    net.<span class="bu">eval</span>()</span>
-<span id="cb19-32"><a href="#cb19-32"></a>    val_loss <span class="op">=</span> <span class="fl">0.0</span></span>
-<span id="cb19-33"><a href="#cb19-33"></a>    correct_val <span class="op">=</span> <span class="dv">0</span></span>
-<span id="cb19-34"><a href="#cb19-34"></a>    total_val <span class="op">=</span> <span class="dv">0</span></span>
-<span id="cb19-35"><a href="#cb19-35"></a>    val_bar <span class="op">=</span> tqdm(testloader, desc<span class="op">=</span><span class="ss">f"Epoch </span><span class="sc">{</span>epoch<span class="op">+</span><span class="dv">1</span><span class="sc">}</span><span class="ss">/</span><span class="sc">{</span>num_epochs<span class="sc">}</span><span class="ss"> [Validation]"</span>)</span>
-<span id="cb19-36"><a href="#cb19-36"></a>    <span class="cf">with</span> torch.no_grad():</span>
-<span id="cb19-37"><a href="#cb19-37"></a>        <span class="cf">for</span> data <span class="kw">in</span> val_bar:</span>
-<span id="cb19-38"><a href="#cb19-38"></a>            inputs, labels <span class="op">=</span> data[<span class="dv">0</span>].to(device, non_blocking<span class="op">=</span><span class="va">True</span>), data[<span class="dv">1</span>].to(device, non_blocking<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb19-39"><a href="#cb19-39"></a>            outputs <span class="op">=</span> net(inputs)</span>
-<span id="cb19-40"><a href="#cb19-40"></a>            loss <span class="op">=</span> criterion(outputs, labels)</span>
-<span id="cb19-41"><a href="#cb19-41"></a>            val_loss <span class="op">+=</span> loss.item()</span>
-<span id="cb19-42"><a href="#cb19-42"></a>            _, predicted <span class="op">=</span> torch.<span class="bu">max</span>(outputs.data, <span class="dv">1</span>)</span>
-<span id="cb19-43"><a href="#cb19-43"></a>            total_val <span class="op">+=</span> labels.size(<span class="dv">0</span>)</span>
-<span id="cb19-44"><a href="#cb19-44"></a>            correct_val <span class="op">+=</span> (predicted <span class="op">==</span> labels).<span class="bu">sum</span>().item()</span>
-<span id="cb19-45"><a href="#cb19-45"></a>            val_bar.set_postfix(loss<span class="op">=</span>loss.item())</span>
-<span id="cb19-46"><a href="#cb19-46"></a></span>
-<span id="cb19-47"><a href="#cb19-47"></a>    avg_val_loss <span class="op">=</span> val_loss <span class="op">/</span> <span class="bu">len</span>(testloader)</span>
-<span id="cb19-48"><a href="#cb19-48"></a>    val_accuracy <span class="op">=</span> <span class="dv">100</span> <span class="op">*</span> correct_val <span class="op">/</span> total_val</span>
-<span id="cb19-49"><a href="#cb19-49"></a>    history[<span class="st">'val_loss'</span>].append(avg_val_loss)</span>
-<span id="cb19-50"><a href="#cb19-50"></a>    history[<span class="st">'val_acc'</span>].append(val_accuracy)</span>
-<span id="cb19-51"><a href="#cb19-51"></a></span>
-<span id="cb19-52"><a href="#cb19-52"></a>    <span class="co"># --- EARLY STOPPING LOGIC ---</span></span>
-<span id="cb19-53"><a href="#cb19-53"></a>    <span class="co"># This is the most critical part.</span></span>
+<span id="cb19-11"><a href="#cb19-11"></a></span>
+<span id="cb19-12"><a href="#cb19-12"></a>    <span class="cf">for</span> data <span class="kw">in</span> train_bar:</span>
+<span id="cb19-13"><a href="#cb19-13"></a>        inputs, labels <span class="op">=</span> data[<span class="dv">0</span>].to(device, non_blocking<span class="op">=</span><span class="va">True</span>), data[<span class="dv">1</span>].to(device, non_blocking<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb19-14"><a href="#cb19-14"></a>        optimizer.zero_grad(set_to_none<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb19-15"><a href="#cb19-15"></a>        outputs <span class="op">=</span> net(inputs)</span>
+<span id="cb19-16"><a href="#cb19-16"></a>        loss <span class="op">=</span> criterion(outputs, labels)</span>
+<span id="cb19-17"><a href="#cb19-17"></a>        loss.backward()</span>
+<span id="cb19-18"><a href="#cb19-18"></a>        optimizer.step()</span>
+<span id="cb19-19"><a href="#cb19-19"></a>        train_loss <span class="op">+=</span> loss.item()</span>
+<span id="cb19-20"><a href="#cb19-20"></a>        _, predicted <span class="op">=</span> torch.<span class="bu">max</span>(outputs.data, <span class="dv">1</span>)</span>
+<span id="cb19-21"><a href="#cb19-21"></a>        total_train <span class="op">+=</span> labels.size(<span class="dv">0</span>)</span>
+<span id="cb19-22"><a href="#cb19-22"></a>        correct_train <span class="op">+=</span> (predicted <span class="op">==</span> labels).<span class="bu">sum</span>().item()</span>
+<span id="cb19-23"><a href="#cb19-23"></a>        train_bar.set_postfix(loss<span class="op">=</span>loss.item())</span>
+<span id="cb19-24"><a href="#cb19-24"></a></span>
+<span id="cb19-25"><a href="#cb19-25"></a>    avg_train_loss <span class="op">=</span> train_loss <span class="op">/</span> <span class="bu">len</span>(trainloader)</span>
+<span id="cb19-26"><a href="#cb19-26"></a>    train_accuracy <span class="op">=</span> <span class="dv">100</span> <span class="op">*</span> correct_train <span class="op">/</span> total_train</span>
+<span id="cb19-27"><a href="#cb19-27"></a>    history[<span class="st">'train_loss'</span>].append(avg_train_loss)</span>
+<span id="cb19-28"><a href="#cb19-28"></a>    history[<span class="st">'train_acc'</span>].append(train_accuracy)</span>
+<span id="cb19-29"><a href="#cb19-29"></a>    history[<span class="st">'learning_rate'</span>].append(current_lr)</span>
+<span id="cb19-30"><a href="#cb19-30"></a></span>
+<span id="cb19-31"><a href="#cb19-31"></a>    <span class="co"># --- Validation Phase ---</span></span>
+<span id="cb19-32"><a href="#cb19-32"></a>    net.<span class="bu">eval</span>()</span>
+<span id="cb19-33"><a href="#cb19-33"></a>    val_loss <span class="op">=</span> <span class="fl">0.0</span></span>
+<span id="cb19-34"><a href="#cb19-34"></a>    correct_val <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb19-35"><a href="#cb19-35"></a>    total_val <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb19-36"><a href="#cb19-36"></a>    val_bar <span class="op">=</span> tqdm(testloader, desc<span class="op">=</span><span class="ss">f"Epoch </span><span class="sc">{</span>epoch<span class="op">+</span><span class="dv">1</span><span class="sc">}</span><span class="ss">/</span><span class="sc">{</span>num_epochs<span class="sc">}</span><span class="ss"> [Validation]"</span>)</span>
+<span id="cb19-37"><a href="#cb19-37"></a>    <span class="cf">with</span> torch.no_grad():</span>
+<span id="cb19-38"><a href="#cb19-38"></a>        <span class="cf">for</span> data <span class="kw">in</span> val_bar:</span>
+<span id="cb19-39"><a href="#cb19-39"></a>            inputs, labels <span class="op">=</span> data[<span class="dv">0</span>].to(device, non_blocking<span class="op">=</span><span class="va">True</span>), data[<span class="dv">1</span>].to(device, non_blocking<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb19-40"><a href="#cb19-40"></a>            outputs <span class="op">=</span> net(inputs)</span>
+<span id="cb19-41"><a href="#cb19-41"></a>            loss <span class="op">=</span> criterion(outputs, labels)</span>
+<span id="cb19-42"><a href="#cb19-42"></a>            val_loss <span class="op">+=</span> loss.item()</span>
+<span id="cb19-43"><a href="#cb19-43"></a>            _, predicted <span class="op">=</span> torch.<span class="bu">max</span>(outputs.data, <span class="dv">1</span>)</span>
+<span id="cb19-44"><a href="#cb19-44"></a>            total_val <span class="op">+=</span> labels.size(<span class="dv">0</span>)</span>
+<span id="cb19-45"><a href="#cb19-45"></a>            correct_val <span class="op">+=</span> (predicted <span class="op">==</span> labels).<span class="bu">sum</span>().item()</span>
+<span id="cb19-46"><a href="#cb19-46"></a>            val_bar.set_postfix(loss<span class="op">=</span>loss.item())</span>
+<span id="cb19-47"><a href="#cb19-47"></a></span>
+<span id="cb19-48"><a href="#cb19-48"></a>    avg_val_loss <span class="op">=</span> val_loss <span class="op">/</span> <span class="bu">len</span>(testloader)</span>
+<span id="cb19-49"><a href="#cb19-49"></a>    val_accuracy <span class="op">=</span> <span class="dv">100</span> <span class="op">*</span> correct_val <span class="op">/</span> total_val</span>
+<span id="cb19-50"><a href="#cb19-50"></a>    history[<span class="st">'val_loss'</span>].append(avg_val_loss)</span>
+<span id="cb19-51"><a href="#cb19-51"></a>    history[<span class="st">'val_acc'</span>].append(val_accuracy)</span>
+<span id="cb19-52"><a href="#cb19-52"></a></span>
+<span id="cb19-53"><a href="#cb19-53"></a>    <span class="co"># --- EARLY STOPPING LOGIC ---</span></span>
 <span id="cb19-54"><a href="#cb19-54"></a>    <span class="co"># Check if the current validation loss is the best we've seen so far.</span></span>
 <span id="cb19-55"><a href="#cb19-55"></a>    <span class="cf">if</span> avg_val_loss <span class="op">&lt;</span> best_val_loss:</span>
 <span id="cb19-56"><a href="#cb19-56"></a>        best_val_loss <span class="op">=</span> avg_val_loss</span>
