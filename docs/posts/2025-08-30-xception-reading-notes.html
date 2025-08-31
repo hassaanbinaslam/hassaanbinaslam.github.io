@@ -1,0 +1,1590 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.32">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="dcterms.date" content="2025-08-30">
+<meta name="description" content="A detailed, page-by-page breakdown of the Xception paper, explaining how to build smarter, more efficient neural networks by rethinking the classic convolution.">
+
+<title>Xception Explained: A Deep Dive into Extreme Inception and Smarter Convolutions – Random Thoughts</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../images/favicon.ico" rel="icon">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-ec1a476101e3788554028e6f9c82f7c1.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="../site_libs/quarto-contrib/glightbox/glightbox.min.js"></script>
+<link href="../site_libs/quarto-contrib/glightbox/glightbox.min.css" rel="stylesheet">
+<link href="../site_libs/quarto-contrib/glightbox/lightbox.css" rel="stylesheet">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script async="" src="https://www.googletagmanager.com/gtag/js?id=G-D1ST9BH6HX"></script>
+
+<script type="text/javascript">
+
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-D1ST9BH6HX', { 'anonymize_ip': true});
+</script>
+
+
+<link rel="stylesheet" href="../styles.css">
+<meta property="og:title" content="Xception Explained: A Deep Dive into Extreme Inception and Smarter Convolutions – Random Thoughts">
+<meta property="og:description" content="A detailed, page-by-page breakdown of the Xception paper, explaining how to build smarter, more efficient neural networks by rethinking the classic convolution.">
+<meta property="og:image" content="images/2025-08-30-xception-reading-notes.png">
+<meta property="og:site_name" content="Random Thoughts">
+<meta name="twitter:title" content="Xception Explained: A Deep Dive into Extreme Inception and Smarter Convolutions – Random Thoughts">
+<meta name="twitter:description" content="A detailed, page-by-page breakdown of the Xception paper, explaining how to build smarter, more efficient neural networks by rethinking the classic convolution.">
+<meta name="twitter:image" content="images/2025-08-30-xception-reading-notes.png">
+<meta name="twitter:card" content="summary_large_image">
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">Random Thoughts</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://www.linkedin.com/in/hassaanbinaslam/"> <i class="bi bi-linkedin" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/hassaanbinaslam/"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://twitter.com/hassaanbinaslam"> <i class="bi bi-twitter" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a></li>
+  <li><a href="#the-abstract-xception-in-a-nutshell" id="toc-the-abstract-xception-in-a-nutshell" class="nav-link" data-scroll-target="#the-abstract-xception-in-a-nutshell">The Abstract: Xception in a Nutshell</a>
+  <ul class="collapse">
+  <li><a href="#the-core-insight-placing-inception-on-a-spectrum" id="toc-the-core-insight-placing-inception-on-a-spectrum" class="nav-link" data-scroll-target="#the-core-insight-placing-inception-on-a-spectrum">The Core Insight: Placing Inception on a Spectrum</a></li>
+  <li><a href="#the-extreme-hypothesis" id="toc-the-extreme-hypothesis" class="nav-link" data-scroll-target="#the-extreme-hypothesis">The “Extreme” Hypothesis</a></li>
+  <li><a href="#the-proposal-and-the-results" id="toc-the-proposal-and-the-results" class="nav-link" data-scroll-target="#the-proposal-and-the-results">The Proposal and the Results</a></li>
+  <li><a href="#the-reason-for-success-efficiency" id="toc-the-reason-for-success-efficiency" class="nav-link" data-scroll-target="#the-reason-for-success-efficiency">The Reason for Success: Efficiency</a></li>
+  </ul></li>
+  <li><a href="#the-introduction-setting-the-stage-for-a-new-architecture" id="toc-the-introduction-setting-the-stage-for-a-new-architecture" class="nav-link" data-scroll-target="#the-introduction-setting-the-stage-for-a-new-architecture">The Introduction: Setting the Stage for a New Architecture</a>
+  <ul class="collapse">
+  <li><a href="#a-brief-history-of-cnn-design-pre-inception" id="toc-a-brief-history-of-cnn-design-pre-inception" class="nav-link" data-scroll-target="#a-brief-history-of-cnn-design-pre-inception">A Brief History of CNN Design (Pre-Inception)</a></li>
+  <li><a href="#the-paradigm-shift-enter-inception" id="toc-the-paradigm-shift-enter-inception" class="nav-link" data-scroll-target="#the-paradigm-shift-enter-inception">The Paradigm Shift: Enter Inception</a></li>
+  <li><a href="#the-central-question-why-does-inception-work" id="toc-the-central-question-why-does-inception-work" class="nav-link" data-scroll-target="#the-central-question-why-does-inception-work">The Central Question: Why Does Inception Work?</a></li>
+  </ul></li>
+  <li><a href="#section-1.1-the-inception-hypothesis-separating-concerns" id="toc-section-1.1-the-inception-hypothesis-separating-concerns" class="nav-link" data-scroll-target="#section-1.1-the-inception-hypothesis-separating-concerns">Section 1.1: The Inception Hypothesis (Separating Concerns)</a>
+  <ul class="collapse">
+  <li><a href="#the-dual-role-of-a-standard-convolution" id="toc-the-dual-role-of-a-standard-convolution" class="nav-link" data-scroll-target="#the-dual-role-of-a-standard-convolution">The Dual Role of a Standard Convolution</a></li>
+  <li><a href="#the-inception-solution-factorization" id="toc-the-inception-solution-factorization" class="nav-link" data-scroll-target="#the-inception-solution-factorization">The Inception Solution: Factorization</a></li>
+  <li><a href="#from-inception-to-extreme-inception" id="toc-from-inception-to-extreme-inception" class="nav-link" data-scroll-target="#from-inception-to-extreme-inception">From Inception to “Extreme Inception”</a></li>
+  </ul></li>
+  <li><a href="#section-1.2-connecting-to-depthwise-separable-convolutions" id="toc-section-1.2-connecting-to-depthwise-separable-convolutions" class="nav-link" data-scroll-target="#section-1.2-connecting-to-depthwise-separable-convolutions">Section 1.2: Connecting to Depthwise Separable Convolutions</a>
+  <ul class="collapse">
+  <li><a href="#finalizing-the-argument-and-stating-the-goal" id="toc-finalizing-the-argument-and-stating-the-goal" class="nav-link" data-scroll-target="#finalizing-the-argument-and-stating-the-goal">Finalizing the Argument and Stating the Goal</a></li>
+  </ul></li>
+  <li><a href="#section-2-standing-on-the-shoulders-of-giants-prior-work" id="toc-section-2-standing-on-the-shoulders-of-giants-prior-work" class="nav-link" data-scroll-target="#section-2-standing-on-the-shoulders-of-giants-prior-work">Section 2: Standing on the Shoulders of Giants (Prior Work)</a>
+  <ul class="collapse">
+  <li><a href="#pillar-1-the-vgg-16-macro-architecture" id="toc-pillar-1-the-vgg-16-macro-architecture" class="nav-link" data-scroll-target="#pillar-1-the-vgg-16-macro-architecture">Pillar 1: The VGG-16 Macro-Architecture</a></li>
+  <li><a href="#pillar-2-the-inception-philosophy" id="toc-pillar-2-the-inception-philosophy" class="nav-link" data-scroll-target="#pillar-2-the-inception-philosophy">Pillar 2: The Inception Philosophy</a></li>
+  <li><a href="#pillar-3-the-history-and-rise-of-depthwise-separable-convolutions" id="toc-pillar-3-the-history-and-rise-of-depthwise-separable-convolutions" class="nav-link" data-scroll-target="#pillar-3-the-history-and-rise-of-depthwise-separable-convolutions">Pillar 3: The History and Rise of Depthwise Separable Convolutions</a></li>
+  <li><a href="#pillar-4-the-power-of-residual-connections" id="toc-pillar-4-the-power-of-residual-connections" class="nav-link" data-scroll-target="#pillar-4-the-power-of-residual-connections">Pillar 4: The Power of Residual Connections</a></li>
+  </ul></li>
+  <li><a href="#section-3-the-blueprint-of-the-xception-architecture" id="toc-section-3-the-blueprint-of-the-xception-architecture" class="nav-link" data-scroll-target="#section-3-the-blueprint-of-the-xception-architecture">Section 3: The Blueprint of the Xception Architecture</a>
+  <ul class="collapse">
+  <li><a href="#the-core-principle-and-the-name" id="toc-the-core-principle-and-the-name" class="nav-link" data-scroll-target="#the-core-principle-and-the-name">The Core Principle and the Name</a></li>
+  <li><a href="#the-high-level-structure" id="toc-the-high-level-structure" class="nav-link" data-scroll-target="#the-high-level-structure">The High-Level Structure</a></li>
+  <li><a href="#a-visual-walkthrough-of-the-xception-architecture-figure-5" id="toc-a-visual-walkthrough-of-the-xception-architecture-figure-5" class="nav-link" data-scroll-target="#a-visual-walkthrough-of-the-xception-architecture-figure-5">A Visual Walkthrough of the Xception Architecture (Figure 5)</a></li>
+  </ul></li>
+  <li><a href="#section-4-putting-xception-to-the-test-experimental-evaluation" id="toc-section-4-putting-xception-to-the-test-experimental-evaluation" class="nav-link" data-scroll-target="#section-4-putting-xception-to-the-test-experimental-evaluation">Section 4: Putting Xception to the Test (Experimental Evaluation)</a>
+  <ul class="collapse">
+  <li><a href="#the-main-event-xception-vs.-inception-v3" id="toc-the-main-event-xception-vs.-inception-v3" class="nav-link" data-scroll-target="#the-main-event-xception-vs.-inception-v3">The Main Event: Xception vs.&nbsp;Inception V3</a></li>
+  <li><a href="#section-4.1-the-proving-groundthe-jft-dataset" id="toc-section-4.1-the-proving-groundthe-jft-dataset" class="nav-link" data-scroll-target="#section-4.1-the-proving-groundthe-jft-dataset">Section 4.1: The Proving Ground—The JFT Dataset</a></li>
+  <li><a href="#section-4.2-the-rules-of-the-race-optimization-configuration" id="toc-section-4.2-the-rules-of-the-race-optimization-configuration" class="nav-link" data-scroll-target="#section-4.2-the-rules-of-the-race-optimization-configuration">Section 4.2: The Rules of the Race (Optimization Configuration)</a></li>
+  <li><a href="#section-4.3-preventing-overfitting-regularization-configuration" id="toc-section-4.3-preventing-overfitting-regularization-configuration" class="nav-link" data-scroll-target="#section-4.3-preventing-overfitting-regularization-configuration">Section 4.3: Preventing Overfitting (Regularization Configuration)</a></li>
+  <li><a href="#section-4.4-the-engine-room-training-infrastructure" id="toc-section-4.4-the-engine-room-training-infrastructure" class="nav-link" data-scroll-target="#section-4.4-the-engine-room-training-infrastructure">Section 4.4: The Engine Room (Training Infrastructure)</a></li>
+  <li><a href="#section-4.5-the-results-are-ina-head-to-head-comparison" id="toc-section-4.5-the-results-are-ina-head-to-head-comparison" class="nav-link" data-scroll-target="#section-4.5-the-results-are-ina-head-to-head-comparison">Section 4.5: The Results Are In—A Head-to-Head Comparison</a></li>
+  <li><a href="#performance-on-the-jft-benchmark-where-xception-shines" id="toc-performance-on-the-jft-benchmark-where-xception-shines" class="nav-link" data-scroll-target="#performance-on-the-jft-benchmark-where-xception-shines">Performance on the JFT Benchmark: Where Xception Shines</a></li>
+  <li><a href="#section-4.5.2-the-source-of-the-gainssize-and-speed" id="toc-section-4.5.2-the-source-of-the-gainssize-and-speed" class="nav-link" data-scroll-target="#section-4.5.2-the-source-of-the-gainssize-and-speed">Section 4.5.2: The Source of the Gains—Size and Speed</a></li>
+  </ul></li>
+  <li><a href="#architectural-dissection-part-1-the-critical-role-of-residual-connections" id="toc-architectural-dissection-part-1-the-critical-role-of-residual-connections" class="nav-link" data-scroll-target="#architectural-dissection-part-1-the-critical-role-of-residual-connections">Architectural Dissection Part 1: The Critical Role of Residual Connections</a>
+  <ul class="collapse">
+  <li><a href="#the-question-are-the-skip-connections-necessary" id="toc-the-question-are-the-skip-connections-necessary" class="nav-link" data-scroll-target="#the-question-are-the-skip-connections-necessary">The Question: Are the Skip Connections Necessary?</a></li>
+  </ul></li>
+  <li><a href="#architectural-dissection-part-2-the-surprising-effect-of-intermediate-activations" id="toc-architectural-dissection-part-2-the-surprising-effect-of-intermediate-activations" class="nav-link" data-scroll-target="#architectural-dissection-part-2-the-surprising-effect-of-intermediate-activations">Architectural Dissection Part 2: The Surprising Effect of Intermediate Activations</a>
+  <ul class="collapse">
+  <li><a href="#the-experiment-to-relu-or-not-to-relu" id="toc-the-experiment-to-relu-or-not-to-relu" class="nav-link" data-scroll-target="#the-experiment-to-relu-or-not-to-relu">The Experiment: To ReLU or Not to ReLU?</a></li>
+  <li><a href="#the-conclusion-linearity-is-better-here" id="toc-the-conclusion-linearity-is-better-here" class="nav-link" data-scroll-target="#the-conclusion-linearity-is-better-here">The Conclusion: Linearity is Better (Here)</a></li>
+  </ul></li>
+  <li><a href="#future-directions-and-final-conclusions" id="toc-future-directions-and-final-conclusions" class="nav-link" data-scroll-target="#future-directions-and-final-conclusions">Future Directions and Final Conclusions</a>
+  <ul class="collapse">
+  <li><a href="#section-5-whats-next-future-directions" id="toc-section-5-whats-next-future-directions" class="nav-link" data-scroll-target="#section-5-whats-next-future-directions">Section 5: What’s Next? (Future Directions)</a></li>
+  <li><a href="#section-6-the-final-word-conclusions" id="toc-section-6-the-final-word-conclusions" class="nav-link" data-scroll-target="#section-6-the-final-word-conclusions">Section 6: The Final Word (Conclusions)</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Xception Explained: A Deep Dive into Extreme Inception and Smarter Convolutions</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">papers</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    A detailed, page-by-page breakdown of the Xception paper, explaining how to build smarter, more efficient neural networks by rethinking the classic convolution.
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">August 30, 2025</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p><img src="images/2025-08-30-xception-reading-notes.png" class="img-fluid"></p>
+<section id="introduction" class="level2">
+<h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
+<p>In the world of deep learning, certain papers stand out not just for their results, but for the elegance and power of their core ideas. They shift our perspective on how to design neural networks. François Chollet’s 2017 paper, <a href="https://arxiv.org/abs/1610.02357"><strong>“Xception: Deep Learning with Depthwise Separable Convolutions,”</strong></a> is one of those papers. While many know Chollet as the creator of the popular Keras library, his work on the Xception architecture provides a masterclass in reasoning about the fundamental building blocks of computer vision models.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images/2025-08-30-xception-reading-notes/paper-title.PNG" class="img-fluid figure-img"></p>
+<figcaption>Paper Title</figcaption>
+</figure>
+</div>
+<p>These architectures, with names like ResNet, Inception, and VGG, can often feel like complex, intimidating black boxes. How did their creators come up with these designs? What intuition were they following? The Xception paper is a perfect case study because it lays out its chain of reasoning with remarkable clarity. It starts with a well-known architecture (Inception), re-examines its core hypothesis, and pushes that hypothesis to its logical conclusion.</p>
+<p>In this post, we’ll take a guided tour through the Xception paper, breaking it down step by step to reveal the simple yet powerful ideas behind it. By the end, you’ll understand what makes Xception work and why its core — the depthwise separable convolution — has become a key element of modern network design.</p>
+<p>Let’s start with the abstract.</p>
+</section>
+<section id="the-abstract-xception-in-a-nutshell" class="level2">
+<h2 class="anchored" data-anchor-id="the-abstract-xception-in-a-nutshell">The Abstract: Xception in a Nutshell</h2>
+<p>Let’s start at the very beginning, on <strong>page 1</strong>, with the <strong>Abstract</strong>. A paper’s abstract is its elevator pitch; it contains the core idea, the proposed solution, the main results, and the key takeaway all in one tight package. Xception’s abstract is a perfect example of this, laying out the entire story in just five sentences.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images/2025-08-30-xception-reading-notes/abstract.PNG" class="img-fluid figure-img"></p>
+<figcaption>Paper Abstract</figcaption>
+</figure>
+</div>
+<section id="the-core-insight-placing-inception-on-a-spectrum" class="level3">
+<h3 class="anchored" data-anchor-id="the-core-insight-placing-inception-on-a-spectrum">The Core Insight: Placing Inception on a Spectrum</h3>
+<p>The abstract begins with the paper’s central theoretical claim:</p>
+<blockquote class="blockquote">
+<p><strong>(Page 1, Abstract):</strong> “We present an interpretation of Inception modules in convolutional neural networks as being an intermediate step in-between regular convolution and the depthwise separable convolution operation (a depthwise convolution followed by a pointwise convolution).”</p>
+</blockquote>
+<p>This single sentence is the foundation for everything that follows. Let’s break it down. The author, François Chollet, isn’t just proposing a new component; he’s suggesting a new way to <em>think</em> about existing ones. He outlines a spectrum of operations:</p>
+<ol type="1">
+<li><strong>At one end:</strong> The <strong>regular convolution</strong>, the workhorse of classic networks like VGG. A single filter in a regular convolution is tasked with doing two jobs at once: identifying patterns across spatial locations (like the shape of an edge) and identifying patterns across its input channels (like which features tend to appear together).</li>
+<li><strong>At the other end:</strong> The <strong>depthwise separable convolution</strong>. This operation explicitly decouples the two jobs. It first performs a “depthwise” spatial convolution (finding spatial patterns in each channel independently) and then a “pointwise” convolution (a 1x1 convolution that combines information across channels).</li>
+<li><strong>In the middle:</strong> The <strong>Inception module</strong>. Chollet’s key insight is that Inception is a compromise between these two extremes. It partially separates the two jobs but doesn’t go all the way.</li>
+</ol>
+</section>
+<section id="the-extreme-hypothesis" class="level3">
+<h3 class="anchored" data-anchor-id="the-extreme-hypothesis">The “Extreme” Hypothesis</h3>
+<p>The next sentence makes this “spectrum” idea even more concrete:</p>
+<blockquote class="blockquote">
+<p><strong>(Page 1, Abstract):</strong> “In this light, a depthwise separable convolution can be understood as an Inception module with a maximally large number of towers.”</p>
+</blockquote>
+<p>An Inception module is famously built from parallel paths or “towers” (e.g., a 1x1 convolution tower, a 3x3 tower, etc.). Chollet asks us to imagine taking this design to its logical limit. What if, instead of 3 or 4 towers, you created a separate, tiny tower for <em>every single input channel</em>? If you did that, he argues, you would have effectively reinvented the depthwise separable convolution. It is the most extreme, most factored version of an Inception module possible.</p>
+</section>
+<section id="the-proposal-and-the-results" class="level3">
+<h3 class="anchored" data-anchor-id="the-proposal-and-the-results">The Proposal and the Results</h3>
+<p>This insight directly leads to a practical experiment: if a depthwise separable convolution is an “Extreme Inception” module, what happens if we build a whole network out of them?</p>
+<blockquote class="blockquote">
+<p><strong>(Page 1, Abstract):</strong> “This observation leads us to propose a novel deep convolutional neural network architecture inspired by Inception, where Inception modules have been replaced with depthwise separable convolutions. We show that this architecture, dubbed Xception, slightly outperforms Inception V3 on the ImageNet dataset (which Inception V3 was designed for), and significantly outperforms Inception V3 on a larger image classification dataset…”</p>
+</blockquote>
+<p>Here we get the name, <strong>Xception</strong>, and the top-line results:</p>
+<ul>
+<li>On the standard ImageNet benchmark, it’s <strong>slightly better</strong> than its predecessor, Inception V3.</li>
+<li>On a massive internal Google dataset (JFT) with 350 million images, it’s <strong>significantly better</strong>. This is a crucial finding, suggesting that the Xception design principle scales more effectively when given enormous amounts of data.</li>
+</ul>
+</section>
+<section id="the-reason-for-success-efficiency" class="level3">
+<h3 class="anchored" data-anchor-id="the-reason-for-success-efficiency">The Reason for Success: Efficiency</h3>
+<p>The final sentence addresses the most important question: <em>why</em> is it better? Is it just a bigger model?</p>
+<blockquote class="blockquote">
+<p><strong>(Page 1, Abstract):</strong> “Since the Xception architecture has the same number of parameters as Inception V3, the performance gains are not due to increased capacity but rather to a more efficient use of model parameters.”</p>
+</blockquote>
+<p>This is the punchline. The improvement doesn’t come from brute force. Xception has roughly the same number of learnable parameters as Inception V3. This implies that the architecture itself—the principle of completely decoupling spatial and cross-channel correlations—is a fundamentally more <strong>efficient</strong> way for a model to learn. It gets more mileage out of the same capacity.</p>
+<p>In just one paragraph, we have our entire story. Now, let’s dive into the <strong>Introduction</strong> to see how Chollet builds his case in greater detail.</p>
+</section>
+</section>
+<section id="the-introduction-setting-the-stage-for-a-new-architecture" class="level2">
+<h2 class="anchored" data-anchor-id="the-introduction-setting-the-stage-for-a-new-architecture">The Introduction: Setting the Stage for a New Architecture</h2>
+<p>The introduction of a paper serves to provide context, frame the problem, and lay out the argument that the rest of the paper will support. On <strong>page 1</strong>, Chollet walks us through the history of convolutional neural network (CNN) design to show us exactly where his contribution fits in.</p>
+<div class="quarto-layout-panel" data-layout-ncol="2">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><a href="images/2025-08-30-xception-reading-notes/introduction-1.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-1" title="Introduction"><img src="images/2025-08-30-xception-reading-notes/introduction-1.PNG" class="img-fluid figure-img" alt="Introduction"></a></p>
+<figcaption>Introduction</figcaption>
+</figure>
+</div>
+</div>
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<p><a href="images/2025-08-30-xception-reading-notes/introduction-2.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-2"><img src="images/2025-08-30-xception-reading-notes/introduction-2.PNG" class="img-fluid"></a></p>
+</div>
+</div>
+</div>
+<section id="a-brief-history-of-cnn-design-pre-inception" class="level3">
+<h3 class="anchored" data-anchor-id="a-brief-history-of-cnn-design-pre-inception">A Brief History of CNN Design (Pre-Inception)</h3>
+<p>The first paragraph is a whirlwind tour of the evolution of CNNs, highlighting a clear trend.</p>
+<blockquote class="blockquote">
+<p><strong>(Page 1, Introduction, Para 1):</strong> “The history of convolutional neural network design started with LeNet-style models…, which were simple stacks of convolutions for feature extraction and max-pooling… In 2012, these ideas were refined into the AlexNet architecture…, where convolution operations were being repeated multiple times in-between max-pooling operations… What followed was a trend to make this style of network increasingly deeper… first with Zeiler and Fergus in 2013… and then with the VGG architecture in 2014.”</p>
+</blockquote>
+<p>This narrative establishes a dominant design philosophy that we can call the “linear stacking” era:</p>
+<ol type="1">
+<li><strong>LeNet:</strong> The original recipe was simple: a convolution layer to find features, immediately followed by a pooling layer to reduce the image size. Think <code>Conv -&gt; Pool -&gt; Conv -&gt; Pool</code>.</li>
+<li><strong>AlexNet:</strong> The 2012 breakthrough that kickstarted the modern deep learning revolution. The key innovation was to stack <em>multiple</em> convolution layers back-to-back <em>before</em> pooling (e.g., <code>Conv -&gt; Conv -&gt; Pool</code>). This allowed the network to learn more complex and hierarchical features at a given spatial resolution.</li>
+<li><strong>ZFNet &amp; VGG:</strong> The main trend following AlexNet’s success was simply to go <em>deeper</em>. Architects kept adding more layers, driven by the belief that depth was the primary driver of performance. The VGG network is the epitome of this philosophy—an extremely deep but structurally simple stack of 3x3 convolutions and pooling layers.</li>
+</ol>
+<p>This history lesson successfully paints a picture of a research field pursuing one primary direction: making networks deeper and deeper. This sets the stage for a paradigm shift.</p>
+</section>
+<section id="the-paradigm-shift-enter-inception" class="level3">
+<h3 class="anchored" data-anchor-id="the-paradigm-shift-enter-inception">The Paradigm Shift: Enter Inception</h3>
+<p>The next few paragraphs introduce the architecture that broke this linear trend.</p>
+<blockquote class="blockquote">
+<p><strong>(Page 1, Introduction, Para 2):</strong> “At this point a new style of network emerged, the Inception architecture… Since its first introduction, Inception has been one of the best performing family of models on the ImageNet dataset…”</p>
+<p><strong>(Page 1, Introduction, Para 3):</strong> “The fundamental building block of Inception-style models is the Inception module… This is a departure from earlier VGG-style networks which were stacks of simple convolution layers.”</p>
+</blockquote>
+<p>Instead of just stacking simple convolution layers, the Inception family (starting with GoogLeNet) introduced a new fundamental building block: the <strong>Inception module</strong>. An entire Inception network is a stack of these more complex modules. This was a radical departure from the simple, VGG-style design. The author establishes that this new style wasn’t just a novelty; it was (and is) a family of top-performing models, justifying why it’s a worthy subject of study.</p>
+</section>
+<section id="the-central-question-why-does-inception-work" class="level3">
+<h3 class="anchored" data-anchor-id="the-central-question-why-does-inception-work">The Central Question: Why Does Inception Work?</h3>
+<p>Having established Inception’s success, the author poses the core questions that motivate the rest of the paper.</p>
+<blockquote class="blockquote">
+<p><strong>(Page 1, Introduction, Para 4):</strong> “While Inception modules are conceptually similar to convolutions…, they empirically appear to be capable of learning richer representations with less parameters. How do they work, and how do they differ from regular convolutions? What design strategies come after Inception?”</p>
+</blockquote>
+<p>This is the most important part of the introduction. It highlights the key advantage of the Inception style: <strong>parameter efficiency</strong>. Inception modules achieve better results than their predecessors while using fewer parameters, making them computationally cheaper and more powerful. This naturally leads to the three questions the Xception paper sets out to answer:</p>
+<ol type="1">
+<li>What is the underlying principle that makes Inception modules so efficient?</li>
+<li>How is this principle different from what a regular convolution does?</li>
+<li>Can we take this principle even further to design the <em>next</em> generation of architectures?</li>
+</ol>
+<p>With these questions hanging in the air, we are perfectly primed for the paper’s core thesis.</p>
+</section>
+</section>
+<section id="section-1.1-the-inception-hypothesis-separating-concerns" class="level2">
+<h2 class="anchored" data-anchor-id="section-1.1-the-inception-hypothesis-separating-concerns">Section 1.1: The Inception Hypothesis (Separating Concerns)</h2>
+<p>Now we arrive at the heart of the argument. In this section on <strong>page 1</strong>, Chollet articulates the fundamental assumption—the “Inception hypothesis”—that he believes explains the efficiency of the Inception module.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images/2025-08-30-xception-reading-notes/inception-hypothesis.PNG" class="img-fluid figure-img"></p>
+<figcaption>Inception Hypothesis</figcaption>
+</figure>
+</div>
+<section id="the-dual-role-of-a-standard-convolution" class="level3">
+<h3 class="anchored" data-anchor-id="the-dual-role-of-a-standard-convolution">The Dual Role of a Standard Convolution</h3>
+<p>First, he defines what a standard convolution is trying to accomplish, and why that might be an inefficient way to learn.</p>
+<blockquote class="blockquote">
+<p><strong>(Page 1, Section 1.1, Para 1):</strong> “A convolution layer attempts to learn filters in a 3D space, with 2 spatial dimensions (width and height) and a channel dimension; thus a single convolution kernel is tasked with simultaneously mapping cross-channel correlations and spatial correlations.”</p>
+</blockquote>
+<p>This is a crucial observation. A standard convolution filter (e.g., a single 3x3 kernel) is asked to do two very different jobs at the same time:</p>
+<ol type="1">
+<li><strong>Map Spatial Correlations:</strong> It looks for patterns in a small neighborhood of pixels. For example, it learns what arrangement of pixels constitutes a horizontal edge, a corner, or a patch of a certain texture. This is about relationships in the <strong>height and width</strong> dimensions.</li>
+<li><strong>Map Cross-Channel Correlations:</strong> Deeper in a network, the channels don’t represent colors (RGB) anymore; they represent abstract features (e.g., “is there a vertical line here?”, “is there fur texture here?”, “is there a shiny reflection here?”). Cross-channel correlations are the relationships between these features at the same location. For instance, the network might learn that the co-occurrence of a “fur texture” feature and an “ear-shape” feature is a strong indicator of a “cat.” This is about relationships in the <strong>channel</strong> dimension.</li>
+</ol>
+<p>The key word here is <strong>“simultaneously.”</strong> A standard convolution tries to learn both types of patterns with a single set of weights, which may not be the most effective way to model these two potentially independent sets of correlations.</p>
+<section id="a-concrete-example-the-standard-convolution-at-work" class="level4">
+<h4 class="anchored" data-anchor-id="a-concrete-example-the-standard-convolution-at-work">A Concrete Example: The Standard Convolution at Work</h4>
+<p>To make this idea of “simultaneously mapping correlations” clearer, let’s walk through a quick example.</p>
+<p>Imagine we are in the middle of a deep network. The input to our next layer is a feature map with the following dimensions:</p>
+<ul>
+<li><strong>Height:</strong> 14 pixels</li>
+<li><strong>Width:</strong> 14 pixels</li>
+<li><strong>Channels (Depth):</strong> 256</li>
+</ul>
+<p>Our goal is to apply a standard <code>3x3</code> convolutional layer that will produce a new feature map with <strong>512</strong> channels.</p>
+<p><strong>The Anatomy of a Filter</strong></p>
+<p>To achieve this, our convolutional layer needs 512 separate filters (sometimes called kernels). Here’s the crucial part: <strong>each one of those 512 filters must have a depth that matches the input depth.</strong></p>
+<p>So, a single filter in our layer will have the dimensions:</p>
+<ul>
+<li><strong>Filter Height:</strong> 3 pixels</li>
+<li><strong>Filter Width:</strong> 3 pixels</li>
+<li><strong>Filter Channels (Depth):</strong> <strong>256</strong></li>
+</ul>
+<p>Each filter is a <code>3x3x256</code> cube of learnable weights.</p>
+<p><strong>The Operation</strong></p>
+<p>When we apply just one of these filters to the input feature map, the following happens:</p>
+<ol type="1">
+<li>The <code>3x3x256</code> filter is placed over a <code>3x3</code> patch of the input.</li>
+<li>A dot product is computed. This involves multiplying every one of the <code>3 * 3 * 256 = 2,304</code> weights in the filter with the corresponding input value and summing them all up.</li>
+<li>The result is a single number, which becomes one pixel in the output feature map.</li>
+</ol>
+<p>Notice what happened in that dot product. The filter’s weights had to learn:</p>
+<ul>
+<li>The correct <strong>spatial pattern</strong> (which of the 9 spatial locations are important).</li>
+<li>The correct <strong>cross-channel pattern</strong> (which of the 256 input features are important and how they should be combined).</li>
+</ul>
+<p>It learned both of these things <strong>simultaneously</strong> within that single cube of 2,304 weights. The convolutional layer then slides this filter across the entire input and repeats the process with the other 511 filters to produce the final <code>14x14x512</code> output.</p>
+<p>This is the standard, powerful, but potentially inefficient process that the Inception Hypothesis seeks to improve upon.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images/2025-08-30-xception-reading-notes/conv_layer.png" class="img-fluid figure-img"></p>
+<figcaption>Convolutional Layer Illustration</figcaption>
+</figure>
+</div>
+<p><em>Image taken from <a href="https://medium.com/advanced-deep-learning/cnn-operation-with-2-kernels-resulting-in-2-feature-mapsunderstanding-the-convolutional-filter-c4aad26cf32">Medium post Understanding the Convolutional Filter Operation in CNN’s by Frederik vom Lehn</a></em></p>
+</section>
+</section>
+<section id="the-inception-solution-factorization" class="level3">
+<h3 class="anchored" data-anchor-id="the-inception-solution-factorization">The Inception Solution: Factorization</h3>
+<p>The Inception module, he argues, is based on the hypothesis that it’s better to explicitly separate, or “factorize,” these two jobs.</p>
+<blockquote class="blockquote">
+<p><strong>(Page 1, Section 1.1, Para 2):</strong> “This idea behind the Inception module is to make this process easier and more efficient by explicitly factoring it into a series of operations that would independently look at cross-channel correlations and at spatial correlations… In effect, the fundamental hypothesis behind Inception is that cross-channel correlations and spatial correlations are sufficiently decoupled that it is preferable not to map them jointly.”</p>
+</blockquote>
+<p>This is the punchline. The Inception module operates as a two-step process:</p>
+<ol type="1">
+<li><strong>First, map cross-channel correlations:</strong> It uses a set of <strong>1x1 convolutions</strong>. A 1x1 convolution is a brilliant tool for this job. Because it only looks at one pixel location at a time, it can’t see any spatial patterns. Its <em>only</em> job is to look at the vector of all channel values at that single pixel and learn smart combinations of them—it maps the cross-channel correlations.</li>
+<li><strong>Then, map spatial correlations:</strong> After the 1x1 convolutions have created new, rich feature combinations, the module then applies standard <strong>3x3 or 5x5 convolutions</strong> within these new, smaller feature spaces to find spatial patterns.</li>
+</ol>
+<p>This leads to the formal <strong>Inception Hypothesis</strong>: The model assumes that spatial patterns and channel patterns are independent enough that learning them separately is more efficient and effective than learning them together. By decoupling these tasks, the network can learn each type of correlation more easily.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images/2025-08-30-xception-reading-notes/inception-module.PNG" class="img-fluid figure-img"></p>
+<figcaption>Inception Module</figcaption>
+</figure>
+</div>
+<p>To close out this section, Chollet includes a footnote that adds another layer to this idea of factorization, noting that even the spatial convolutions themselves can be factored (e.g., a 7x7 convolution can be replaced by a 7x1 followed by a 1x7). This further strengthens the case that factorization is a powerful and general principle in designing efficient neural networks.</p>
+</section>
+<section id="from-inception-to-extreme-inception" class="level3">
+<h3 class="anchored" data-anchor-id="from-inception-to-extreme-inception">From Inception to “Extreme Inception”</h3>
+<p>Having established the Inception hypothesis — that separating channel and spatial correlations is a good idea—Chollet now scrutinizes <em>how</em> Inception achieves this separation. This leads to a brilliant reframing that paves the way for Xception.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images/2025-08-30-xception-reading-notes/paper-page2-para1.PNG" class="img-fluid figure-img"></p>
+<figcaption>Paper Page 2, Para 1</figcaption>
+</figure>
+</div>
+<section id="a-new-way-to-look-at-inception" class="level4">
+<h4 class="anchored" data-anchor-id="a-new-way-to-look-at-inception">A New Way to Look at Inception</h4>
+<p>The author first simplifies the Inception module for clarity and then presents an entirely new, but equivalent, way of looking at it. This progression is brilliantly illustrated in <strong>Figures 2, 3, and 4</strong>.</p>
+<blockquote class="blockquote">
+<p><strong>(Page 2, Introduction, Para 1):</strong> “Consider a simplified version of an Inception module… (figure 2). This Inception module can be reformulated as a large 1x1 convolution followed by spatial convolutions that would operate on non-overlapping segments of the output channels (figure 3).”</p>
+</blockquote>
+<p>Let’s trace this visual argument:</p>
+<ul>
+<li><strong>Figure 2 (Simplified Inception):</strong> This is an Inception module with three parallel towers, each containing a 1x1 convolution followed by a 3x3 convolution. The key is that these towers are independent before being concatenated.</li>
+<li><strong>Figure 3 (Equivalent Reformulation):</strong> This is the “aha!” moment. Chollet shows that Figure 2 is mathematically identical to a different structure:</li>
+</ul>
+<ol type="1">
+<li>First, perform one large 1x1 convolution.</li>
+<li>Then, take the output channels from that convolution and split them into 3 separate, non-overlapping groups or “segments.”</li>
+<li>Finally, apply a 3x3 convolution to each group independently.</li>
+</ol>
+<div class="quarto-layout-panel" data-layout-ncol="2">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><a href="images/2025-08-30-xception-reading-notes/figure-2.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-3" title="Figure 2"><img src="images/2025-08-30-xception-reading-notes/figure-2.PNG" class="img-fluid figure-img" alt="Figure 2"></a></p>
+<figcaption>Figure 2</figcaption>
+</figure>
+</div>
+</div>
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><a href="images/2025-08-30-xception-reading-notes/figure-3.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-4" title="Figure 3"><img src="images/2025-08-30-xception-reading-notes/figure-3.PNG" class="img-fluid figure-img" alt="Figure 3"></a></p>
+<figcaption>Figure 3</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<p>This reformulation is a conceptual breakthrough. It reveals that the essence of an Inception module is <strong>channel partitioning</strong>. It’s an operation that splits its channels into a small number of groups and performs spatial convolutions within each group.</p>
+</section>
+<section id="pushing-the-hypothesis-to-its-limit" class="level4">
+<h4 class="anchored" data-anchor-id="pushing-the-hypothesis-to-its-limit">Pushing the Hypothesis to Its Limit</h4>
+<p>This new perspective immediately begs a question, which Chollet poses directly.</p>
+<blockquote class="blockquote">
+<p><strong>(Page 2, Introduction, Para 1):</strong> “This observation naturally raises the question: what is the effect of the number of segments in the partition…? Would it be reasonable to make a much stronger hypothesis than the Inception hypothesis, and assume that cross-channel correlations and spatial correlations can be mapped completely separately?”</p>
+</blockquote>
+<p>If an Inception module uses 3 or 4 segments, what would happen if we used 10? Or 100? What is the most extreme version of this idea?</p>
+<p>The logical extreme is to make the number of segments equal to the number of channels, meaning <strong>each segment is only one channel deep</strong>.</p>
+<p>This leads to the <strong>“Extreme Inception”</strong> or <strong>Xception Hypothesis</strong>: Let’s assume that channel and spatial correlations are <em>completely</em> decoupled. We can first use a 1x1 convolution to handle all the cross-channel learning, and then a spatial convolution that operates on every single channel independently, with zero cross-talk between them. This idea is visualized in <strong>Figure 4</strong>.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images/2025-08-30-xception-reading-notes/figure-4.PNG" class="img-fluid figure-img"></p>
+<figcaption>Figure 4</figcaption>
+</figure>
+</div>
+</section>
+</section>
+</section>
+<section id="section-1.2-connecting-to-depthwise-separable-convolutions" class="level2">
+<h2 class="anchored" data-anchor-id="section-1.2-connecting-to-depthwise-separable-convolutions">Section 1.2: Connecting to Depthwise Separable Convolutions</h2>
+<p>It turns out this “extreme” idea is not entirely new. It has a name.</p>
+<div class="quarto-layout-panel" data-layout-ncol="2">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><a href="images/2025-08-30-xception-reading-notes/sec1.2-para1.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-5" title="Section 1.2 Para 1"><img src="images/2025-08-30-xception-reading-notes/sec1.2-para1.PNG" class="img-fluid figure-img" alt="Section 1.2 Para 1"></a></p>
+<figcaption>Section 1.2 Para 1</figcaption>
+</figure>
+</div>
+</div>
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><a href="images/2025-08-30-xception-reading-notes/sec1.2-para2.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-6" title="Section 1.2 Para 2"><img src="images/2025-08-30-xception-reading-notes/sec1.2-para2.PNG" class="img-fluid figure-img" alt="Section 1.2 Para 2"></a></p>
+<figcaption>Section 1.2 Para 2</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<p>This is the central connection of the paper. The logical conclusion of the Inception design philosophy is an existing (but perhaps underutilized at the time) operation called the <strong>depthwise separable convolution</strong>. This operation consists of two parts that perfectly match the “Extreme Inception” idea:</p>
+<ol type="1">
+<li><strong>A Depthwise Convolution:</strong> A spatial convolution (e.g., 3x3) that is applied to <em>every single input channel independently</em>. This handles the spatial correlations.</li>
+<li><strong>A Pointwise Convolution:</strong> A 1x1 convolution that is used to combine the outputs of the depthwise step. This handles the cross-channel correlations.</li>
+</ol>
+<p>Chollet notes two minor differences between his “Extreme Inception” formulation (pointwise first) and the standard library implementation of a depthwise separable convolution (depthwise first), but he later argues these are not significant in a deep, stacked network.</p>
+<p>By making this connection, the paper grounds its theoretical exploration in a concrete, practical, and efficient operation. The proposal is no longer just “let’s build a crazy Inception module with hundreds of towers,” but rather, “let’s build a network out of depthwise separable convolutions.”</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><a href="images/2025-08-30-xception-reading-notes/depth-point-conv.jpg" class="lightbox" data-gallery="quarto-lightbox-gallery-7" title="Example of the convolution process using the depthwise separable convolution."><img src="images/2025-08-30-xception-reading-notes/depth-point-conv.jpg" class="img-fluid figure-img" alt="Example of the convolution process using the depthwise separable convolution."></a></p>
+<figcaption>Example of the convolution process using the depthwise separable convolution.</figcaption>
+</figure>
+</div>
+<p><em>Image taken from paper <a href="https://www.aimspress.com/article/doi/10.3934/mbe.2022055?viewType=HTML">A lightweight double-channel depthwise separable convolutional neural network for multimodal fusion gait recognition</a></em></p>
+<section id="finalizing-the-argument-and-stating-the-goal" class="level3">
+<h3 class="anchored" data-anchor-id="finalizing-the-argument-and-stating-the-goal">Finalizing the Argument and Stating the Goal</h3>
+<p>Having established the powerful idea that an Inception module is just one point on a spectrum of convolutions, Chollet uses the top of <strong>page 3</strong> to tie up loose ends and clearly state his research plan.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images/2025-08-30-xception-reading-notes/paper-page3-para1.PNG" class="img-fluid figure-img"></p>
+<figcaption>Paper page 3, para 1, 2, 3</figcaption>
+</figure>
+</div>
+<section id="the-spectrum-of-convolutions" class="level4">
+<h4 class="anchored" data-anchor-id="the-spectrum-of-convolutions">The Spectrum of Convolutions</h4>
+<p>First, the paper explicitly lays out this “spectrum” idea, which is the core theoretical takeaway.</p>
+<blockquote class="blockquote">
+<p><strong>(Page 3, Introduction, Para 2):</strong> “…in effect, there is a discrete spectrum between regular convolutions and depthwise separable convolutions, parametrized by the number of independent channel-space segments used for performing spatial convolutions.”</p>
+</blockquote>
+<p>This elegant summary clarifies the entire conceptual framework:</p>
+<ul>
+<li><strong>One Extreme (1 segment):</strong> A standard convolution block. A 1x1 convolution is followed by a regular 3x3 convolution that sees <em>all</em> the channels at once.</li>
+<li><strong>The Middle (3 or 4 segments):</strong> An <strong>Inception module</strong>. The channels are divided into a few large groups, and a 3x3 convolution is applied within each group.</li>
+<li><strong>The Other Extreme (N segments, for N channels):</strong> A <strong>depthwise separable convolution</strong>. The channels are divided into the maximum possible number of segments (one per channel), and a 3x3 spatial convolution is applied to each one completely independently.</li>
+</ul>
+<p>Chollet also wisely points out that the properties of other “intermediate modules” on this spectrum (e.g., what if you used 8 or 16 segments?) are a potential area for future research.</p>
+</section>
+<section id="the-grand-proposal" class="level4">
+<h4 class="anchored" data-anchor-id="the-grand-proposal">The Grand Proposal</h4>
+<p>With this framework in place, the paper makes its final, clear proposal.</p>
+<blockquote class="blockquote">
+<p><strong>(Page 3, Introduction, Para 3):</strong> “Having made these observations, we suggest that it may be possible to improve upon the Inception family of architectures by replacing Inception modules with depthwise separable convolutions, i.e.&nbsp;by building models that would be stacks of depthwise separable convolutions.”</p>
+</blockquote>
+<p>This is it. The plan is simple and elegant: <strong>take a proven, high-performing architecture (Inception) and replace its core building block with the “extreme” version of itself</strong>. Instead of a stack of Inception modules, the new network—Xception—will be a stack of depthwise separable convolution layers.</p>
+<p>The author notes that this is only made practical by the availability of an efficient implementation of this operation in modern deep learning frameworks like TensorFlow. With the theory, the hypothesis, and the practical plan now in place, the introduction is complete. The stage is set for a detailed look at the proposed architecture and its performance.</p>
+</section>
+</section>
+</section>
+<section id="section-2-standing-on-the-shoulders-of-giants-prior-work" class="level2">
+<h2 class="anchored" data-anchor-id="section-2-standing-on-the-shoulders-of-giants-prior-work">Section 2: Standing on the Shoulders of Giants (Prior Work)</h2>
+<p>On <strong>page 3</strong>, before diving into the specifics of the new architecture, the paper takes a moment to acknowledge the key ideas and previous works it builds upon. As the saying goes, “if I have seen further, it is by standing on the shoulders of giants.” The <strong>Prior Work</strong> section shows us exactly which giants’ shoulders Xception is standing on.</p>
+<div class="quarto-layout-panel" data-layout-ncol="2">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><a href="images/2025-08-30-xception-reading-notes/paper-prior-work-1.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-8" title="Prior Work 1"><img src="images/2025-08-30-xception-reading-notes/paper-prior-work-1.PNG" class="img-fluid figure-img" alt="Prior Work 1"></a></p>
+<figcaption>Prior Work 1</figcaption>
+</figure>
+</div>
+</div>
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><a href="images/2025-08-30-xception-reading-notes/paper-prior-work-2.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-9" title="Prior Work 2"><img src="images/2025-08-30-xception-reading-notes/paper-prior-work-2.PNG" class="img-fluid figure-img" alt="Prior Work 2"></a></p>
+<figcaption>Prior Work 2</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<p>Chollet identifies three main pillars of research that made his work possible.</p>
+<section id="pillar-1-the-vgg-16-macro-architecture" class="level3">
+<h3 class="anchored" data-anchor-id="pillar-1-the-vgg-16-macro-architecture">Pillar 1: The VGG-16 Macro-Architecture</h3>
+<blockquote class="blockquote">
+<p><strong>(Page 3, Section 2, Bullet 1):</strong> “Convolutional neural networks…, in particular the VGG-16 architecture…, which is schematically similar to our proposed architecture in a few respects.”</p>
+</blockquote>
+<p>The first pillar is the general history of CNNs, with a special mention of VGG-16. This might seem surprising at first—VGG is known for its simple, brute-force depth, which seems philosophically opposite to the intricate efficiency of Inception. However, the author is borrowing VGG’s <strong>macro-architecture</strong>. VGG’s design is a clean, linear stack of repeating, near-identical blocks. This simple and scalable design principle—a deep stack of modules—is something Xception will adopt. In essence, Xception takes the simple, scalable <em>body</em> of VGG but fills it with a much smarter <em>brain</em>.</p>
+</section>
+<section id="pillar-2-the-inception-philosophy" class="level3">
+<h3 class="anchored" data-anchor-id="pillar-2-the-inception-philosophy">Pillar 2: The Inception Philosophy</h3>
+<blockquote class="blockquote">
+<p><strong>(Page 3, Section 2, Bullet 2):</strong> “The Inception architecture family…, which first demonstrated the advantages of factoring convolutions into multiple branches operating successively on channels and then on space.”</p>
+</blockquote>
+<p>The second and most important pillar is, of course, the Inception family. This is where the core <strong>philosophy</strong> of Xception comes from. The Inception papers were the first to demonstrate that “factoring” convolutions—splitting the work of mapping cross-channel and spatial correlations—was a powerful design principle that led to more efficient and accurate models. Xception is the direct intellectual descendant of this idea, seeking to take this very same principle to its logical conclusion.</p>
+</section>
+<section id="pillar-3-the-history-and-rise-of-depthwise-separable-convolutions" class="level3">
+<h3 class="anchored" data-anchor-id="pillar-3-the-history-and-rise-of-depthwise-separable-convolutions">Pillar 3: The History and Rise of Depthwise Separable Convolutions</h3>
+<p>The third pillar is the specific mathematical <strong>tool</strong> that makes the “Extreme Inception” idea a reality. The author provides a detailed history of this operation.</p>
+<blockquote class="blockquote">
+<p><strong>(Page 3, Section 2, Bullet 3):</strong> “Laurent Sifre developed depthwise separable convolutions during an internship at Google Brain in 2013, and used them in AlexNet to obtain small gains in accuracy and large gains in convergence speed, as well as a significant reduction in model size… Later, a depthwise separable convolution was used as the first layer of Inception V1 and Inception V2… Within Google, Andrew Howard [6] has introduced efficient mobile models called MobileNets using depthwise separable convolutions…”</p>
+</blockquote>
+<p>This paragraph is rich with context. It tells us that the depthwise separable convolution wasn’t an obscure, brand-new idea.</p>
+<ul>
+<li>It was developed by <strong>Laurent Sifre</strong> as early as 2013 and showed promising results in improving AlexNet.</li>
+<li>It was even used in a limited capacity in the very first layers of early <strong>Inception</strong> models, hinting that the Google Brain team was aware of its potential.</li>
+<li>It became the core building block for another famous family of models, <strong>MobileNets</strong>, which are designed for extreme efficiency on mobile devices.</li>
+<li>Finally, the author reiterates that his work is only practical because of the efficient implementation available in <strong>TensorFlow</strong>. This grounds the research in real-world engineering.</li>
+</ul>
+</section>
+<section id="pillar-4-the-power-of-residual-connections" class="level3">
+<h3 class="anchored" data-anchor-id="pillar-4-the-power-of-residual-connections">Pillar 4: The Power of Residual Connections</h3>
+<p>The final ingredient is arguably one of the most important deep learning innovations of the 2010s.</p>
+<blockquote class="blockquote">
+<p><strong>(Page 3, Section 2, Bullet 4):</strong> “Residual connections, introduced by He et al.&nbsp;in [4], which our proposed architecture uses extensively.”</p>
+</blockquote>
+<p>This is a crucial addition. <strong>Residual connections</strong> (or “skip connections”), made famous by the ResNet paper, are shortcuts that allow the gradient to flow more easily through very deep networks. They work by adding the input of a block to its output, making it easier for the network to learn identity functions and preventing performance from degrading as more layers are added. By stating that Xception “uses [them] extensively,” Chollet is signaling that his architecture is not just a pure “Inception-style” model, but a hybrid that marries the “Extreme Inception” idea with the deep-training stability of ResNet.</p>
+<p>In summary, Xception is a brilliant synthesis: it combines the clean, scalable structure of VGG with the factorization philosophy of Inception, made stable by the residual connections of ResNet, and all implemented using the efficient tool of the depthwise separable convolution.</p>
+</section>
+</section>
+<section id="section-3-the-blueprint-of-the-xception-architecture" class="level2">
+<h2 class="anchored" data-anchor-id="section-3-the-blueprint-of-the-xception-architecture">Section 3: The Blueprint of the Xception Architecture</h2>
+<p>After setting the historical and theoretical stage, the paper finally unveils its proposed architecture on <strong>page 3</strong>. This section explains the high-level design principles and structure of Xception.</p>
+<div class="quarto-layout-panel" data-layout-ncol="2">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><a href="images/2025-08-30-xception-reading-notes/paper-section3-1.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-10" title="Xception Architecture 1"><img src="images/2025-08-30-xception-reading-notes/paper-section3-1.PNG" class="img-fluid figure-img" alt="Xception Architecture 1"></a></p>
+<figcaption>Xception Architecture 1</figcaption>
+</figure>
+</div>
+</div>
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><a href="images/2025-08-30-xception-reading-notes/paper-section3-2.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-11" title="Xception Architecture 2"><img src="images/2025-08-30-xception-reading-notes/paper-section3-2.PNG" class="img-fluid figure-img" alt="Xception Architecture 2"></a></p>
+<figcaption>Xception Architecture 2</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<section id="the-core-principle-and-the-name" class="level3">
+<h3 class="anchored" data-anchor-id="the-core-principle-and-the-name">The Core Principle and the Name</h3>
+<p>The section begins by restating the core idea and formally giving the architecture its memorable name.</p>
+<blockquote class="blockquote">
+<p><strong>(Page 3, Section 3, Para 1):</strong> “We propose a convolutional neural network architecture based entirely on depthwise separable convolution layers… Because this hypothesis is a stronger version of the hypothesis underlying the Inception architecture, we name our proposed architecture <em>Xception</em>, which stands for ‘Extreme Inception’.”</p>
+</blockquote>
+<p>This is the mission statement. The network is a pure expression of a single idea: what happens if you build a deep CNN <em>entirely</em> out of depthwise separable convolutions? The name: “Extreme Inception,” perfectly captures this philosophy of taking the Inception idea to its logical limit. The central hypothesis is that spatial and cross-channel correlations can be <strong>“entirely decoupled,”</strong> a stronger and cleaner assumption than the partial decoupling seen in standard Inception modules.</p>
+</section>
+<section id="the-high-level-structure" class="level3">
+<h3 class="anchored" data-anchor-id="the-high-level-structure">The High-Level Structure</h3>
+<p>Next, the paper outlines the macro-structure of the network, giving us a bird’s-eye view before we dive into the details shown in Figure 5.</p>
+<blockquote class="blockquote">
+<p><strong>(Page 3, Section 3, Para 2):</strong> “The Xception architecture has 36 convolutional layers forming the feature extraction base… structured into 14 modules, all of which have linear residual connections around them, except for the first and last modules.”</p>
+</blockquote>
+<p>This gives us several key architectural specifications:</p>
+<ol type="1">
+<li><strong>Depth:</strong> The network is deep, consisting of <strong>36 convolutional layers</strong> that form its main body or “feature extraction base.”</li>
+<li><strong>Modularity:</strong> Echoing the design of VGG and ResNet, these 36 layers are not just a monolithic stack. They are organized into <strong>14 repeating modules</strong>. This makes the architecture clean, scalable, and easy to reason about.</li>
+<li><strong>Residual Connections:</strong> This is a crucial design choice borrowed from ResNet. Almost all of the 14 modules are wrapped in a <strong>residual connection</strong>. This means the input to a module is added to the module’s output, creating a “shortcut” that is famously effective at enabling the training of very deep networks by improving gradient flow. This makes Xception a hybrid architecture, combining the ideas of Inception and ResNet.</li>
+<li><strong>The Classifier:</strong> For the experiments, this feature extraction base is followed by a simple classifier, typically a global average pooling layer and a final logistic regression (or softmax) layer. The paper also notes that it will test a version with optional fully-connected layers, a common practice in older architectures.</li>
+</ol>
+<p>In essence, the blueprint for Xception is elegantly simple: <strong>a linear stack of residual modules, where each module is built from depthwise separable convolutions.</strong></p>
+<p>With this high-level overview in mind, we are now ready to examine the detailed diagram of the network flow.</p>
+</section>
+<section id="a-visual-walkthrough-of-the-xception-architecture-figure-5" class="level3">
+<h3 class="anchored" data-anchor-id="a-visual-walkthrough-of-the-xception-architecture-figure-5">A Visual Walkthrough of the Xception Architecture (Figure 5)</h3>
+<p>On <strong>page 5</strong>, the paper presents <strong>Figure 5</strong>, a detailed diagram of the full Xception architecture. While it might look complex at first, it follows a clean and logical flow. The architecture is divided into three distinct stages: an <strong>Entry flow</strong>, a <strong>Middle flow</strong>, and an <strong>Exit flow</strong>. Let’s trace the journey of an image as it passes through the network.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><a href="images/2025-08-30-xception-reading-notes/xception-architecture.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-12" title="Xception Architecture"><img src="images/2025-08-30-xception-reading-notes/xception-architecture.PNG" class="img-fluid figure-img" alt="Xception Architecture"></a></p>
+<figcaption>Xception Architecture</figcaption>
+</figure>
+</div>
+<section id="the-entry-flow" class="level4">
+<h4 class="anchored" data-anchor-id="the-entry-flow">The Entry Flow</h4>
+<p>The Entry flow’s job is to take the raw input image (299x299x3) and progressively transform it into a rich set of feature maps at a smaller spatial resolution.</p>
+<ul>
+<li><strong>Initial Convolutions:</strong> The flow begins not with a separable convolution, but with two standard 3x3 convolution layers. This is a common and effective practice in many modern networks. These first layers quickly and aggressively process the raw pixel data, expanding the channel dimension from 3 (RGB) to 64.</li>
+<li><strong>Modular Blocks:</strong> The rest of the Entry flow is a sequence of modules built from <code>SeparableConv</code> layers. Each module has a similar structure: one or more separable convolutions followed by a max-pooling layer to reduce the spatial dimensions (e.g., from 149x149 down to 75x75, and so on).</li>
+<li><strong>Residual Connections:</strong> Crucially, each of these modules is wrapped in a residual connection (indicated by the <code>+</code> circle). The input to the module is passed through a simple 1x1 convolution (to match the channel dimensions of the output) and is then added to the output of the main branch. This pattern of <code>SeparableConv</code> blocks with residual connections is the core of the Xception design.</li>
+<li><strong>Outcome:</strong> By the end of the Entry flow, the initial 299x299x3 image has been transformed into a 19x19x728 feature map, ready for the main processing stage.</li>
+</ul>
+</section>
+<section id="the-middle-flow" class="level4">
+<h4 class="anchored" data-anchor-id="the-middle-flow">The Middle Flow</h4>
+<p>The Middle flow is the workhorse of the network. Its design is strikingly simple and elegant.</p>
+<ul>
+<li><strong>A Single Repeating Block:</strong> The entire Middle flow consists of one block structure that is <strong>repeated eight times</strong>. This block contains three <code>SeparableConv</code> layers in sequence.</li>
+<li><strong>No Downsampling:</strong> Unlike the Entry flow, this stage does not change the shape of the data. The input is 19x19x728, and the output is 19x19x728. The sole purpose of this deep stack of repeated blocks is to learn increasingly complex and refined feature representations at this specific spatial scale.</li>
+<li><strong>Residual Connections:</strong> Again, a residual connection is key. A shortcut skips over all three <code>SeparableConv</code> layers in the block, allowing gradients to flow easily through these eight repeated modules.</li>
+</ul>
+</section>
+<section id="the-exit-flow" class="level4">
+<h4 class="anchored" data-anchor-id="the-exit-flow">The Exit Flow</h4>
+<p>The Exit flow’s job is to perform the final feature extraction and prepare the data for classification.</p>
+<ul>
+<li><strong>Final Feature Extraction:</strong> It starts with a module similar to those in the Entry flow, which further transforms the features and increases the channel depth to 1024. This is followed by a sequence of <code>SeparableConv</code> layers that dramatically expand the feature representation, culminating in a deep 2048-channel feature map.</li>
+<li><strong>Global Average Pooling:</strong> Instead of flattening the final feature map into a massive vector (which would require huge, parameter-heavy fully-connected layers), Xception uses <strong>Global Average Pooling</strong>. This simple operation takes the final feature map (e.g., 10x10x2048) and calculates the average value for each of the 2048 channels, producing a compact 2048-dimensional vector. This is a highly efficient and modern technique for connecting a convolutional base to a classifier.</li>
+<li><strong>Classification:</strong> This final 2048 dimensional vector is then fed to a <code>Logistic regression</code> layer (a simple dense layer with softmax activation) to produce the final class predictions.</li>
+</ul>
+<p>The diagram’s caption also provides two critical implementation details: every convolution layer is followed by <strong>Batch Normalization</strong> (essential for stable training), and the separable convolutions use a depth multiplier of 1 (meaning the number of channels is only ever changed by the 1x1 pointwise convolutions).</p>
+<p>This end-to-end structure—a clear entry, a deep middle, and a decisive exit—built from repeating blocks of residual separable convolutions, is the concrete embodiment of the Xception philosophy.</p>
+</section>
+<section id="two-hidden-details-that-make-it-all-work" class="level4">
+<h4 class="anchored" data-anchor-id="two-hidden-details-that-make-it-all-work">Two Hidden Details That Make It All Work</h4>
+<p>The diagram in Figure 5 gives us the blueprint, but the caption adds two implementation details that are absolutely critical for making a deep network like Xception train successfully:</p>
+<ol type="1">
+<li><p><strong>Every Convolution is Followed by Batch Normalization:</strong> Although not shown in the diagram to keep it clean, after every single <code>Conv</code> and <code>SeparableConv</code> layer, there is a <strong>Batch Normalization</strong> layer. Think of Batch Normalization as a regulator for your network’s data flow. As data passes through many layers, the distribution of values can shift wildly, making it hard for the network to learn effectively (a problem called “internal covariate shift”). Batch Normalization constantly recalibrates the data at each step, ensuring the signal remains stable. For deep networks, this isn’t just a nice-to-have; it’s an essential ingredient that dramatically speeds up and stabilizes training.</p></li>
+<li><p><strong>“Depth Multiplier of 1” Simplifies the Design:</strong> The caption notes that all separable convolutions use a <strong>depth multiplier of 1</strong>. This sounds technical, but it reveals a simple and elegant design choice. A depthwise separable convolution has two parts: the spatial “depthwise” step and the channel-mixing “pointwise” step. A depth multiplier greater than 1 would allow the first (depthwise) step to expand the number of channels. By setting the multiplier to 1, the author ensures that the depthwise step <em>never</em> changes the number of channels. Its only job is to find spatial patterns. <strong>This means that in the entire Xception architecture, the number of channels is only ever changed in one place: the 1x1 pointwise convolutions.</strong> This enforces a clean separation of concerns and makes the architecture’s flow much easier to reason about.</p></li>
+</ol>
+</section>
+</section>
+</section>
+<section id="section-4-putting-xception-to-the-test-experimental-evaluation" class="level2">
+<h2 class="anchored" data-anchor-id="section-4-putting-xception-to-the-test-experimental-evaluation">Section 4: Putting Xception to the Test (Experimental Evaluation)</h2>
+<p>Now we get to the proof. A beautiful theory and an elegant architecture are one thing, but do they actually work? The rest of the paper is dedicated to a rigorous experimental evaluation. On <strong>page 4</strong>, the author lays out the framework for this evaluation, ensuring the comparisons are fair and the results are meaningful.</p>
+<section id="the-main-event-xception-vs.-inception-v3" class="level3">
+<h3 class="anchored" data-anchor-id="the-main-event-xception-vs.-inception-v3">The Main Event: Xception vs.&nbsp;Inception V3</h3>
+<p>The first paragraph of <strong>Section 4</strong> establishes the primary comparison.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images/2025-08-30-xception-reading-notes/experimental-eval.PNG" class="img-fluid figure-img"></p>
+<figcaption>Experimental Evaluation</figcaption>
+</figure>
+</div>
+<p>This is the cornerstone of a good scientific experiment. To test if a new <em>idea</em> is better, you must control for other variables. By choosing to compare Xception against a model of roughly the same size and parameter count (Inception V3), the author ensures that any performance difference is due to the architectural <em>design</em> itself, not simply due to one model being bigger than the other.</p>
+<p>The author then states that this comparison will take place on two very different battlegrounds to test the robustness and scalability of the architecture: the well-known <strong>ImageNet</strong> dataset and a massive internal Google dataset called <strong>JFT</strong>.</p>
+</section>
+<section id="section-4.1-the-proving-groundthe-jft-dataset" class="level3">
+<h3 class="anchored" data-anchor-id="section-4.1-the-proving-groundthe-jft-dataset">Section 4.1: The Proving Ground—The JFT Dataset</h3>
+<p>While ImageNet is the standard academic benchmark, the paper also evaluates the models on a much larger and more challenging internal Google dataset called <strong>JFT</strong>.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images/2025-08-30-xception-reading-notes/paper-section4.1.PNG" class="img-fluid figure-img"></p>
+<figcaption>JFT Dataset</figcaption>
+</figure>
+</div>
+<blockquote class="blockquote">
+<p><strong>(Page 4, Section 4.1):</strong> “JFT is an internal Google dataset for large-scale image classification dataset… which comprises over 350 million high-resolution images annotated with labels from a set of 17,000 classes.”</p>
+</blockquote>
+<p>Let’s put those numbers in perspective. The standard ImageNet dataset has about 1.2 million training images and 1,000 classes. JFT is orders of magnitude larger:</p>
+<ul>
+<li><strong>~300x more images</strong> (350 million vs.&nbsp;1.2 million)</li>
+<li><strong>17x more classes</strong> (17,000 vs.&nbsp;1,000)</li>
+</ul>
+<p>Furthermore, unlike ImageNet where each image has a single label, the images in JFT are <strong>multi-label</strong>, meaning a single image can be associated with several classes simultaneously (e.g., a picture could be labeled “cat,” “pet,” “sofa,” and “living room”).</p>
+<p>Training on a dataset of this scale is a true test of an architecture’s ability to learn from a massive amount of data and its ability to generalize. It moves beyond the curated world of academic benchmarks into a domain that more closely resembles real-world, web-scale data. As the author later suggests, an architecture’s performance on JFT can reveal how well its core principles scale when data is virtually unlimited.</p>
+<p>To evaluate performance, the paper uses a separate validation set called <strong>FastEval14k</strong> and a metric called <strong>Mean Average Precision (MAP@100)</strong>, which is better suited for multi-label tasks than simple accuracy.</p>
+</section>
+<section id="section-4.2-the-rules-of-the-race-optimization-configuration" class="level3">
+<h3 class="anchored" data-anchor-id="section-4.2-the-rules-of-the-race-optimization-configuration">Section 4.2: The Rules of the Race (Optimization Configuration)</h3>
+<p>Training a deep neural network is a complex process with many “hyperparameters”—knobs you can tune to affect how the model learns. In <strong>Section 4.2</strong> on <strong>page 4</strong>, the paper details the exact settings used to train both Xception and Inception V3.</p>
+<div class="quarto-layout-panel" data-layout-ncol="2">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><a href="images/2025-08-30-xception-reading-notes/paper-section4.2-1.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-13" title="Optimization and configuration 1"><img src="images/2025-08-30-xception-reading-notes/paper-section4.2-1.PNG" class="img-fluid figure-img" alt="Optimization and configuration 1"></a></p>
+<figcaption>Optimization and configuration 1</figcaption>
+</figure>
+</div>
+</div>
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><a href="images/2025-08-30-xception-reading-notes/paper-section4.2-2.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-14" title="Optimization and configuration 2"><img src="images/2025-08-30-xception-reading-notes/paper-section4.2-2.PNG" class="img-fluid figure-img" alt="Optimization and configuration 2"></a></p>
+<figcaption>Optimization and configuration 2</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<p>The author first notes that the two datasets require different training strategies:</p>
+<ul>
+<li><strong>For ImageNet</strong>, a standard and well-established recipe is used: the <strong>SGD</strong> (Stochastic Gradient Descent) optimizer with momentum, a relatively high initial learning rate, and a schedule that decreases the learning rate every two epochs.</li>
+<li><strong>For JFT</strong>, which is a much larger and noisier dataset, the <strong>RMSprop</strong> optimizer is used with a very small initial learning rate.</li>
+</ul>
+<p>This is standard practice, as different data distributions often benefit from different optimization techniques. However, the most important detail comes next.</p>
+<blockquote class="blockquote">
+<p><strong>(Page 4, Section 4.2, Para 2):</strong> “For both datasets, the same exact same optimization configuration was used for both Xception and Inception V3. Note that this configuration was tuned for best performance with Inception V3; we did not attempt to tune optimization hyperparameters for Xception.”</p>
+</blockquote>
+<p>This is a crucial and refreshingly honest statement. The author is essentially giving Inception V3 a “home-field advantage.” The training settings—the learning rate, the optimizer, etc.—were all carefully selected and optimized over time at Google to squeeze the best possible performance out of the Inception V3 architecture. Xception was then trained using these <em>same</em> settings, without any special tuning in its favor.</p>
+<p>This makes the subsequent results even more compelling. If Xception manages to outperform Inception V3, it will have done so under conditions that were explicitly optimized for its competitor. This strengthens the claim that Xception’s advantage comes from its superior architectural design, not from lucky hyperparameter tuning.</p>
+<p>Finally, the author mentions using <a href="https://arxiv.org/abs/2411.15866"><strong>Polyak averaging</strong></a> at inference time. This is a simple technique where, instead of using the very last set of model weights from training, you use an average of the weights from the last several training steps. This often results in a final model that is slightly more stable and generalizes better.</p>
+<section id="a-quick-detour-what-is-polyak-averaging" class="level4">
+<h4 class="anchored" data-anchor-id="a-quick-detour-what-is-polyak-averaging">A Quick Detour: What is Polyak Averaging?</h4>
+<p>Before moving on, the paper mentions a small but interesting technique used during evaluation:</p>
+<blockquote class="blockquote">
+<p><strong>(Page 4, Section 4.2, Para 3):</strong> “Additionally, all models were evaluated using Polyak averaging [13] at inference time.”</p>
+</blockquote>
+<p>So, what is Polyak averaging (also known as Polyak-Ruppert averaging)? In simple terms, it’s a method to get a more stable and often better-performing final model by <strong>averaging the model’s weights over time.</strong></p>
+<p>Here’s the intuition. During training with an optimizer like SGD, the model’s weights tend to bounce around the area of a good solution in the loss landscape. If you stop training at a random step, you might catch the weights at a lucky peak or an unlucky trough.</p>
+<p>Instead of just taking the weights from the very last training step, Polyak averaging maintains a running average of the weights over the last several hundred or thousand steps. The final model used for prediction is this “averaged” model. This process tends to smooth out the noise from the training process and find a point closer to the center of the optimal region, often leading to better generalization on unseen data. It’s a simple, low-cost trick that can provide a small but consistent boost in performance.</p>
+</section>
+</section>
+<section id="section-4.3-preventing-overfitting-regularization-configuration" class="level3">
+<h3 class="anchored" data-anchor-id="section-4.3-preventing-overfitting-regularization-configuration">Section 4.3: Preventing Overfitting (Regularization Configuration)</h3>
+<p>Overfitting is a constant concern in machine learning. It happens when a model becomes too specialized in memorizing the training data, losing its ability to generalize to new, unseen examples. <strong>Regularization</strong> techniques are designed to combat this. In <strong>Section 4.3</strong> on <strong>page 4</strong>, the paper outlines the regularization strategies used.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><a href="images/2025-08-30-xception-reading-notes/paper-section4.3.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-15" title="Regularization"><img src="images/2025-08-30-xception-reading-notes/paper-section4.3.PNG" class="img-fluid figure-img" alt="Regularization"></a></p>
+<figcaption>Regularization</figcaption>
+</figure>
+</div>
+<ul>
+<li><p><strong>Weight Decay (L2 Regularization):</strong> This technique discourages the model from learning overly complex patterns by adding a small penalty for large weight values. The paper notes that the weight decay rate that was optimal for Inception V3 (<code>4e-5</code>) was “quite suboptimal” for Xception. They had to perform a small search and settled on a different value (<code>1e-5</code>). This is one of the few instances where a hyperparameter was tuned specifically for Xception, likely because the default value was actively harming its performance.</p></li>
+<li><p><strong>Dropout:</strong> Dropout is a technique where, during training, a random fraction of neurons are temporarily “dropped” or ignored. This forces the network to learn more robust and redundant representations. For the <strong>ImageNet</strong> experiments, a standard dropout layer with a 50% drop rate was added just before the final classification layer for both models. However, for the massive <strong>JFT</strong> dataset, no dropout was used. The dataset is so enormous that the risk of the model overfitting was considered negligible within a reasonable training timeframe.</p></li>
+<li><p><strong>Auxiliary Loss Tower:</strong> The Inception V3 architecture includes an optional “auxiliary classifier”—a small side branch deep in the network that also tries to predict the final class. This provides an additional gradient signal during training and acts as a strong regularizer. For the sake of a cleaner and simpler comparison, the author <strong>chose not to include this auxiliary tower</strong> in the Inception V3 models he benchmarked. This ensures that the performance comparison is focused squarely on the design of the core modules themselves.</p></li>
+</ul>
+<p>By being transparent about these choices, the paper gives us a clear picture of the experimental conditions and strengthens the fairness of the final comparison.</p>
+</section>
+<section id="section-4.4-the-engine-room-training-infrastructure" class="level3">
+<h3 class="anchored" data-anchor-id="section-4.4-the-engine-room-training-infrastructure">Section 4.4: The Engine Room (Training Infrastructure)</h3>
+<p>In the final part of the setup on <strong>page 4</strong>, the paper details the immense computational resources required to run these experiments. This context is vital for appreciating the effort involved and the challenges of working with web-scale datasets.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><a href="images/2025-08-30-xception-reading-notes/paper-section4.4.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-16" title="Training Infrastructure"><img src="images/2025-08-30-xception-reading-notes/paper-section4.4.PNG" class="img-fluid figure-img" alt="Training Infrastructure"></a></p>
+<figcaption>Training Infrastructure</figcaption>
+</figure>
+</div>
+<blockquote class="blockquote">
+<p><strong>(Page 4, Section 4.4):</strong> “All networks were implemented using the TensorFlow framework and trained on 60 NVIDIA K80 GPUs each.”</p>
+</blockquote>
+<p>This is a massive amount of hardware. The experiments were run on a distributed system of <strong>60 high-end (at the time) GPUs</strong> working in parallel. This highlights that deep learning research at this scale is a significant engineering endeavor.</p>
+<p>The paper also notes two different strategies for parallelizing the training:</p>
+<ul>
+<li>For <strong>ImageNet</strong>, they used <strong>synchronous gradient descent</strong>. In this mode, all 60 GPUs calculate their updates, and then they all wait to synchronize and average those updates before proceeding. This is generally slower but often leads to slightly better final accuracy and more stable training.</li>
+<li>For the enormous <strong>JFT</strong> dataset, they switched to <strong>asynchronous gradient descent</strong>. Here, each GPU works more independently, applying its updates without waiting for all the others. This is much faster and more scalable, which is essential when training would otherwise take an impractically long time.</li>
+</ul>
+<p>Finally, the paper gives us the training times, which are staggering:</p>
+<blockquote class="blockquote">
+<p><strong>(Page 4, Section 4.4):</strong> “The ImageNet experiments took approximately 3 days each, while the JFT experiments took over one month each. The JFT models were not trained to full convergence, which would have taken over three month per experiment.”</p>
+</blockquote>
+<p>The ImageNet training run took about <strong>three days</strong> on this 60-GPU cluster. The JFT experiment, even with the faster asynchronous training, took <strong>over a month</strong> and still wasn’t fully finished. A complete run to “convergence” (the point where the model stops improving) would have taken more than three months. This really underscores the difference in scale between standard academic benchmarks and true, web-scale industrial datasets, and it shows the immense investment required to validate new architectures at that level.</p>
+<p>With the entire experimental setup now laid out, we are finally ready to see the results.</p>
+</section>
+<section id="section-4.5-the-results-are-ina-head-to-head-comparison" class="level3">
+<h3 class="anchored" data-anchor-id="section-4.5-the-results-are-ina-head-to-head-comparison">Section 4.5: The Results Are In—A Head-to-Head Comparison</h3>
+<p>After meticulously detailing the experimental setup, the paper presents the core results of its comparison between Xception and Inception V3. The findings are presented in tables and graphs, starting on <strong>page 5</strong>.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><a href="images/2025-08-30-xception-reading-notes/paper-section4.5.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-17" title="Results Overview"><img src="images/2025-08-30-xception-reading-notes/paper-section4.5.PNG" class="img-fluid figure-img" alt="Results Overview"></a></p>
+<figcaption>Results Overview</figcaption>
+</figure>
+</div>
+<section id="section-4.5.1-performance-on-the-imagenet-benchmark" class="level4">
+<h4 class="anchored" data-anchor-id="section-4.5.1-performance-on-the-imagenet-benchmark">Section 4.5.1: Performance on the ImageNet Benchmark</h4>
+<p>The first test is on the classic ImageNet dataset, the standard proving ground for computer vision models. The main results are summarized in <strong>Table 1</strong>.</p>
+<blockquote class="blockquote">
+<p><strong>(Page 5, Table 1): Classification performance comparison on ImageNet (single crop, single model)</strong></p>
+</blockquote>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Model</th>
+<th style="text-align: left;">Top-1 accuracy</th>
+<th style="text-align: left;">Top-5 accuracy</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">…</td>
+<td style="text-align: left;">…</td>
+<td style="text-align: left;">…</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Inception V3</strong></td>
+<td style="text-align: left;"><strong>0.782</strong></td>
+<td style="text-align: left;"><strong>0.941</strong></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Xception</strong></td>
+<td style="text-align: left;"><strong>0.790</strong></td>
+<td style="text-align: left;"><strong>0.945</strong></td>
+</tr>
+</tbody>
+</table>
+<p>The results are clear. On Top-1 accuracy (the most common metric, which checks if the model’s single best guess is correct), <strong>Xception achieves 79.0% accuracy, surpassing Inception V3’s 78.2%.</strong></p>
+<p>As the author notes in the text:</p>
+<blockquote class="blockquote">
+<p><strong>(Page 5, Section 4.5.1, Para 2):</strong> “On ImageNet, Xception shows marginally better results than Inception V3.”</p>
+</blockquote>
+<p>While not a massive leap, this is a decisive win. It’s especially impressive given that the training hyperparameters were optimized for Inception V3. The table also shows that Xception’s performance places it firmly in the top tier of models at the time, outperforming even a much deeper ResNet-152.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><a href="images/2025-08-30-xception-reading-notes/paper-fig6.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-18" title="Figure 6: Training profile on ImageNet"><img src="images/2025-08-30-xception-reading-notes/paper-fig6.PNG" class="img-fluid figure-img" alt="Figure 6: Training profile on ImageNet"></a></p>
+<figcaption>Figure 6: Training profile on ImageNet</figcaption>
+</figure>
+</div>
+<p>The training progress is visualized in <strong>Figure 6</strong> on <strong>page 6</strong>. The graph shows the validation accuracy over time, and it’s clear that Xception’s curve (in blue) is consistently above Inception V3’s (in red), confirming its superior performance throughout the training process.</p>
+</section>
+<section id="an-insightful-interpretation" class="level4">
+<h4 class="anchored" data-anchor-id="an-insightful-interpretation">An Insightful Interpretation</h4>
+<p>The author doesn’t just present the numbers; he offers a compelling interpretation for why the performance gap on ImageNet is relatively small compared to the gap on the JFT dataset.</p>
+<blockquote class="blockquote">
+<p><strong>(Page 5, Section 4.5.1, Para 3):</strong> “We believe this may be due to the fact that Inception V3 was developed with a focus on ImageNet and may thus be by design over-fit to this specific task.”</p>
+</blockquote>
+<p>This is a fascinating hypothesis. The Inception architecture had been refined over several years, with each new version (V1, V2, V3) carefully tuned to squeeze out every last bit of performance on the ImageNet benchmark. It’s possible that some of its specific design choices, while excellent for ImageNet, were not as generalizable. Xception, on the other hand, is based on a cleaner, more fundamental principle. The author suggests that this “purer” design might have an advantage when applied to new and different datasets.</p>
+<p>This sets the stage perfectly for the next set of results: the performance on the massive JFT dataset, where the true power of Xception’s design may be revealed.</p>
+</section>
+</section>
+<section id="performance-on-the-jft-benchmark-where-xception-shines" class="level3">
+<h3 class="anchored" data-anchor-id="performance-on-the-jft-benchmark-where-xception-shines">Performance on the JFT Benchmark: Where Xception Shines</h3>
+<p>If the results on ImageNet were a modest win for Xception, the results on the massive JFT dataset are a decisive victory. This comparison highlights how the two architectures scale when presented with an enormous amount of data. The results are presented in <strong>Table 2</strong> on <strong>page 6</strong>.</p>
+<blockquote class="blockquote">
+<p><strong>(Page 6, Table 2): Classification performance comparison on JFT (single crop, single model)</strong></p>
+</blockquote>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Model</th>
+<th style="text-align: left;">FastEval14k MAP@100</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Inception V3 - no FC layers</td>
+<td style="text-align: left;">6.36</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Xception - no FC layers</strong></td>
+<td style="text-align: left;"><strong>6.70</strong></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Inception V3 with FC layers</td>
+<td style="text-align: left;">6.50</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Xception with FC layers</strong></td>
+<td style="text-align: left;"><strong>6.78</strong></td>
+</tr>
+</tbody>
+</table>
+<p>The table compares two versions of each model: one that uses Global Average Pooling directly (no FC layers) and another that adds two fully-connected (FC) layers before the final classifier.</p>
+<p>In both scenarios, the result is the same: <strong>Xception is significantly better.</strong></p>
+<ul>
+<li>Without FC layers, Xception achieves a MAP score of 6.70, a substantial improvement over Inception V3’s 6.36. As the author notes on the previous page, this represents a <strong>4.3% relative improvement</strong>, a very meaningful gain on a large-scale benchmark.</li>
+<li>With FC layers, Xception maintains its wide lead, scoring 6.78 to Inception V3’s 6.50.</li>
+</ul>
+<p>This result strongly supports the author’s hypothesis from the previous section. The Inception V3 architecture, highly tuned for ImageNet, does not seem to generalize as well to this much larger and more complex dataset. Xception’s cleaner, more fundamental design appears to be more scalable, allowing it to take better advantage of the 350 million images in the JFT dataset.</p>
+<div class="quarto-layout-panel" data-layout-ncol="2">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><a href="images/2025-08-30-xception-reading-notes/paper-fig7.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-19" title="Figure 7 (JFT, no FC layers)"><img src="images/2025-08-30-xception-reading-notes/paper-fig7.PNG" class="img-fluid figure-img" alt="Figure 7 (JFT, no FC layers)"></a></p>
+<figcaption>Figure 7 (JFT, no FC layers)</figcaption>
+</figure>
+</div>
+</div>
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><a href="images/2025-08-30-xception-reading-notes/paper-fig8.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-20" title="Figure 8 (JFT, with FC layers)"><img src="images/2025-08-30-xception-reading-notes/paper-fig8.PNG" class="img-fluid figure-img" alt="Figure 8 (JFT, with FC layers)"></a></p>
+<figcaption>Figure 8 (JFT, with FC layers)</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<p>This performance gap is vividly illustrated in the training profile graphs.</p>
+<ul>
+<li><strong>Figure 7 (JFT, no FC layers):</strong> Shows the training progress for the models without fully-connected layers. The performance gap between Xception (blue) and Inception V3 (red) is wide and consistent throughout the entire month-long training run.</li>
+<li><strong>Figure 8 (JFT, with FC layers):</strong> Tells the same story. Xception establishes an early lead and never relinquishes it.</li>
+</ul>
+<p>These results are the strongest piece of evidence in the paper, demonstrating that the “Extreme Inception” hypothesis leads to a more robust and scalable architecture.</p>
+</section>
+<section id="section-4.5.2-the-source-of-the-gainssize-and-speed" class="level3">
+<h3 class="anchored" data-anchor-id="section-4.5.2-the-source-of-the-gainssize-and-speed">Section 4.5.2: The Source of the Gains—Size and Speed</h3>
+<p>Having established that Xception performs better, the paper now addresses the crucial question of <em>why</em>. Is it simply a bigger, more cumbersome model? <strong>Section 4.5.2</strong> and <strong>Table 3</strong> on <strong>page 6</strong> provide a clear answer: <strong>No.&nbsp;The gains come from efficiency, not size.</strong></p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><a href="images/2025-08-30-xception-reading-notes/paper-section4.5.1.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-21" title="Size and speed comparison"><img src="images/2025-08-30-xception-reading-notes/paper-section4.5.1.PNG" class="img-fluid figure-img" alt="Size and speed comparison"></a></p>
+<figcaption>Size and speed comparison</figcaption>
+</figure>
+</div>
+<blockquote class="blockquote">
+<p><strong>(Page 6, Table 3): Size and training speed comparison</strong></p>
+</blockquote>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Model</th>
+<th style="text-align: left;">Parameter count</th>
+<th style="text-align: left;">Steps/second</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Inception V3</td>
+<td style="text-align: left;">23,626,728</td>
+<td style="text-align: left;">31</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Xception</td>
+<td style="text-align: left;">22,855,952</td>
+<td style="text-align: left;">28</td>
+</tr>
+</tbody>
+</table>
+<p>This small table contains one of the most important findings of the paper.</p>
+<ol type="1">
+<li><p><strong>Parameter Count (Size):</strong> Xception is actually slightly <em>smaller</em> than Inception V3, with about 22.9 million parameters compared to 23.6 million. For all practical purposes, their capacities are identical. This is a critical piece of evidence. It proves that the superior performance of Xception is <strong>not</strong> due to it having more parameters or a larger capacity.</p></li>
+<li><p><strong>Training Speed:</strong> Xception is marginally slower, processing 28 batches (or “steps”) per second compared to Inception V3’s 31 on the 60-GPU hardware setup. The author suggests this is likely not due to a fundamental flaw, but rather to the fact that the low-level library implementations of depthwise convolutions were less mature and optimized at the time than the heavily-used standard convolutions.</p></li>
+</ol>
+<p>This leads to the paper’s central conclusion about its performance:</p>
+<blockquote class="blockquote">
+<p><strong>(Page 6, Text below Table 3):</strong> “The fact that both architectures have almost the same number of parameters indicates that the improvement seen on ImageNet and JFT does not come from added capacity but rather from a <strong>more efficient use of the model parameters.</strong>”</p>
+</blockquote>
+<p>This is the punchline of the entire experimental section. Xception’s design—the complete decoupling of spatial and cross-channel correlations—is a fundamentally more effective way for a neural network to use its limited number of parameters to learn about the visual world. It’s a smarter, not just bigger, architecture.</p>
+</section>
+</section>
+<section id="architectural-dissection-part-1-the-critical-role-of-residual-connections" class="level2">
+<h2 class="anchored" data-anchor-id="architectural-dissection-part-1-the-critical-role-of-residual-connections">Architectural Dissection Part 1: The Critical Role of Residual Connections</h2>
+<p>A key part of good research is not just showing that a new design works, but understanding <em>why</em> it works. To do this, researchers perform “ablation studies”—experiments where they systematically remove or alter parts of their model to see how performance is affected.</p>
+<p>In <strong>Section 4.6</strong> on <strong>page 6</strong>, the paper investigates a crucial component of the Xception design that was borrowed not from Inception, but from ResNet: the <strong>residual connections</strong>.</p>
+<section id="the-question-are-the-skip-connections-necessary" class="level3">
+<h3 class="anchored" data-anchor-id="the-question-are-the-skip-connections-necessary">The Question: Are the Skip Connections Necessary?</h3>
+<p>As we saw in the architecture diagram (Figure 5), almost every module in Xception is wrapped in a “skip” or “residual” connection, where the input to the module is added to its output. To quantify how important these connections are, the author conducted a simple but powerful experiment: he created a modified version of Xception with all the residual connections removed and trained it on ImageNet.</p>
+<p>The results are shown in <strong>Figure 9</strong>.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><a href="images/2025-08-30-xception-reading-notes/paper-section4.6-1.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-22" title="Figure 9: Training profile with and without residual connections"><img src="images/2025-08-30-xception-reading-notes/paper-section4.6-1.PNG" class="img-fluid figure-img" alt="Figure 9: Training profile with and without residual connections"></a></p>
+<figcaption>Figure 9: Training profile with and without residual connections</figcaption>
+</figure>
+</div>
+<ul>
+<li>The red curve, representing the standard <strong>Xception</strong> with residual connections, shows a smooth and rapid learning curve, quickly climbing to its final high accuracy of ~79%.</li>
+<li>The blue curve, representing the <strong>“Xception - Non-residual”</strong> version, tells a very different story. The learning is dramatically slower, and the model’s performance quickly stagnates at a much lower accuracy of less than 65%.</li>
+</ul>
+<section id="the-conclusion-residual-connections-are-essential" class="level4">
+<h4 class="anchored" data-anchor-id="the-conclusion-residual-connections-are-essential">The Conclusion: Residual Connections are “Essential”</h4>
+<p>The visual evidence from the graph leads to a clear conclusion:</p>
+<p><a href="images/2025-08-30-xception-reading-notes/paper-section4.6-2.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-23"><img src="images/2025-08-30-xception-reading-notes/paper-section4.6-2.PNG" class="img-fluid"></a></p>
+<blockquote class="blockquote">
+<p><strong>(Page 7, Text at the top):</strong> “Residual connections are clearly essential in helping with convergence, both in terms of speed and final classification performance.”</p>
+</blockquote>
+<p>For this specific architecture, the residual connections are not just a minor optimization; they are a critical component that enables the network to be trained effectively. Without them, the gradients would struggle to propagate through the 36-layer-deep network, and the model would fail to learn properly.</p>
+<p>The author does add two important notes of caution. First, he acknowledges that the non-residual model might have performed better if its training hyperparameters were tuned differently. Second, he clarifies that while residual connections are essential for <em>this specific deep architecture</em>, they are not a universal requirement for using separable convolutions. He mentions that he was also able to achieve excellent results with a simpler, VGG-style (non-residual) stack of separable convolutions.</p>
+<p>This study beautifully demonstrates that the success of Xception is not just due to the “Extreme Inception” idea alone, but to its powerful combination with the deep-training stability provided by residual connections.</p>
+</section>
+</section>
+</section>
+<section id="architectural-dissection-part-2-the-surprising-effect-of-intermediate-activations" class="level2">
+<h2 class="anchored" data-anchor-id="architectural-dissection-part-2-the-surprising-effect-of-intermediate-activations">Architectural Dissection Part 2: The Surprising Effect of Intermediate Activations</h2>
+<p>The final experiment in the paper, detailed in <strong>Section 4.7</strong> on <strong>page 7</strong>, revisits a subtle question raised early on. A standard Inception module typically places a ReLU activation function after every convolution. A depthwise separable convolution, as implemented in libraries, usually does not have an activation function between its depthwise (spatial) and pointwise (channel) steps.</p>
+<p>Which way is better? Does adding a non-linearity in the middle of a separable convolution block help or hurt?</p>
+<section id="the-experiment-to-relu-or-not-to-relu" class="level3">
+<h3 class="anchored" data-anchor-id="the-experiment-to-relu-or-not-to-relu">The Experiment: To ReLU or Not to ReLU?</h3>
+<p>To answer this, the author tested three versions of the Xception architecture:</p>
+<ol type="1">
+<li><strong>No intermediate activation:</strong> The standard Xception model used for all the main results.</li>
+<li><strong>Intermediate ReLU:</strong> A version with a ReLU activation placed between the depthwise and pointwise operations.</li>
+<li><strong>Intermediate ELU:</strong> A version using a different but popular activation function, ELU.</li>
+</ol>
+<p>The results of this experiment on ImageNet are shown in <strong>Figure 10</strong>.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><a href="images/2025-08-30-xception-reading-notes/paper-fig10.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-24" title="Figure 10. Training profile with different activations between the depthwise and pointwise operations of the separable convolution layers."><img src="images/2025-08-30-xception-reading-notes/paper-fig10.PNG" class="img-fluid figure-img" alt="Figure 10. Training profile with different activations between the depthwise and pointwise operations of the separable convolution layers."></a></p>
+<figcaption>Figure 10. Training profile with different activations between the depthwise and pointwise operations of the separable convolution layers.</figcaption>
+</figure>
+</div>
+<ul>
+<li>The red curve (<strong>No intermediate activation</strong>) is the clear winner. It converges the fastest and achieves the best final performance.</li>
+<li>The green curve (<strong>Intermediate ELU</strong>) is next.</li>
+<li>The blue curve (<strong>Intermediate ReLU</strong>) performs the worst of the three.</li>
+</ul>
+</section>
+<section id="the-conclusion-linearity-is-better-here" class="level3">
+<h3 class="anchored" data-anchor-id="the-conclusion-linearity-is-better-here">The Conclusion: Linearity is Better (Here)</h3>
+<p>This leads to a “remarkable observation.”</p>
+<p><a href="images/2025-08-30-xception-reading-notes/paper-section4.7.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-25"><img src="images/2025-08-30-xception-reading-notes/paper-section4.7.PNG" class="img-fluid"></a></p>
+<blockquote class="blockquote">
+<p><strong>(Page 7, Section 4.7, Para 2):</strong> “…the absence of any non-linearity leads to both faster convergence and better final performance. This is a remarkable observation, since Szegedy et al.&nbsp;report the opposite result in [21] for Inception modules.”</p>
+</blockquote>
+<p>This result is surprising because it directly contradicts the findings from the original Inception papers, where adding the intermediate ReLU was beneficial. The author doesn’t just present this contradiction; he offers a compelling and insightful hypothesis to explain it: <strong>it all depends on the depth of the feature space.</strong></p>
+<ul>
+<li>In a standard <strong>Inception module</strong>, the spatial convolutions (like 3x3s) operate on “deep” feature maps with many channels (e.g., 64, 96, or 128). In such a rich, high-dimensional space, an activation function like ReLU can help the network learn more complex, non-linear features.</li>
+<li>In a <strong>depthwise separable convolution</strong>, the spatial convolution operates on each channel <em>independently</em>. This means it’s working on an extremely “shallow” feature space—just a single channel at a time. The author speculates that applying a harsh non-linearity like ReLU to a single channel’s feature map might be destructive. It could be erasing valuable information by clamping all negative values to zero before that information has a chance to be recombined with other channels in the subsequent pointwise step.</li>
+</ul>
+<p>This is a brilliant piece of scientific reasoning that provides a plausible explanation for a counter-intuitive result and gives us a deeper intuition for how these different architectural components work.</p>
+</section>
+</section>
+<section id="future-directions-and-final-conclusions" class="level2">
+<h2 class="anchored" data-anchor-id="future-directions-and-final-conclusions">Future Directions and Final Conclusions</h2>
+<p>After a thorough series of experiments, the paper concludes on <strong>page 7</strong> by summarizing its findings and looking toward the future.</p>
+<section id="section-5-whats-next-future-directions" class="level3">
+<h3 class="anchored" data-anchor-id="section-5-whats-next-future-directions">Section 5: What’s Next? (Future Directions)</h3>
+<p>A hallmark of a great research paper is that it often raises as many questions as it answers. The author revisits the “discrete spectrum” of convolutions he introduced earlier.</p>
+<p><a href="images/2025-08-30-xception-reading-notes/paper-section5.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-26"><img src="images/2025-08-30-xception-reading-notes/paper-section5.PNG" class="img-fluid"></a></p>
+<blockquote class="blockquote">
+<p><strong>(Page 7, Section 5):</strong> “We showed in our empirical evaluation that the extreme formulation of an Inception module, the depthwise separable convolution, may have advantages over regular a regular Inception module. However, there is no reason to believe that depthwise separable convolutions are optimal.”</p>
+</blockquote>
+<p>This is a humble and insightful point. The paper has shown that one extreme of the spectrum (Xception, with 1 segment per channel) is better than a point in the middle (Inception, with 3-4 segments). But is it the absolute best point? The author suggests that it may not be. Perhaps an intermediate point—for example, using “grouped convolutions” with 8 or 16 channel segments—could offer an even better trade-off between computational cost and model accuracy. He leaves this as an open question for future investigation.</p>
+</section>
+<section id="section-6-the-final-word-conclusions" class="level3">
+<h3 class="anchored" data-anchor-id="section-6-the-final-word-conclusions">Section 6: The Final Word (Conclusions)</h3>
+<p>The final section of the paper is a concise and elegant summary of its entire narrative, bringing the story full circle.</p>
+<p><a href="images/2025-08-30-xception-reading-notes/paper-section6.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-27"><img src="images/2025-08-30-xception-reading-notes/paper-section6.PNG" class="img-fluid"></a></p>
+<ol type="1">
+<li><strong>The Core Idea:</strong> The paper showed that standard convolutions and depthwise separable convolutions can be viewed as two endpoints of a spectrum, with the famous Inception module living somewhere in between.</li>
+<li><strong>The Proposal:</strong> This insight led to the creation of Xception, a novel architecture that takes the Inception philosophy to its logical extreme by replacing Inception modules entirely with depthwise separable convolutions.</li>
+<li><strong>The Results:</strong> When compared against Inception V3, a model with a similar number of parameters, Xception demonstrated small performance gains on the highly-tuned ImageNet dataset and, more importantly, <strong>large gains</strong> on the massive JFT dataset.</li>
+<li><strong>The Impact:</strong> The paper concludes with a prediction: depthwise separable convolutions are poised to become a “cornerstone of convolutional neural network architecture design.” They offer the same powerful properties of factorization as Inception modules, but they are conceptually simpler, more general, and just as easy to implement as regular convolution layers.</li>
+</ol>
+<p>Looking back from today, it’s clear that this prediction was remarkably accurate. Depthwise separable convolutions are now a fundamental tool used in countless state-of-the-art architectures, especially those designed for mobile and efficient computing (like the MobileNet family).</p>
+<p>The Xception paper remains a landmark not just for the architecture it proposed, but for the clear and principled way it deconstructed an existing idea and pushed it to a new, more powerful conclusion. It serves as a masterclass in how to reason about the very building blocks of deep learning.</p>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<script src="https://utteranc.es/client.js" repo="hassaanbinaslam/myblog_utterances" issue-term="pathname" theme="github-light" crossorigin="anonymous" async="">
+</script>
+</div> <!-- /content -->
+<script>var lightboxQuarto = GLightbox({"closeEffect":"zoom","descPosition":"bottom","loop":false,"openEffect":"zoom","selector":".lightbox"});
+(function() {
+  let previousOnload = window.onload;
+  window.onload = () => {
+    if (previousOnload) {
+      previousOnload();
+    }
+    lightboxQuarto.on('slide_before_load', (data) => {
+      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+      const href = trigger.getAttribute('href');
+      if (href !== null) {
+        const imgEl = window.document.querySelector(`a[href="${href}"] img`);
+        if (imgEl !== null) {
+          const srcAttr = imgEl.getAttribute("src");
+          if (srcAttr && srcAttr.startsWith("data:")) {
+            slideConfig.href = srcAttr;
+          }
+        }
+      } 
+    });
+  
+    lightboxQuarto.on('slide_after_load', (data) => {
+      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(slideNode);
+      }
+    });
+  
+  };
+  
+})();
+          </script>
+
+
+
+
+</body></html>
