@@ -90,7 +90,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "/",
     "s"
   ],
-  "show-item-context": false,
   "language": {
     "search-no-results-text": "No results",
     "search-matching-documents-text": "matching documents",
@@ -119,11 +118,11 @@ gtag('config', 'G-D1ST9BH6HX', { 'anonymize_ip': true});
 <link rel="stylesheet" href="../styles.css">
 <meta property="og:title" content="Building a Web Server From Scratch in Pure Python – Random Thoughts">
 <meta property="og:description" content="Building a web server from scratch in Python? Join me as I journey from simple http.server to raw sockets, threading, selectors, and asyncio, exploring different concurrency models and benchmarking performance along the way.">
-<meta property="og:image" content="images/2025-01-29-pure-python-web-server.jpeg">
+<meta property="og:image" content="https://hassaanbinaslam.github.io/myblog/posts/images/2025-01-29-pure-python-web-server.jpeg">
 <meta property="og:site_name" content="Random Thoughts">
 <meta name="twitter:title" content="Building a Web Server From Scratch in Pure Python – Random Thoughts">
 <meta name="twitter:description" content="Building a web server from scratch in Python? Join me as I journey from simple http.server to raw sockets, threading, selectors, and asyncio, exploring different concurrency models and benchmarking performance along the way.">
-<meta name="twitter:image" content="images/2025-01-29-pure-python-web-server.jpeg">
+<meta name="twitter:image" content="https://hassaanbinaslam.github.io/myblog/posts/images/2025-01-29-pure-python-web-server.jpeg">
 <meta name="twitter:card" content="summary_large_image">
 </head>
 
@@ -1315,7 +1314,7 @@ Task vs Coroutine?
     }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp('/' + window.location.host + '/');
+        var filterRegex = new RegExp("https:\/\/hassaanbinaslam\.github\.io\/myblog\/");
       var isInternal = (href) => {
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }

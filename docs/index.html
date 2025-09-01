@@ -55,7 +55,6 @@ ul.task-list li input[type="checkbox"] {
     "/",
     "s"
   ],
-  "show-item-context": false,
   "language": {
     "search-no-results-text": "No results",
     "search-matching-documents-text": "matching documents",
@@ -142,10 +141,14 @@ window.Quarto = {
 
 <link rel="stylesheet" href="styles.css">
 <meta property="og:title" content="Random Thoughts">
-<meta property="og:image" content="./posts/images/2025-08-30-xception-reading-notes.png">
+<meta property="og:image" content="https://hassaanbinaslam.github.io/myblog/posts/images/2025-08-30-xception-reading-notes.png">
 <meta property="og:site_name" content="Random Thoughts">
+<meta property="og:image:height" content="1024">
+<meta property="og:image:width" content="1024">
 <meta name="twitter:title" content="Random Thoughts">
-<meta name="twitter:image" content="./posts/images/2025-08-30-xception-reading-notes.png">
+<meta name="twitter:image" content="https://hassaanbinaslam.github.io/myblog/posts/images/2025-08-30-xception-reading-notes.png">
+<meta name="twitter:image-height" content="1024">
+<meta name="twitter:image-width" content="1024">
 <meta name="twitter:card" content="summary_large_image">
 </head>
 
@@ -213,7 +216,7 @@ window.Quarto = {
 
 <div class="quarto-listing quarto-listing-container-default" id="listing-listing">
 <div class="list quarto-listing-default">
-<div class="quarto-post image-left" data-index="0" data-categories="cGFwZXJz" data-listing-date-sort="1756494000000" data-listing-file-modified-sort="1756649354556" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="50" data-listing-word-count-sort="9976">
+<div class="quarto-post image-left" data-index="0" data-categories="cGFwZXJz" data-listing-date-sort="1756494000000" data-listing-file-modified-sort="1756649562738" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="50" data-listing-word-count-sort="9976">
 <div class="thumbnail"><a href="./posts/2025-08-30-xception-reading-notes.html" class="no-external">
 
 <img loading="lazy" src="./posts/images/2025-08-30-xception-reading-notes.png" class="thumbnail-image">
@@ -2007,7 +2010,7 @@ Feb 9, 2022
     }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp('/' + window.location.host + '/');
+        var filterRegex = new RegExp("https:\/\/hassaanbinaslam\.github\.io\/myblog\/");
       var isInternal = (href) => {
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }

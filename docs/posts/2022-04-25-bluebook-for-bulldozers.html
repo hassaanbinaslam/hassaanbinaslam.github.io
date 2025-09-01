@@ -91,7 +91,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "/",
     "s"
   ],
-  "show-item-context": false,
   "language": {
     "search-no-results-text": "No results",
     "search-matching-documents-text": "matching documents",
@@ -123,11 +122,11 @@ gtag('config', 'G-D1ST9BH6HX', { 'anonymize_ip': true});
 <link rel="stylesheet" href="../styles.css">
 <meta property="og:title" content="Kaggle - Blue Book for Bulldozers – Random Thoughts">
 <meta property="og:description" content="blue book">
-<meta property="og:image" content="images/2022-04-25-bluebook-for-bulldozers.jpeg">
+<meta property="og:image" content="https://hassaanbinaslam.github.io/myblog/posts/images/2022-04-25-bluebook-for-bulldozers.jpeg">
 <meta property="og:site_name" content="Random Thoughts">
 <meta name="twitter:title" content="Kaggle - Blue Book for Bulldozers – Random Thoughts">
 <meta name="twitter:description" content="blue book">
-<meta name="twitter:image" content="images/2022-04-25-bluebook-for-bulldozers.jpeg">
+<meta name="twitter:image" content="https://hassaanbinaslam.github.io/myblog/posts/images/2022-04-25-bluebook-for-bulldozers.jpeg">
 <meta name="twitter:card" content="summary_large_image">
 </head>
 
@@ -6301,7 +6300,7 @@ Median depth = 45.0</code></pre>
     }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp('/' + window.location.host + '/');
+        var filterRegex = new RegExp("https:\/\/hassaanbinaslam\.github\.io\/myblog\/");
       var isInternal = (href) => {
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }

@@ -55,7 +55,6 @@ ul.task-list li input[type="checkbox"] {
     "/",
     "s"
   ],
-  "show-item-context": false,
   "language": {
     "search-no-results-text": "No results",
     "search-matching-documents-text": "matching documents",
@@ -84,11 +83,11 @@ gtag('config', 'G-D1ST9BH6HX', { 'anonymize_ip': true});
 <link rel="stylesheet" href="../styles.css">
 <meta property="og:title" content="Data Preparation with SageMaker Data Wrangler (Part 2) – Random Thoughts">
 <meta property="og:description" content="A detailed guide on AWS SageMaker Data Wrangler to prepare data for machine learning models. This is a five parts series where we will prepare, import, explore, process, and export data using AWS Data Wrangler. You are reading Part 2:Import data from multiple sources using Data Wrangler.">
-<meta property="og:image" content="images/2022-05-23-aws-sagemaker-wrangler-p2.jpeg">
+<meta property="og:image" content="https://hassaanbinaslam.github.io/myblog/posts/images/2022-05-23-aws-sagemaker-wrangler-p2.jpeg">
 <meta property="og:site_name" content="Random Thoughts">
 <meta name="twitter:title" content="Data Preparation with SageMaker Data Wrangler (Part 2) – Random Thoughts">
 <meta name="twitter:description" content="A detailed guide on AWS SageMaker Data Wrangler to prepare data for machine learning models. This is a five parts series where we will prepare, import, explore, process, and export data using AWS Data Wrangler. You are reading Part 2:Import data from multiple sources using Data Wrangler.">
-<meta name="twitter:image" content="images/2022-05-23-aws-sagemaker-wrangler-p2.jpeg">
+<meta name="twitter:image" content="https://hassaanbinaslam.github.io/myblog/posts/images/2022-05-23-aws-sagemaker-wrangler-p2.jpeg">
 <meta name="twitter:card" content="summary_large_image">
 </head>
 
@@ -393,7 +392,7 @@ gtag('config', 'G-D1ST9BH6HX', { 'anonymize_ip': true});
     }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp('/' + window.location.host + '/');
+        var filterRegex = new RegExp("https:\/\/hassaanbinaslam\.github\.io\/myblog\/");
       var isInternal = (href) => {
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }
