@@ -90,7 +90,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "/",
     "s"
   ],
-  "show-item-context": false,
   "language": {
     "search-no-results-text": "No results",
     "search-matching-documents-text": "matching documents",
@@ -122,11 +121,11 @@ gtag('config', 'G-D1ST9BH6HX', { 'anonymize_ip': true});
 <link rel="stylesheet" href="../styles.css">
 <meta property="og:title" content="Demystifying Amazon SageMaker Training for scikit-learn Lovers – Random Thoughts">
 <meta property="og:description" content="How to build, train, and deploy a machine learning model with Amazon SageMaker.">
-<meta property="og:image" content="images/2022-06-08-sagemaker-training-overview.jpeg">
+<meta property="og:image" content="https://hassaanbinaslam.github.io/myblog/posts/images/2022-06-08-sagemaker-training-overview.jpeg">
 <meta property="og:site_name" content="Random Thoughts">
 <meta name="twitter:title" content="Demystifying Amazon SageMaker Training for scikit-learn Lovers – Random Thoughts">
 <meta name="twitter:description" content="How to build, train, and deploy a machine learning model with Amazon SageMaker.">
-<meta name="twitter:image" content="images/2022-06-08-sagemaker-training-overview.jpeg">
+<meta name="twitter:image" content="https://hassaanbinaslam.github.io/myblog/posts/images/2022-06-08-sagemaker-training-overview.jpeg">
 <meta name="twitter:card" content="summary_large_image">
 </head>
 
@@ -3225,7 +3224,7 @@ Billable seconds: 132</code></pre>
     }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp('/' + window.location.host + '/');
+        var filterRegex = new RegExp("https:\/\/hassaanbinaslam\.github\.io\/myblog\/");
       var isInternal = (href) => {
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }

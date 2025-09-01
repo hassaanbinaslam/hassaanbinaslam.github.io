@@ -55,7 +55,6 @@ ul.task-list li input[type="checkbox"] {
     "/",
     "s"
   ],
-  "show-item-context": false,
   "language": {
     "search-no-results-text": "No results",
     "search-matching-documents-text": "matching documents",
@@ -84,11 +83,15 @@ gtag('config', 'G-D1ST9BH6HX', { 'anonymize_ip': true});
 <link rel="stylesheet" href="../styles.css">
 <meta property="og:title" content="AWS Machine Learning Certification Notes (MLS-C01) – Random Thoughts">
 <meta property="og:description" content="My notes for AWS ML speciality exam passed on May 14, 2022.">
-<meta property="og:image" content="images/2022-05-14-aws-ml-cert-notes/AWS-Certified-Machine-Learning-Specialty_badge.png">
+<meta property="og:image" content="https://hassaanbinaslam.github.io/myblog/posts/images/2022-05-14-aws-ml-cert-notes/AWS-Certified-Machine-Learning-Specialty_badge.png">
 <meta property="og:site_name" content="Random Thoughts">
+<meta property="og:image:height" content="300">
+<meta property="og:image:width" content="300">
 <meta name="twitter:title" content="AWS Machine Learning Certification Notes (MLS-C01) – Random Thoughts">
 <meta name="twitter:description" content="My notes for AWS ML speciality exam passed on May 14, 2022.">
-<meta name="twitter:image" content="images/2022-05-14-aws-ml-cert-notes/AWS-Certified-Machine-Learning-Specialty_badge.png">
+<meta name="twitter:image" content="https://hassaanbinaslam.github.io/myblog/posts/images/2022-05-14-aws-ml-cert-notes/AWS-Certified-Machine-Learning-Specialty_badge.png">
+<meta name="twitter:image-height" content="300">
+<meta name="twitter:image-width" content="300">
 <meta name="twitter:card" content="summary_large_image">
 </head>
 
@@ -505,7 +508,7 @@ gtag('config', 'G-D1ST9BH6HX', { 'anonymize_ip': true});
     }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp('/' + window.location.host + '/');
+        var filterRegex = new RegExp("https:\/\/hassaanbinaslam\.github\.io\/myblog\/");
       var isInternal = (href) => {
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }

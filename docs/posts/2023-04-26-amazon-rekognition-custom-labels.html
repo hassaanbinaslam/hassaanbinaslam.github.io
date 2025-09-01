@@ -90,7 +90,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "/",
     "s"
   ],
-  "show-item-context": false,
   "language": {
     "search-no-results-text": "No results",
     "search-matching-documents-text": "matching documents",
@@ -122,11 +121,11 @@ gtag('config', 'G-D1ST9BH6HX', { 'anonymize_ip': true});
 <link rel="stylesheet" href="../styles.css">
 <meta property="og:title" content="Creating an Object Detection Model using Amazon Rekognition Custom Labels – Random Thoughts">
 <meta property="og:description" content="Amazon Rekognition Custom Labels is a feature of Amazon Rekognition that enables customers to build specialized image analysis capabilities to detect unique objects and scenes integral to their specific use case. In this post, we will use this service to train a custom model with a small set of labeled images and use it to analyze new images via an API. This service uses AutoML to train models to find objects, scenes, concepts, object locations, and brand locations in images.">
-<meta property="og:image" content="images/2023-04-26-amazon-rekognition-custom-labels.jpg">
+<meta property="og:image" content="https://hassaanbinaslam.github.io/myblog/posts/images/2023-04-26-amazon-rekognition-custom-labels.jpg">
 <meta property="og:site_name" content="Random Thoughts">
 <meta name="twitter:title" content="Creating an Object Detection Model using Amazon Rekognition Custom Labels – Random Thoughts">
 <meta name="twitter:description" content="Amazon Rekognition Custom Labels is a feature of Amazon Rekognition that enables customers to build specialized image analysis capabilities to detect unique objects and scenes integral to their specific use case. In this post, we will use this service to train a custom model with a small set of labeled images and use it to analyze new images via an API. This service uses AutoML to train models to find objects, scenes, concepts, object locations, and brand locations in images.">
-<meta name="twitter:image" content="images/2023-04-26-amazon-rekognition-custom-labels.jpg">
+<meta name="twitter:image" content="https://hassaanbinaslam.github.io/myblog/posts/images/2023-04-26-amazon-rekognition-custom-labels.jpg">
 <meta name="twitter:card" content="summary_large_image">
 </head>
 
@@ -879,7 +878,7 @@ Label Height: 41</code></pre>
     }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp('/' + window.location.host + '/');
+        var filterRegex = new RegExp("https:\/\/hassaanbinaslam\.github\.io\/myblog\/");
       var isInternal = (href) => {
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }
