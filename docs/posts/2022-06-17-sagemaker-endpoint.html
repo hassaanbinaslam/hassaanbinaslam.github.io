@@ -118,11 +118,11 @@ gtag('config', 'G-D1ST9BH6HX', { 'anonymize_ip': true});
 <link rel="stylesheet" href="../styles.css">
 <meta property="og:title" content="Serverless Inference with SageMaker Serverless Endpoints – Random Thoughts">
 <meta property="og:description" content="How to call an ML model endpoint hosted by SageMaker using serverless technology.">
-<meta property="og:image" content="https://hassaanbinaslam.github.io/myblog/posts/images/2022-06-17-sagemaker-endpoint.jpeg">
+<meta property="og:image" content="https://hassaanbinaslam.github.io/posts/images/2022-06-17-sagemaker-endpoint.jpeg">
 <meta property="og:site_name" content="Random Thoughts">
 <meta name="twitter:title" content="Serverless Inference with SageMaker Serverless Endpoints – Random Thoughts">
 <meta name="twitter:description" content="How to call an ML model endpoint hosted by SageMaker using serverless technology.">
-<meta name="twitter:image" content="https://hassaanbinaslam.github.io/myblog/posts/images/2022-06-17-sagemaker-endpoint.jpeg">
+<meta name="twitter:image" content="https://hassaanbinaslam.github.io/posts/images/2022-06-17-sagemaker-endpoint.jpeg">
 <meta name="twitter:card" content="summary_large_image">
 </head>
 
@@ -606,7 +606,7 @@ Role: arn:aws:iam::801598032724:role/service-role/AmazonSageMaker-ExecutionRole-
     }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp("https:\/\/hassaanbinaslam\.github\.io\/myblog\/");
+        var filterRegex = new RegExp("https:\/\/hassaanbinaslam\.github\.io\/");
       var isInternal = (href) => {
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }

@@ -1,5 +1,5 @@
 # Welcome to my blog
-https://hassaanbinaslam.github.io/myblog/
+https://hassaanbinaslam.github.io/
 
 Hi there!
 

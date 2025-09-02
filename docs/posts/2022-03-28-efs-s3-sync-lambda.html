@@ -119,11 +119,11 @@ gtag('config', 'G-D1ST9BH6HX', { 'anonymize_ip': true});
 <link rel="stylesheet" href="../styles.css">
 <meta property="og:title" content="AWS EFS Sync to S3 Using Lambda – Random Thoughts">
 <meta property="og:description" content="A tutorial on synchronizing EFS with S3 bucket using a Lambda function.">
-<meta property="og:image" content="https://hassaanbinaslam.github.io/myblog/posts/images/2022-03-28-efs-s3-sync-lambda.jpeg">
+<meta property="og:image" content="https://hassaanbinaslam.github.io/posts/images/2022-03-28-efs-s3-sync-lambda.jpeg">
 <meta property="og:site_name" content="Random Thoughts">
 <meta name="twitter:title" content="AWS EFS Sync to S3 Using Lambda – Random Thoughts">
 <meta name="twitter:description" content="A tutorial on synchronizing EFS with S3 bucket using a Lambda function.">
-<meta name="twitter:image" content="https://hassaanbinaslam.github.io/myblog/posts/images/2022-03-28-efs-s3-sync-lambda.jpeg">
+<meta name="twitter:image" content="https://hassaanbinaslam.github.io/posts/images/2022-03-28-efs-s3-sync-lambda.jpeg">
 <meta name="twitter:card" content="summary_large_image">
 </head>
 
@@ -574,7 +574,7 @@ REPORT RequestId: 7e9c0dc2-f970-426e-8372-e59b07f5536c  Duration: 370.00 ms Bill
     }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp("https:\/\/hassaanbinaslam\.github\.io\/myblog\/");
+        var filterRegex = new RegExp("https:\/\/hassaanbinaslam\.github\.io\/");
       var isInternal = (href) => {
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }

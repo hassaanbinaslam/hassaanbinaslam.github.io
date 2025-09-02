@@ -1,1 +1,1 @@
-Sitemap: https://hassaanbinaslam.github.io/myblog/sitemap.xml
+Sitemap: https://hassaanbinaslam.github.io/sitemap.xml

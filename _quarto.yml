@@ -8,7 +8,7 @@ website:
   favicon: images/favicon.ico
   twitter-card: true
   open-graph: true
-  site-url: https://hassaanbinaslam.github.io/myblog/
+  site-url: https://hassaanbinaslam.github.io/
   search: 
     location: navbar
     type: overlay
