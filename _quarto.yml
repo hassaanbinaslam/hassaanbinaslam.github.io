@@ -3,6 +3,7 @@ project:
   output-dir: docs
   resources: 
     - "BingSiteAuth.xml"
+    - "google37432af36185f94d.html"
 
 website:
   title: "Random Thoughts"
