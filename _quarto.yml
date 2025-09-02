@@ -4,6 +4,7 @@ project:
   resources: 
     - "BingSiteAuth.xml"
     - "google37432af36185f94d.html"
+    - "robots.txt"
 
 website:
   title: "Random Thoughts"
