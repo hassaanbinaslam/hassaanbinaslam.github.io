@@ -1,6 +1,8 @@
 project:
   type: website
   output-dir: docs
+  resources: 
+    - "BingSiteAuth.xml"
 
 website:
   title: "Random Thoughts"
