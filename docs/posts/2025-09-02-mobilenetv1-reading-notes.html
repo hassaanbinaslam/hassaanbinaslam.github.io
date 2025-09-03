@@ -1,0 +1,1390 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.32">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="dcterms.date" content="2025-09-02">
+<meta name="description" content="A detailed, page-by-page breakdown of the MobileNetV1 paper, explaining how to build efficient neural networks for mobile and edge devices.">
+
+<title>MobileNetV1 Explained: A Deep Dive into Lightweight Neural Networks – Random Thoughts</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../images/favicon.ico" rel="icon">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-ec1a476101e3788554028e6f9c82f7c1.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="../site_libs/quarto-contrib/glightbox/glightbox.min.js"></script>
+<link href="../site_libs/quarto-contrib/glightbox/glightbox.min.css" rel="stylesheet">
+<link href="../site_libs/quarto-contrib/glightbox/lightbox.css" rel="stylesheet">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script async="" src="https://www.googletagmanager.com/gtag/js?id=G-D1ST9BH6HX"></script>
+
+<script type="text/javascript">
+
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-D1ST9BH6HX', { 'anonymize_ip': true});
+</script>
+
+
+<link rel="stylesheet" href="../styles.css">
+<meta property="og:title" content="MobileNetV1 Explained: A Deep Dive into Lightweight Neural Networks – Random Thoughts">
+<meta property="og:description" content="A detailed, page-by-page breakdown of the MobileNetV1 paper, explaining how to build efficient neural networks for mobile and edge devices.">
+<meta property="og:image" content="https://hassaanbinaslam.github.io/posts/images/2025-09-02-mobilenetv1-reading-notes.png">
+<meta property="og:site_name" content="Random Thoughts">
+<meta property="og:image:height" content="1024">
+<meta property="og:image:width" content="1024">
+<meta name="twitter:title" content="MobileNetV1 Explained: A Deep Dive into Lightweight Neural Networks – Random Thoughts">
+<meta name="twitter:description" content="A detailed, page-by-page breakdown of the MobileNetV1 paper, explaining how to build efficient neural networks for mobile and edge devices.">
+<meta name="twitter:image" content="https://hassaanbinaslam.github.io/posts/images/2025-09-02-mobilenetv1-reading-notes.png">
+<meta name="twitter:image-height" content="1024">
+<meta name="twitter:image-width" content="1024">
+<meta name="twitter:card" content="summary_large_image">
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">Random Thoughts</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://www.linkedin.com/in/hassaanbinaslam/"> <i class="bi bi-linkedin" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/hassaanbinaslam/"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://twitter.com/hassaanbinaslam"> <i class="bi bi-twitter" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a></li>
+  <li><a href="#the-abstract-mobilenets-in-a-nutshell" id="toc-the-abstract-mobilenets-in-a-nutshell" class="nav-link" data-scroll-target="#the-abstract-mobilenets-in-a-nutshell">The Abstract: MobileNets in a Nutshell</a></li>
+  <li><a href="#why-we-need-smarter-not-just-bigger-ai" id="toc-why-we-need-smarter-not-just-bigger-ai" class="nav-link" data-scroll-target="#why-we-need-smarter-not-just-bigger-ai">Why We Need Smarter, Not Just Bigger, AI</a>
+  <ul class="collapse">
+  <li><a href="#the-accuracy-arms-race" id="toc-the-accuracy-arms-race" class="nav-link" data-scroll-target="#the-accuracy-arms-race">The “Accuracy Arms Race”</a></li>
+  <li><a href="#the-blueprint-for-a-solution" id="toc-the-blueprint-for-a-solution" class="nav-link" data-scroll-target="#the-blueprint-for-a-solution">The Blueprint for a Solution</a></li>
+  </ul></li>
+  <li><a href="#standing-on-the-shoulders-of-giants-prior-work" id="toc-standing-on-the-shoulders-of-giants-prior-work" class="nav-link" data-scroll-target="#standing-on-the-shoulders-of-giants-prior-work">Standing on the Shoulders of Giants (Prior Work)</a>
+  <ul class="collapse">
+  <li><a href="#two-paths-to-a-smaller-network" id="toc-two-paths-to-a-smaller-network" class="nav-link" data-scroll-target="#two-paths-to-a-smaller-network">Two Paths to a Smaller Network</a></li>
+  <li><a href="#the-building-blocks-of-efficiency" id="toc-the-building-blocks-of-efficiency" class="nav-link" data-scroll-target="#the-building-blocks-of-efficiency">The Building Blocks of Efficiency</a></li>
+  <li><a href="#tricks-of-the-trade-shrinking-squeezing-and-distilling" id="toc-tricks-of-the-trade-shrinking-squeezing-and-distilling" class="nav-link" data-scroll-target="#tricks-of-the-trade-shrinking-squeezing-and-distilling">Tricks of the Trade: Shrinking, Squeezing, and Distilling</a></li>
+  </ul></li>
+  <li><a href="#mobilenet-architecture" id="toc-mobilenet-architecture" class="nav-link" data-scroll-target="#mobilenet-architecture">MobileNet Architecture</a>
+  <ul class="collapse">
+  <li><a href="#the-two-jobs-of-a-standard-convolution" id="toc-the-two-jobs-of-a-standard-convolution" class="nav-link" data-scroll-target="#the-two-jobs-of-a-standard-convolution">The Two Jobs of a Standard Convolution</a></li>
+  <li><a href="#the-mobilenet-way-divide-and-conquer" id="toc-the-mobilenet-way-divide-and-conquer" class="nav-link" data-scroll-target="#the-mobilenet-way-divide-and-conquer">The MobileNet Way: Divide and Conquer</a></li>
+  <li><a href="#the-math-of-the-bottleneck-why-standard-convolutions-are-so-expensive" id="toc-the-math-of-the-bottleneck-why-standard-convolutions-are-so-expensive" class="nav-link" data-scroll-target="#the-math-of-the-bottleneck-why-standard-convolutions-are-so-expensive">The Math of the Bottleneck: Why Standard Convolutions Are So Expensive</a></li>
+  <li><a href="#the-cost-formula-that-changes-everything" id="toc-the-cost-formula-that-changes-everything" class="nav-link" data-scroll-target="#the-cost-formula-that-changes-everything">The Cost Formula That Changes Everything</a></li>
+  <li><a href="#the-math-of-efficiency-step-1-the-depthwise-filter" id="toc-the-math-of-efficiency-step-1-the-depthwise-filter" class="nav-link" data-scroll-target="#the-math-of-efficiency-step-1-the-depthwise-filter">The Math of Efficiency, Step 1: The Depthwise Filter</a></li>
+  <li><a href="#the-math-of-efficiency-step-2-the-pointwise-combination-and-the-final-payoff" id="toc-the-math-of-efficiency-step-2-the-pointwise-combination-and-the-final-payoff" class="nav-link" data-scroll-target="#the-math-of-efficiency-step-2-the-pointwise-combination-and-the-final-payoff">The Math of Efficiency, Step 2: The Pointwise Combination and the Final Payoff</a></li>
+  </ul></li>
+  <li><a href="#assembling-the-architecture-a-blueprint-for-efficiency" id="toc-assembling-the-architecture-a-blueprint-for-efficiency" class="nav-link" data-scroll-target="#assembling-the-architecture-a-blueprint-for-efficiency">Assembling the Architecture: A Blueprint for Efficiency</a>
+  <ul class="collapse">
+  <li><a href="#from-theory-to-reality-designing-for-real-hardware" id="toc-from-theory-to-reality-designing-for-real-hardware" class="nav-link" data-scroll-target="#from-theory-to-reality-designing-for-real-hardware">From Theory to Reality: Designing for Real Hardware</a></li>
+  <li><a href="#the-art-of-training-less-is-more-for-small-models" id="toc-the-art-of-training-less-is-more-for-small-models" class="nav-link" data-scroll-target="#the-art-of-training-less-is-more-for-small-models">The Art of Training: Less is More for Small Models</a></li>
+  <li><a href="#the-blueprint-and-the-receipt-a-look-at-the-numbers" id="toc-the-blueprint-and-the-receipt-a-look-at-the-numbers" class="nav-link" data-scroll-target="#the-blueprint-and-the-receipt-a-look-at-the-numbers">The Blueprint and the Receipt: A Look at the Numbers</a></li>
+  </ul></li>
+  <li><a href="#the-control-knobs-part-1-the-width-multiplier-for-thinner-models" id="toc-the-control-knobs-part-1-the-width-multiplier-for-thinner-models" class="nav-link" data-scroll-target="#the-control-knobs-part-1-the-width-multiplier-for-thinner-models">The Control Knobs, Part 1: The Width Multiplier for Thinner Models</a>
+  <ul class="collapse">
+  <li><a href="#one-knob-to-rule-them-all" id="toc-one-knob-to-rule-them-all" class="nav-link" data-scroll-target="#one-knob-to-rule-them-all">One Knob to Rule Them All</a></li>
+  <li><a href="#the-power-of-quadratic-scaling" id="toc-the-power-of-quadratic-scaling" class="nav-link" data-scroll-target="#the-power-of-quadratic-scaling">The Power of Quadratic Scaling</a></li>
+  </ul></li>
+  <li><a href="#the-control-knobs-part-2-the-resolution-multiplier-for-faster-processing" id="toc-the-control-knobs-part-2-the-resolution-multiplier-for-faster-processing" class="nav-link" data-scroll-target="#the-control-knobs-part-2-the-resolution-multiplier-for-faster-processing">The Control Knobs, Part 2: The Resolution Multiplier for Faster Processing</a>
+  <ul class="collapse">
+  <li><a href="#the-grand-finale-putting-it-all-together" id="toc-the-grand-finale-putting-it-all-together" class="nav-link" data-scroll-target="#the-grand-finale-putting-it-all-together">The Grand Finale: Putting It All Together</a></li>
+  </ul></li>
+  <li><a href="#the-experiments-part-1-putting-the-theory-to-the-test" id="toc-the-experiments-part-1-putting-the-theory-to-the-test" class="nav-link" data-scroll-target="#the-experiments-part-1-putting-the-theory-to-the-test">The Experiments, Part 1: Putting the Theory to the Test</a>
+  <ul class="collapse">
+  <li><a href="#justifying-the-secret-sauce-is-the-trade-off-worth-it" id="toc-justifying-the-secret-sauce-is-the-trade-off-worth-it" class="nav-link" data-scroll-target="#justifying-the-secret-sauce-is-the-trade-off-worth-it">Justifying the Secret Sauce: Is the Trade-Off Worth It?</a></li>
+  </ul></li>
+  <li><a href="#the-experiments-part-2-a-universe-of-efficient-models" id="toc-the-experiments-part-2-a-universe-of-efficient-models" class="nav-link" data-scroll-target="#the-experiments-part-2-a-universe-of-efficient-models">The Experiments, Part 2: A Universe of Efficient Models</a>
+  <ul class="collapse">
+  <li><a href="#mapping-the-trade-offs-the-power-of-predictable-scaling" id="toc-mapping-the-trade-offs-the-power-of-predictable-scaling" class="nav-link" data-scroll-target="#mapping-the-trade-offs-the-power-of-predictable-scaling">Mapping the Trade-Offs: The Power of Predictable Scaling</a></li>
+  </ul></li>
+  <li><a href="#beyond-classification-a-versatile-tool-for-the-real-world" id="toc-beyond-classification-a-versatile-tool-for-the-real-world" class="nav-link" data-scroll-target="#beyond-classification-a-versatile-tool-for-the-real-world">Beyond Classification: A Versatile Tool for the Real World</a></li>
+  <li><a href="#conclusion-the-legacy-of-mobilenet" id="toc-conclusion-the-legacy-of-mobilenet" class="nav-link" data-scroll-target="#conclusion-the-legacy-of-mobilenet">Conclusion: The Legacy of MobileNet</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">MobileNetV1 Explained: A Deep Dive into Lightweight Neural Networks</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">papers</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    A detailed, page-by-page breakdown of the MobileNetV1 paper, explaining how to build efficient neural networks for mobile and edge devices.
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">September 2, 2025</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p><img src="images/2025-09-02-mobilenetv1-reading-notes.png" class="img-fluid"></p>
+<section id="introduction" class="level2">
+<h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
+<p>Ever wonder how your smartphone pulls off those magical AI tricks? Portrait mode that blurs the background perfectly, real-time language translation through your camera, or those fun filters that pop up on your face? These features require a tremendous amount of computation, yet your phone doesn’t get scorching hot or run out of battery in five minutes. How is that possible?</p>
+<p>The secret lies in designing neural networks that are not just accurate, but also incredibly <em>efficient</em>. They need to be small enough to fit in your phone’s memory and fast enough to run in real-time. This is a huge challenge, and for a long time, the worlds of top-tier accuracy and on-device performance were far apart.</p>
+<p>In 2017, a team at Google published a landmark paper called <strong>“MobileNets: Efficient Convolutional Neural Networks for Mobile Vision Applications.”</strong> This paper didn’t just introduce a single new model; it presented a brilliant and practical blueprint for building a whole <em>family</em> of lightweight, fast, and powerful models designed specifically for the constraints of mobile and embedded devices.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images/2025-09-02-mobilenetv1-reading-notes/paper-title.PNG" class="img-fluid figure-img"></p>
+<figcaption>Paper Title</figcaption>
+</figure>
+</div>
+<p>In this post, we’ll take a guided tour through the MobileNets paper, breaking it down page-by-page. By the end, you’ll understand the simple yet powerful ideas behind its design, why it was so revolutionary, and how its core components have become fundamental building blocks for modern AI.</p>
+<p>Let’s start with the abstract.</p>
+</section>
+<section id="the-abstract-mobilenets-in-a-nutshell" class="level2">
+<h2 class="anchored" data-anchor-id="the-abstract-mobilenets-in-a-nutshell">The Abstract: MobileNets in a Nutshell</h2>
+<p>A paper’s abstract is its elevator pitch. In just a few sentences, it tells you the problem, the proposed solution, the results, and why it matters. The MobileNets abstract is a perfect example, laying out the entire story concisely.</p>
+<p>Here is the abstract from the paper:</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images/2025-09-02-mobilenetv1-reading-notes/paper-abstract.PNG" class="img-fluid figure-img"></p>
+<figcaption>Paper Abstract</figcaption>
+</figure>
+</div>
+<p>Let’s unpack the key promises made in this short paragraph.</p>
+<ul>
+<li><strong>The Goal:</strong> To create “efficient models… for mobile and embedded vision applications.” This is the core mission statement.</li>
+<li><strong>The Secret Sauce:</strong> The key technical idea is an operation called <strong>depthwise separable convolutions</strong>. This is the magic ingredient that allows them to build networks that are both “light weight” and “deep” (which is crucial for accuracy).</li>
+<li><strong>The Killer Feature:</strong> They introduce two simple “control knobs” (hyper-parameters) that let any developer easily <strong>trade off speed for accuracy</strong>. This is incredibly practical. It means you can choose the perfect model for your specific needs—whether you need maximum speed for a live video filter or higher accuracy for an offline photo-sorting app.</li>
+<li><strong>The Proof:</strong> They don’t just propose an idea; they prove it works. They show strong results on the standard ImageNet benchmark and demonstrate that MobileNets are versatile enough to be used for a wide variety of tasks, from object detection to face analysis.</li>
+</ul>
+<p>In essence, the abstract promises a practical, powerful, and proven recipe for building efficient AI. Now, let’s dive into the paper to see how they deliver on these promises.</p>
+</section>
+<section id="why-we-need-smarter-not-just-bigger-ai" class="level2">
+<h2 class="anchored" data-anchor-id="why-we-need-smarter-not-just-bigger-ai">Why We Need Smarter, Not Just Bigger, AI</h2>
+<p>The introduction of a paper is crucial. It sets the stage, frames the problem, and tells you why you should care about the solution being proposed. On page 1, the authors of MobileNets walk us through the state of computer vision at the time, painting a clear picture of a field heading in a direction that was unsustainable for mobile applications.</p>
+<div class="quarto-layout-panel" data-layout-ncol="2">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><a href="images/2025-09-02-mobilenetv1-reading-notes/paper-intro-1.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-1" title="Introduction"><img src="images/2025-09-02-mobilenetv1-reading-notes/paper-intro-1.PNG" class="img-fluid figure-img" alt="Introduction"></a></p>
+<figcaption>Introduction</figcaption>
+</figure>
+</div>
+</div>
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<p><a href="images/2025-09-02-mobilenetv1-reading-notes/paper-intro-2.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-2"><img src="images/2025-09-02-mobilenetv1-reading-notes/paper-intro-2.PNG" class="img-fluid"></a></p>
+</div>
+</div>
+</div>
+<section id="the-accuracy-arms-race" class="level3">
+<h3 class="anchored" data-anchor-id="the-accuracy-arms-race">The “Accuracy Arms Race”</h3>
+<p>The first paragraph takes us back to the years following 2012, a time when deep learning was exploding in popularity thanks to a model called AlexNet. The dominant trend was clear: to get better results, you just had to build bigger and deeper networks. This led to an “arms race” where research labs competed to create massive, complex models that could inch out a new state-of-the-art score on academic benchmarks.</p>
+<p>But the authors point out a critical flaw in this approach:</p>
+<blockquote class="blockquote">
+<p><strong>(Page 1, Introduction, Para 1):</strong> “The general trend has been to make deeper and more complicated networks in order to achieve higher accuracy… However, these advances to improve accuracy are not necessarily making networks more efficient with respect to size and speed. In many real world applications such as robotics, self-driving car and augmented reality, the recognition tasks need to be carried out in a timely fashion on a computationally limited platform.”</p>
+</blockquote>
+<p>This is the core problem MobileNets was designed to solve. While giant models running on powerful servers in the cloud are great, they are useless for tasks that need to happen right here, right now, on the device in your hand. Your phone, your drone, or the smart camera in your home is a “computationally limited platform.” It doesn’t have endless power or memory. The relentless pursuit of accuracy was leaving these real-world applications behind.</p>
+</section>
+<section id="the-blueprint-for-a-solution" class="level3">
+<h3 class="anchored" data-anchor-id="the-blueprint-for-a-solution">The Blueprint for a Solution</h3>
+<p>So, how do we break out of this “bigger is better” cycle? The paper’s introduction immediately lays out a clear, two-part plan.</p>
+<blockquote class="blockquote">
+<p><strong>(Page 1, Introduction, Para 2):</strong> “This paper describes an efficient network architecture and a set of two hyper-parameters in order to build very small, low latency models that can be easily matched to the design requirements for mobile and embedded vision applications.”</p>
+</blockquote>
+<p>This single sentence is the blueprint for the entire paper. The solution isn’t just one thing; it’s a combination of two powerful ideas:</p>
+<ol type="1">
+<li><strong>An Efficient Architecture:</strong> They will propose a new way to build the fundamental layers of a neural network, making them inherently faster and smaller from the ground up.</li>
+<li><strong>Two Simple Hyper-parameters:</strong> They will provide two easy-to-use “control knobs” that allow anyone to customize the architecture. These knobs, which they will later call the <strong>width multiplier</strong> and the <strong>resolution multiplier</strong>, give developers the power to fine-tune the trade-off between speed, size, and accuracy for their specific needs.</li>
+</ol>
+<p>The introduction does its job perfectly. It establishes a clear tension between the academic trend of building massive networks and the practical need for efficient on-device AI. It then promises a clear, elegant, and customizable solution to resolve that tension.</p>
+<p>With the stage set, the paper next takes a look at the “Prior Work”</p>
+</section>
+</section>
+<section id="standing-on-the-shoulders-of-giants-prior-work" class="level2">
+<h2 class="anchored" data-anchor-id="standing-on-the-shoulders-of-giants-prior-work">Standing on the Shoulders of Giants (Prior Work)</h2>
+<p>Great research rarely happens in a vacuum. Before diving into the technical details of their new architecture, the authors take a moment in Section 2 to survey the landscape of efficient neural network design. This shows they are aware of other approaches and helps us understand exactly where MobileNets fits in and what makes it different.</p>
+<section id="two-paths-to-a-smaller-network" class="level3">
+<h3 class="anchored" data-anchor-id="two-paths-to-a-smaller-network">Two Paths to a Smaller Network</h3>
+<p>The paper begins by outlining the two main strategies that researchers were using to create smaller, more efficient models.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><a href="images/2025-09-02-mobilenetv1-reading-notes/paper-prior-work-para1.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-3" title="Prior Work, Para 1"><img src="images/2025-09-02-mobilenetv1-reading-notes/paper-prior-work-para1.PNG" class="img-fluid figure-img" alt="Prior Work, Para 1"></a></p>
+<figcaption>Prior Work, Para 1</figcaption>
+</figure>
+</div>
+<blockquote class="blockquote">
+<p><strong>(Page 1, Section 2, Para 1):</strong> “Many different approaches can be generally categorized into either compressing pretrained networks or training small networks directly. This paper proposes a class of network architectures that allows a model developer to specifically choose a small network that matches the resource restrictions (latency, size) for their application.”</p>
+</blockquote>
+<p>This is a fantastic, high-level summary. Let’s break down these two paths:</p>
+<ol type="1">
+<li><p><strong>The “Compression” Path:</strong> This strategy starts with a big, powerful, pre-trained model (like a VGG or ResNet). Then, it applies a series of clever tricks to shrink it down, like pruning away unimportant connections or using quantization to represent the weights with fewer bits. Think of this as taking a large, high-resolution photo and running it through a compression algorithm to get a smaller JPEG file. You lose some quality, but the file size is much smaller.</p></li>
+<li><p><strong>The “Efficient Design” Path:</strong> This strategy doesn’t start with a big model. Instead, it focuses on designing a network architecture that is small and fast <em>from the very beginning</em>. It’s about building with lighter, more efficient materials from the ground up, rather than trying to slim down a heavyweight construction later.</p></li>
+</ol>
+<p>The authors clearly state that <strong>MobileNets belong to the second category</strong>. They aren’t a trick to compress big models; they are a fundamentally new recipe for building efficient models from scratch.</p>
+<section id="a-focus-on-speed-not-just-size" class="level4">
+<h4 class="anchored" data-anchor-id="a-focus-on-speed-not-just-size">A Focus on Speed, Not Just Size</h4>
+<p>This first paragraph ends with a crucial philosophical point that distinguishes MobileNets from much of the other research at the time.</p>
+<blockquote class="blockquote">
+<p><strong>(Page 1, Section 2, Para 1):</strong> “MobileNets primarily focus on optimizing for latency but also yield small networks. Many papers on small networks focus only on size but do not consider speed.”</p>
+</blockquote>
+<p>This is a subtle but incredibly important distinction. <strong>Latency</strong> is about <em>how fast</em> the model can make a prediction. <strong>Size</strong> is about <em>how much storage space</em> the model takes up. While the two are often related, they are not the same thing.</p>
+<p>A model could be small in file size but use computationally awkward operations that are slow to run on a mobile phone’s processor. The MobileNet team made a conscious decision to prioritize <strong>speed (low latency)</strong> above all else. Their goal was to design an architecture that was not just theoretically efficient, but one that would be blazingly fast on real hardware. As we’ll see, this focus on practical, real-world speed would guide many of their most important design decisions.</p>
+</section>
+</section>
+<section id="the-building-blocks-of-efficiency" class="level3">
+<h3 class="anchored" data-anchor-id="the-building-blocks-of-efficiency">The Building Blocks of Efficiency</h3>
+<p>The authors now zoom in on the second category of research—designing efficient networks from scratch—and acknowledge the key ideas and contemporary papers that influenced their work. This paragraph is a whirlwind tour of the concepts that were “in the air” at the time.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><a href="images/2025-09-02-mobilenetv1-reading-notes/paper-prior-work-para2.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-4" title="Prior Work, Para 2"><img src="images/2025-09-02-mobilenetv1-reading-notes/paper-prior-work-para2.PNG" class="img-fluid figure-img" alt="Prior Work, Para 2"></a></p>
+<figcaption>Prior Work, Para 2</figcaption>
+</figure>
+</div>
+<blockquote class="blockquote">
+<p><strong>(Page 1, Section 2, Para 2):</strong> “MobileNets are built primarily from depthwise separable convolutions initially introduced in [26] and subsequently used in Inception models [13] to reduce the computation in the first few layers…”</p>
+</blockquote>
+<p>This first sentence is the most important. The authors give credit where credit is due, stating that the core component of MobileNets—the <strong>depthwise separable convolution</strong>—was not their invention. We’ll dive deep into what this operation is in the next section, but for now, the key takeaway is that this efficient building block had been seen before. It was even used in a limited capacity in Google’s own famous Inception models. The big innovation of MobileNets was not in inventing this block, but in recognizing its full potential and building an <em>entire architecture</em> out of it.</p>
+<p>The paragraph then lists several other influential approaches to efficient network design:</p>
+<ul>
+<li><strong>Factorized Convolutions (Flattened Networks, Factorized Networks):</strong> This is the general principle that depthwise separable convolutions are based on. “Factorizing” just means breaking down one big, expensive mathematical operation into several smaller, cheaper ones that approximate the original. These other papers explored different ways of doing this, proving that the core idea was powerful.</li>
+<li><strong>The Xception Network:</strong> This is a crucial paper that came out shortly before MobileNets. It took the ideas from the Inception family and pushed them to their logical extreme, showing that depthwise separable convolutions could be scaled up to build state-of-the-art models, not just small ones. This provided strong evidence that this was a powerful and general-purpose building block.</li>
+<li><strong>SqueezeNet:</strong> This was another very famous small network. SqueezeNet’s approach was different; it cleverly used <code>1x1</code> convolutions in a “bottleneck” structure to “squeeze” the number of channels down, do some processing, and then expand them back up. This was another very effective way to reduce the number of parameters and computations.</li>
+</ul>
+<p>By mentioning all these different papers, the authors show that they are part of a vibrant research community that was actively trying to solve the problem of network efficiency. While SqueezeNet used bottlenecks and Inception used complex multi-path modules, the MobileNet authors placed their bet on a single, elegant idea: what happens if we build an entire deep network using nothing but the simplest and most efficient building block we can find—the depthwise separable convolution?</p>
+</section>
+<section id="tricks-of-the-trade-shrinking-squeezing-and-distilling" class="level3">
+<h3 class="anchored" data-anchor-id="tricks-of-the-trade-shrinking-squeezing-and-distilling">Tricks of the Trade: Shrinking, Squeezing, and Distilling</h3>
+<p>To round out their review of prior work, the authors briefly touch on the other major philosophy for creating small models: taking a large, pre-trained network and applying clever techniques to shrink it.</p>
+<div class="quarto-layout-panel" data-layout-ncol="2">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<p><a href="images/2025-09-02-mobilenetv1-reading-notes/paper-prior-work-para3a.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-5"><img src="images/2025-09-02-mobilenetv1-reading-notes/paper-prior-work-para3a.PNG" class="img-fluid"></a></p>
+</div>
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<p><a href="images/2025-09-02-mobilenetv1-reading-notes/paper-prior-work-para3b.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-6"><img src="images/2025-09-02-mobilenetv1-reading-notes/paper-prior-work-para3b.PNG" class="img-fluid"></a></p>
+</div>
+</div>
+</div>
+<blockquote class="blockquote">
+<p>“A different approach for obtaining small networks is shrinking, factorizing or compressing pretrained networks. Compression based on product quantization [36], hashing [2], and pruning, vector quantization and Huffman coding [5] have been proposed in the literature.”</p>
+</blockquote>
+<p>This sounds like a lot of jargon, but the core idea is simple. These are all different methods for “compressing” the information stored in a network’s weights, much like you would compress a large file on your computer.</p>
+<ul>
+<li><strong>Pruning:</strong> Imagine a dense web of connections in the network. Pruning is like a gardener snipping away the weakest, least important connections, leaving behind a sparse but still effective network.</li>
+<li><strong>Quantization:</strong> A typical neural network stores its numbers (weights) with high precision (e.g., 32-bit floating point). Quantization is the process of using fewer bits to store these numbers. This can dramatically reduce the model’s file size, often with little loss in accuracy.</li>
+<li><strong>Huffman Coding:</strong> This is a classic data compression technique (used in things like JPEG and MP3 files) that can be applied to the network’s weights to make the final model file even smaller.</li>
+</ul>
+<p>The authors also mention a fascinating and powerful technique that bridges the gap between the “large model” world and the “small model” world.</p>
+<blockquote class="blockquote">
+<p>“Another method for training small networks is distillation [9] which uses a larger network to teach a smaller network. It is complementary to our approach and is covered in some of our use cases in section 4.”</p>
+</blockquote>
+<p><strong>Knowledge Distillation</strong> is a beautiful idea. Imagine you have a wise, experienced “teacher” model that is very large and accurate, and a small, nimble “student” model (like a MobileNet).</p>
+<p>Instead of training the student on a raw dataset, you have it learn by mimicking the teacher. The teacher provides “soft labels”—not just the final answer, but its confidence and nuances. The student learns to replicate the teacher’s “thought process,” effectively transferring the knowledge from the large model into its own compact form.</p>
+<p>The authors astutely point out that this is <strong>complementary</strong> to their work. MobileNet is the perfect “student” architecture for distillation. They even foreshadow that they will use this exact technique in their experiments later in the paper.</p>
+<p>With this survey complete, the stage is now perfectly set. We understand the problem (the need for efficient on-device AI), the two main schools of thought for solving it (compression vs.&nbsp;efficient design), and where MobileNets fits in. Now, it’s time to dive into the technical heart of the paper: the MobileNet architecture itself.</p>
+</section>
+</section>
+<section id="mobilenet-architecture" class="level2">
+<h2 class="anchored" data-anchor-id="mobilenet-architecture">MobileNet Architecture</h2>
+<p>Now we get to the heart of the paper: the MobileNet architecture itself. In Section 3, the authors introduce the brilliant and efficient building block that makes the entire system work: the <strong>depthwise separable convolution</strong>.</p>
+<p>This sounds complicated, but the core idea is beautifully simple. It’s about taking the standard, workhorse operation of computer vision—the convolution—and breaking it apart into two smaller, much faster steps.</p>
+<p>First, the paper gives us a quick roadmap for the section.</p>
+<blockquote class="blockquote">
+<p><strong>(Page 2, Section 3, Intro):</strong> “In this section we first describe the core layers that MobileNet is built on which are depthwise separable filters. We then describe the MobileNet network structure and conclude with descriptions of the two model shrinking hyper-parameters width multiplier and resolution multiplier.”</p>
+</blockquote>
+<p>They’ll start with the fundamental building block, then show how it’s assembled into a full network, and finally explain the “control knobs” used to customize it.</p>
+<p><a href="images/2025-09-02-mobilenetv1-reading-notes/paper-section-3.1.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-7"><img src="images/2025-09-02-mobilenetv1-reading-notes/paper-section-3.1.PNG" class="img-fluid"></a></p>
+<section id="the-two-jobs-of-a-standard-convolution" class="level3">
+<h3 class="anchored" data-anchor-id="the-two-jobs-of-a-standard-convolution">The Two Jobs of a Standard Convolution</h3>
+<p>Before we can understand the MobileNet way, we need to understand what a <em>standard</em> convolution does. A standard convolution is a powerhouse, but it’s trying to do two very different jobs at the same time:</p>
+<ol type="1">
+<li><strong>It filters spatially:</strong> It scans over an image to find spatial patterns, like edges, corners, textures, or shapes.</li>
+<li><strong>It combines channels:</strong> It mixes information from the input channels to create new, meaningful features in the output channels.</li>
+</ol>
+<p>The MobileNet paper argues that forcing one single operation to do both of these jobs at once is inefficient. The key insight is to “separate” these responsibilities.</p>
+</section>
+<section id="the-mobilenet-way-divide-and-conquer" class="level3">
+<h3 class="anchored" data-anchor-id="the-mobilenet-way-divide-and-conquer">The MobileNet Way: Divide and Conquer</h3>
+<p>This brings us to the core concept of the paper, explained in the first paragraph of Section 3.1.</p>
+<blockquote class="blockquote">
+<p><strong>(Page 2, Section 3.1, Para 1):</strong> “The MobileNet model is based on depthwise separable convolutions which is a form of factorized convolutions which factorize a standard convolution into a depthwise convolution and a 1 × 1 convolution called a pointwise convolution… A standard convolution both filters and combines inputs into a new set of outputs in one step. The depthwise separable convolution splits this into two layers, a separate layer for filtering and a separate layer for combining.”</p>
+</blockquote>
+<p>This is the entire trick in a nutshell. Instead of one big, expensive layer, MobileNet uses two small, cheap layers:</p>
+<ol type="1">
+<li><p><strong>The Depthwise Convolution (The “Filtering” Step):</strong> This first layer handles only the spatial filtering. It glides a filter over the input, but it does so for <strong>each input channel independently</strong>. It doesn’t mix information between channels at all. If the input has 64 channels, this step produces 64 filtered channels, keeping them all separate.</p></li>
+<li><p><strong>The Pointwise Convolution (The “Combining” Step):</strong> This second layer handles the channel mixing. It uses a brilliantly simple and fast <code>1x1</code> convolution. This tiny filter looks at a single pixel and intelligently combines the values from all the channels produced by the depthwise step to create a new, rich feature.</p></li>
+</ol>
+<p>This “factorization”—splitting one big job into two specialized smaller jobs—is the key. The paper states the outcome in no uncertain terms:</p>
+<blockquote class="blockquote">
+<p><strong>(Page 2, Section 3.1, Para 1):</strong> “This factorization has the effect of drastically reducing computation and model size.”</p>
+</blockquote>
+<p>This is the secret sauce. By separating the concerns of filtering and combining, MobileNets achieve a massive reduction in the number of calculations and parameters needed. As we’ll see in the next section, this isn’t just a small improvement; it makes the operation about <strong>8 to 9 times more efficient</strong> than a standard convolution, with almost no loss in accuracy. This is the breakthrough that makes fast, powerful on-device AI possible.</p>
+</section>
+<section id="the-math-of-the-bottleneck-why-standard-convolutions-are-so-expensive" class="level3">
+<h3 class="anchored" data-anchor-id="the-math-of-the-bottleneck-why-standard-convolutions-are-so-expensive">The Math of the Bottleneck: Why Standard Convolutions Are So Expensive</h3>
+<p>To truly appreciate the elegance of the MobileNet solution, we first need to understand the problem in more detail. Why, exactly, is a standard convolution so computationally expensive? The paper now dives into the math to give us a clear answer.</p>
+<p><a href="images/2025-09-02-mobilenetv1-reading-notes/paper-section-3.1-b.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-8"><img src="images/2025-09-02-mobilenetv1-reading-notes/paper-section-3.1-b.PNG" class="img-fluid"></a></p>
+<p>The authors start by defining the pieces involved in a standard convolution layer.</p>
+<blockquote class="blockquote">
+<p><strong>(Page 2, Section 3.1, Para 2-4):</strong> A standard convolutional layer takes as input a <code>D_F × D_F × M</code> feature map <strong>F</strong> and produces a <code>D_G × D_G × N</code> feature map <strong>G</strong>… The standard convolutional layer is parameterized by convolution kernel <strong>K</strong> of size <code>D_K × D_K × M × N</code>…</p>
+</blockquote>
+<p>Let’s quickly translate this math-speak:</p>
+<ul>
+<li><strong>Input Feature Map (F):</strong> This is the input data for the layer. It has a <code>Height</code> (<code>D_F</code>), a <code>Width</code> (<code>D_F</code>), and a number of <code>Channels</code> (<code>M</code>). For the very first layer of a network, this would be your image, and <code>M</code> would be 3 (for Red, Green, and Blue).</li>
+<li><strong>Output Feature Map (G):</strong> This is what the layer produces. It has a <code>Height</code> and <code>Width</code> and a new number of <code>Channels</code> (<code>N</code>).</li>
+<li><strong>Kernel (K):</strong> This is the filter that slides over the input. Its size is <code>D_K × D_K</code>. A common size is 3x3.</li>
+</ul>
+</section>
+<section id="the-cost-formula-that-changes-everything" class="level3">
+<h3 class="anchored" data-anchor-id="the-cost-formula-that-changes-everything">The Cost Formula That Changes Everything</h3>
+<p>Now we get to the most important equation in this section, which calculates the total computational cost of a single standard convolution layer.</p>
+<blockquote class="blockquote">
+<p><strong>(Page 2, Equation 2):</strong> Computational Cost = <code>D_K · D_K · M · N · D_F · D_F</code></p>
+</blockquote>
+<p>This formula looks intimidating, but it’s the key to everything. It tells us that the total number of multiplication operations is the product of:</p>
+<ul>
+<li><code>D_K · D_K</code>: The size of our filter (e.g., 3x3 = 9).</li>
+<li><code>M</code>: The number of channels in our input.</li>
+<li><code>N</code>: The number of channels we want in our output.</li>
+<li><code>D_F · D_F</code>: The size of our input feature map.</li>
+</ul>
+<p>The crucial insight is that all these terms are <strong>multiplied together</strong>. Let’s look at the part of the formula that creates the bottleneck:</p>
+<p><strong><code>... M · N ...</code></strong></p>
+<p>The cost is directly proportional to the number of input channels (<code>M</code>) multiplied by the number of output channels (<code>N</code>). In a deep neural network, these numbers can be very large (e.g., 256, 512, or even 1024). When you multiply two large numbers together, the result is huge. This <code>M x N</code> term is what causes the computational cost to explode.</p>
+<p>As the paper states, this is exactly what MobileNet is designed to fix:</p>
+<blockquote class="blockquote">
+<p><strong>(Page 2, Section 3.1, Para 5):</strong> “MobileNet models address each of these terms and their interactions. First it uses depthwise separable convolutions to break the interaction between the number of output channels and the size of the kernel.”</p>
+</blockquote>
+<p>The phrase <strong>“break the interaction”</strong> is key. The genius of the depthwise separable convolution is that it restructures the operation so that <code>M</code> and <code>N</code> are no longer multiplied together in the most expensive part of the calculation.</p>
+<p>Now that we’ve seen the “before” picture—the math of the expensive standard convolution—we’re perfectly set up to see the “after” picture: the math that makes MobileNets so incredibly efficient.</p>
+</section>
+<section id="the-math-of-efficiency-step-1-the-depthwise-filter" class="level3">
+<h3 class="anchored" data-anchor-id="the-math-of-efficiency-step-1-the-depthwise-filter">The Math of Efficiency, Step 1: The Depthwise Filter</h3>
+<p>Now that we understand why standard convolutions are so costly, we can finally appreciate the genius of the MobileNet approach. The authors now present the math for their two-step “divide and conquer” strategy, and the savings become immediately obvious.</p>
+<p><a href="images/2025-09-02-mobilenetv1-reading-notes/paper-section-3.1-c.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-9"><img src="images/2025-09-02-mobilenetv1-reading-notes/paper-section-3.1-c.PNG" class="img-fluid"></a></p>
+<p>Let’s look at the first step, the <strong>depthwise convolution</strong>, which handles the spatial filtering.</p>
+<blockquote class="blockquote">
+<p><strong>(Page 3, Section 3.1, Para 1):</strong> “Depthwise separable convolution are made up of two layers: depthwise convolutions and pointwise convolutions. We use depthwise convolutions to apply a single filter per each input channel (input depth)…”</p>
+</blockquote>
+<p>This confirms what we discussed earlier. The first step’s job is to filter each channel on its own, without mixing them. If you have an input with 64 channels, this step will use 64 separate filters, one for each channel.</p>
+<section id="the-new-cheaper-cost-formula" class="level4">
+<h4 class="anchored" data-anchor-id="the-new-cheaper-cost-formula">The New, Cheaper Cost Formula</h4>
+<p>The paper then presents the computational cost for just this depthwise filtering step.</p>
+<blockquote class="blockquote">
+<p><strong>(Page 3, Equation 4):</strong> Depthwise Cost = <code>D_K · D_K · M · D_F · D_F</code></p>
+</blockquote>
+<p>Let’s compare this to the original, expensive cost formula from the standard convolution:</p>
+<ul>
+<li><strong>Original Cost:</strong> <code>D_K · D_K · M · N · D_F · D_F</code></li>
+<li><strong>New Depthwise Cost:</strong> <code>D_K · D_K · M · D_F · D_F</code></li>
+</ul>
+<p>The difference is immediately clear. <strong>The <code>N</code> term is gone!</strong></p>
+<p>Why? Because in this step, we are no longer trying to create <code>N</code> new output channels. We are simply filtering the existing <code>M</code> input channels, so we only need <code>M</code> filters.</p>
+<p>The impact of removing <code>N</code> (the number of output channels, which can be a large number like 512) is massive. This single change makes the depthwise filtering step <strong><code>N</code> times cheaper</strong> than a full standard convolution.</p>
+<p>This is a huge first step, but it’s not the whole story. As the paper points out, this layer is efficient but incomplete. It only filters the input channels; it doesn’t combine them to create new, more complex features. That’s the job of the second step: the pointwise convolution. But already, we can see how “breaking the interaction” has led to a dramatic reduction in computational cost.</p>
+</section>
+</section>
+<section id="the-math-of-efficiency-step-2-the-pointwise-combination-and-the-final-payoff" class="level3">
+<h3 class="anchored" data-anchor-id="the-math-of-efficiency-step-2-the-pointwise-combination-and-the-final-payoff">The Math of Efficiency, Step 2: The Pointwise Combination and the Final Payoff</h3>
+<p>We’ve seen that the first step, the depthwise convolution, is incredibly efficient. But as the paper notes, it’s an incomplete solution.</p>
+<p><a href="images/2025-09-02-mobilenetv1-reading-notes/paper-section-3.1-d.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-10"><img src="images/2025-09-02-mobilenetv1-reading-notes/paper-section-3.1-d.PNG" class="img-fluid"></a></p>
+<blockquote class="blockquote">
+<p><strong>(Page 3, Section 3.1, Para 2):</strong> “However it only filters input channels, it does not combine them to create new features. So an additional layer that computes a linear combination of the output of depthwise convolution via a 1 × 1 convolution is needed in order to generate these new features.”</p>
+</blockquote>
+<p>This is where the second part of the block comes in: the <strong>pointwise convolution</strong>. Its job is to take the independently filtered channels from the first step and intelligently mix them together to create a new set of meaningful features. This layer uses a brilliantly simple <code>1x1</code> convolution to accomplish this.</p>
+<section id="the-total-cost-of-efficiency" class="level4">
+<h4 class="anchored" data-anchor-id="the-total-cost-of-efficiency"><strong>The Total Cost of Efficiency</strong></h4>
+<p>The paper now presents the total computational cost of the complete two-step depthwise separable convolution. It’s simply the cost of the depthwise step <em>plus</em> the cost of the pointwise step.</p>
+<blockquote class="blockquote">
+<p><strong>(Page 3, Equation 5):</strong> Total Cost = (<code>D_K · D_K · M · D_F · D_F</code>) + (<code>M · N · D_F · D_F</code>)</p>
+</blockquote>
+<ul>
+<li><strong>Part 1 (Depthwise Cost):</strong> The first term is the cost of filtering, which we already saw is very cheap.</li>
+<li><strong>Part 2 (Pointwise Cost):</strong> The second term is the cost of combining. It’s the cost of a standard convolution, but with the filter size <code>D_K</code> set to 1, making it highly efficient.</li>
+</ul>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>A Quick Note: Where does the pointwise cost (<code>M·N·D_F·D_F</code>) come from?</strong></p>
+<p>A <strong>pointwise convolution</strong> is just a special case of a <strong>standard convolution</strong> where the kernel size is 1x1.</p>
+<p>Remember the original cost formula for a standard convolution?</p>
+<p><code>Standard Cost = D_K · D_K · M · N · D_F · D_F</code></p>
+<p>If we set our kernel size <code>D_K = 1</code> for the pointwise step, the formula becomes:</p>
+<p><code>Pointwise Cost = 1 · 1 · M · N · D_F · D_F</code></p>
+<p>…which simplifies to exactly <code>M · N · D_F · D_F</code>. It’s the same math, just applied to a tiny 1x1 filter, which is what makes it so fast.</p>
+</div>
+</div>
+<p>Now for the moment of truth. How does this new, two-part cost compare to the original, expensive cost of a standard convolution? The paper shows the ratio:</p>
+<blockquote class="blockquote">
+<p><strong>(Page 3, The Ratio Equation):</strong> <code>(New Cost) / (Old Cost) = 1/N + 1/D_K²</code></p>
+</blockquote>
+<p>This simple, elegant formula is the punchline of the entire architectural design. It tells you exactly how much more efficient the MobileNet block is. Let’s plug in some typical numbers:</p>
+<ul>
+<li>MobileNets almost always use 3x3 filters, so <code>D_K = 3</code>, which means <code>D_K² = 9</code>.</li>
+<li>The number of output channels <code>N</code> is usually a large number, like 128, 256, or 512. This makes the <code>1/N</code> term very, very small (close to zero).</li>
+</ul>
+<p>This means the cost ratio is approximately <strong><code>1/9</code></strong>.</p>
+<p>The authors state this incredible result in plain English:</p>
+<blockquote class="blockquote">
+<p><strong>(Page 3, Section 3.1, Final Para):</strong> “MobileNet uses 3 × 3 depthwise separable convolutions which uses between 8 to 9 times less computation than standard convolutions at only a small reduction in accuracy…”</p>
+</blockquote>
+<p>This is the breakthrough. By cleverly splitting one operation into two, MobileNets achieve a nearly <strong>9x reduction in computational cost</strong>. And as their experiments will show, they do this while sacrificing almost no accuracy. This is the fundamental trade-off that makes MobileNets so powerful and is the key reason they can run so effectively on devices with limited computational power.</p>
+</section>
+</section>
+</section>
+<section id="assembling-the-architecture-a-blueprint-for-efficiency" class="level2">
+<h2 class="anchored" data-anchor-id="assembling-the-architecture-a-blueprint-for-efficiency">Assembling the Architecture: A Blueprint for Efficiency</h2>
+<p>Having established the power of their core building block—the depthwise separable convolution—the authors now zoom out in Section 3.2 to show us how these blocks are stacked together to create the full, 28-layer MobileNet.</p>
+<p><a href="images/2025-09-02-mobilenetv1-reading-notes/paper-section-3.2-1.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-11"><img src="images/2025-09-02-mobilenetv1-reading-notes/paper-section-3.2-1.PNG" class="img-fluid"></a></p>
+<p>The design philosophy is one of simplicity and uniformity, using modern best practices to create a clean and effective structure.</p>
+<blockquote class="blockquote">
+<p><strong>(Page 3, Section 3.2, Para 1):</strong> “The MobileNet structure is built on depthwise separable convolutions as mentioned in the previous section except for the first layer which is a full convolution… All layers are followed by a batchnorm and ReLU nonlinearity…”</p>
+</blockquote>
+<p>This paragraph gives us a high-level overview of the network’s construction, which we can break down into a few key principles:</p>
+<ol type="1">
+<li><p><strong>Uniformity is Key:</strong> The network is simply a deep stack of the depthwise separable blocks we just learned about. This clean, repeating pattern makes the architecture easy to understand, scale, and implement. The only exception is the very first layer, which uses a standard convolution. This is a common trick to quickly process the input image and expand its channel depth, creating a rich set of features for the more efficient blocks to work with.</p></li>
+<li><p><strong>Modern Ingredients:</strong> Every convolutional layer (both depthwise and pointwise) is followed by two standard and essential components of modern deep learning:</p>
+<ul>
+<li><strong>BatchNorm (Batch Normalization):</strong> Think of this as a regulator for the data flowing through the network. It keeps the numbers in a healthy range, which dramatically stabilizes and speeds up the training process.</li>
+<li><strong>ReLU (Rectified Linear Unit):</strong> This is the network’s non-linearity. It’s a very simple operation (it just clips all negative values to zero) that allows the network to learn complex, non-linear patterns.</li>
+</ul></li>
+<li><p><strong>Efficient Downsampling:</strong> As an image progresses through a network, its spatial dimensions (height and width) are gradually reduced. Older networks often used separate “pooling” layers for this. MobileNet uses a more modern and efficient technique: <strong>strided convolutions</strong>. By setting the stride to 2 in some of the depthwise layers, the network downsamples the feature map and learns new features at the same time, killing two birds with one stone.</p></li>
+<li><p><strong>A Smart Finish:</strong> At the very end of the network, instead of flattening the final high-dimensional feature map (which would create a huge number of parameters), MobileNet uses <strong>global average pooling</strong>. This simple operation averages each channel down to a single value, creating a compact feature vector that is then fed to the final classifier. This is a highly efficient and effective way to finish the network.</p></li>
+</ol>
+<p>In summary, the MobileNet architecture is an elegant and straightforward stack of its core efficient blocks, seasoned with all the right modern ingredients (BatchNorm, ReLU, strided convolutions, and global average pooling) to make it a robust and high-performing network.</p>
+<section id="from-theory-to-reality-designing-for-real-hardware" class="level3">
+<h3 class="anchored" data-anchor-id="from-theory-to-reality-designing-for-real-hardware">From Theory to Reality: Designing for Real Hardware</h3>
+<p>Having a low theoretical operation count is great, but it’s only half the story. To build a truly fast network, you have to consider the nuts and bolts of how the calculations are actually performed on a physical CPU or GPU. The MobileNet authors display their deep engineering expertise here, explaining how their design is not just mathematically efficient, but also perfectly tailored for modern hardware.</p>
+<div class="quarto-layout-panel" data-layout-ncol="2">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<p><a href="images/2025-09-02-mobilenetv1-reading-notes/paper-section-3.2-2.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-12"><img src="images/2025-09-02-mobilenetv1-reading-notes/paper-section-3.2-2.PNG" class="img-fluid"></a></p>
+</div>
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<p><a href="images/2025-09-02-mobilenetv1-reading-notes/paper-section-3.2-3.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-13"><img src="images/2025-09-02-mobilenetv1-reading-notes/paper-section-3.2-3.PNG" class="img-fluid"></a></p>
+</div>
+</div>
+</div>
+<p>As the authors wisely state:</p>
+<blockquote class="blockquote">
+<p><strong>(Page 3, Section 3.2, Para 2):</strong> “It is not enough to simply define networks in terms of a small number of Mult-Adds. It is also important to make sure these operations can be efficiently implementable.”</p>
+</blockquote>
+<p>This is a golden rule of performance engineering. Some operations are just easier for computer chips to execute quickly. The genius of MobileNet is that its design concentrates the vast majority of its work into the single most hardware-friendly operation available: the <code>1x1</code> convolution.</p>
+<section id="the-superpower-of-the-1x1-convolution" class="level4">
+<h4 class="anchored" data-anchor-id="the-superpower-of-the-1x1-convolution"><strong>The Superpower of the 1x1 Convolution</strong></h4>
+<p>Why is a <code>1x1</code> convolution so special? Because it is mathematically equivalent to a <strong>GEMM (General Matrix Multiply)</strong> operation.</p>
+<p>While “GEMM” might sound like a fancy acronym, it’s just a highly optimized, standardized way of performing matrix multiplication. Matrix multiplication is the single most studied and optimized operation in all of scientific computing. Hardware vendors and software engineers have spent decades creating libraries (like Intel’s MKL and NVIDIA’s cuBLAS) that make this operation run at blistering speeds.</p>
+<blockquote class="blockquote">
+<p><strong>(Page 4, Section 3.2, Para 1):</strong> “Our model structure puts nearly all of the computation into dense 1 × 1 convolutions. This can be implemented with highly optimized general matrix multiply (GEMM) functions.”</p>
+</blockquote>
+<p>This is the key. While a standard <code>3x3</code> convolution <em>can</em> be turned into a GEMM operation, it requires a slow and memory-hungry preparation step called <code>im2col</code>. A <code>1x1</code> convolution, on the other hand, <strong>does not need this step</strong>. It can be mapped directly to a GEMM call, making it incredibly fast and memory-efficient.</p>
+<p>The authors then deliver the knockout punch with some stunning statistics from their architecture (which they detail in Table 2).</p>
+<blockquote class="blockquote">
+<p><strong>(Page 4, Section 3.2, Para 1):</strong> “MobileNet spends 95% of it’s computation time in 1 × 1 convolutions which also has 75% of the parameters…”</p>
+</blockquote>
+<p>This is a masterful piece of engineering. They designed an architecture where:</p>
+<ul>
+<li>The vast majority of the work (<strong>95% of the computation!</strong>) is concentrated in the most efficient, hardware-friendly operation possible (the <code>1x1</code> convolution).</li>
+<li>The less-optimized part (the <code>3x3</code> depthwise convolution) is so cheap that it barely registers in the total runtime.</li>
+</ul>
+<p>This is the difference between an architecture that is merely <em>theoretically</em> efficient and one that is <em>practically</em> fast. By understanding the underlying hardware, the MobileNet team designed a network that wasn’t just smart on paper—it was built for speed in the real world.</p>
+</section>
+</section>
+<section id="the-art-of-training-less-is-more-for-small-models" class="level3">
+<h3 class="anchored" data-anchor-id="the-art-of-training-less-is-more-for-small-models">The Art of Training: Less is More for Small Models</h3>
+<p>Having a great architecture is one thing, but you still need to train it effectively. In this section, the authors share some fascinating insights they discovered about the best way to train their new, lightweight MobileNets. The key takeaway? When it comes to training small models, sometimes less is more.</p>
+<p><a href="images/2025-09-02-mobilenetv1-reading-notes/paper-section-3.2-4.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-14"><img src="images/2025-09-02-mobilenetv1-reading-notes/paper-section-3.2-4.PNG" class="img-fluid"></a></p>
+<section id="a-different-set-of-rules-for-small-models" class="level4">
+<h4 class="anchored" data-anchor-id="a-different-set-of-rules-for-small-models"><strong>A Different Set of Rules for Small Models</strong></h4>
+<p>The team started with a standard, powerful training setup used for giant models like Inception V3. But they quickly realized that this aggressive approach wasn’t right for their smaller MobileNets.</p>
+<blockquote class="blockquote">
+<p><strong>(Page 4, Section 3.2, Para 2):</strong> “However, contrary to training large models we use less regularization and data augmentation techniques because small models have less trouble with overfitting.”</p>
+</blockquote>
+<p>This is the central insight. <strong>Overfitting</strong> is a major concern for large models. They have so much capacity that they can easily “memorize” the training data instead of learning general patterns. To combat this, researchers use heavy <strong>regularization</strong> and <strong>data augmentation</strong>—techniques that make the training task harder to prevent the model from memorizing.</p>
+<p>But small models are different. A MobileNet simply doesn’t have enough parameters to memorize the entire dataset. It is naturally more resistant to overfitting. Therefore, the heavy-handed techniques used for large models are not only unnecessary, they can actually be harmful. It’s like trying to train for a marathon by running with a 100-pound backpack—it’s overkill and can prevent you from learning to run properly.</p>
+<p>The authors found that MobileNets train best with a “gentler” touch:</p>
+<ul>
+<li><strong>Less Augmentation:</strong> They reduced the amount of image distortion used during training, such as limiting the size of small, random crops.</li>
+<li><strong>No Advanced Regularization:</strong> They removed complex regularization tricks like “label smoothing” and “side heads,” which are often needed to tame massive models.</li>
+<li><strong>Careful Weight Decay:</strong> They discovered that applying a standard penalty on large weights (called weight decay or L2 regularization) to the tiny depthwise filters was a bad idea. These filters have very few parameters, and penalizing them too much prevented them from learning useful features.</li>
+</ul>
+<p>This is a brilliant lesson in the art of machine learning. The best training recipe is not one-size-fits-all. A small, efficient model like MobileNet benefits from a more direct and less aggressive training strategy, allowing it to learn the essential patterns in the data without being held back by unnecessarily harsh regularization.</p>
+</section>
+</section>
+<section id="the-blueprint-and-the-receipt-a-look-at-the-numbers" class="level3">
+<h3 class="anchored" data-anchor-id="the-blueprint-and-the-receipt-a-look-at-the-numbers">The Blueprint and the Receipt: A Look at the Numbers</h3>
+<p>Theory is great, but seeing the actual architecture laid out provides a new level of clarity. On page 4, the paper presents two crucial tables. <strong>Table 1</strong> is the <em>blueprint</em> for the standard MobileNet, showing its layer-by-layer construction. <strong>Table 2</strong> is the <em>receipt</em>, detailing the computational cost and parameter distribution, and it perfectly illustrates why the MobileNet design is so brilliant.</p>
+<section id="table-1-the-mobilenet-blueprint" class="level4">
+<h4 class="anchored" data-anchor-id="table-1-the-mobilenet-blueprint"><strong>Table 1: The MobileNet Blueprint</strong></h4>
+<p>This table is the complete, layer-by-layer specification for the baseline MobileNet. While it looks dense, it reveals a clean, logical, and repeating pattern.</p>
+<p><a href="images/2025-09-02-mobilenetv1-reading-notes/paper-table-1.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-15"><img src="images/2025-09-02-mobilenetv1-reading-notes/paper-table-1.PNG" class="img-fluid"></a></p>
+<p>By reading down the columns, we can trace the journey of an image through the network:</p>
+<ul>
+<li><strong>The Start:</strong> The network begins with a standard 3x3 convolution (<code>Conv / s2</code>), which takes the 224x224x3 input image and immediately halves its size to 112x112 while increasing the channels to 32.</li>
+<li><strong>The Core Block:</strong> The rest of the network is a repeating sequence of our new favorite block: a <code>Conv dw</code> (depthwise) followed by a <code>Conv</code> (which is always a 1x1 pointwise convolution). This pattern is the heart of MobileNet.</li>
+<li><strong>Shrinking and Growing:</strong> As we go deeper, the spatial dimensions get progressively smaller (224 -&gt; 112 -&gt; 56 -&gt; 28 -&gt; 14 -&gt; 7), while the number of channels (the depth) gets progressively larger (32 -&gt; 64 -&gt; 128 -&gt; … -&gt; 1024). This is a classic and effective design for CNNs.</li>
+<li><strong>The Finish:</strong> The network ends with a <code>Avg Pool</code> (Global Average Pooling) and a final <code>FC</code> (Fully Connected) layer for classification.</li>
+</ul>
+<p>This blueprint shows a clean, deep, and highly structured architecture built almost entirely from a single, repeating, efficient block.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>You might have noticed the <code>s1</code> and <code>s2</code> in the “Type / Stride” column. This is a shorthand that tells us something very important about how the layer operates: its <strong>stride</strong>.</p>
+<ul>
+<li><strong><code>s1</code> means a stride of 1.</strong> The filter moves one pixel at a time. It slides from one position to the very next, examining every single location meticulously.
+<ul>
+<li><strong>Effect on Image Size:</strong> The output feature map will have the same height and width as the input (assuming a bit of padding is added around the edges). It <em>preserves</em> the spatial dimensions.</li>
+</ul></li>
+<li><strong><code>s2</code> means a stride of 2.</strong> The filter takes a bigger step, moving two pixels at a time. It effectively skips every other pixel.
+<ul>
+<li><strong>Effect on Image Size:</strong> The output feature map will be roughly <strong>half the height and half the width</strong> of the input. This is a very efficient way to shrink or <strong>downsample</strong> the data.</li>
+</ul></li>
+</ul>
+<p>The strategic use of <code>s1</code> and <code>s2</code> is a key part of the architecture’s intelligence:</p>
+<ol type="1">
+<li><p><strong>Layers with <code>s1</code></strong> are used when the network wants to learn more complex features at the <em>current scale</em>. For example, in the middle of the network (the <code>5x</code> block), all the convolutions use <code>s1</code> because the goal is to get much smarter about the 14x14 feature maps without shrinking them.</p></li>
+<li><p><strong>Layers with <code>s2</code></strong> are used at transition points, when the network is ready to summarize the information it has learned and move to a coarser level of detail. This also has a massive benefit for efficiency: by halving the height and width, you quarter the number of pixels, which drastically reduces the computational cost for all the layers that come after it.</p></li>
+</ol>
+<p>Here’s a quick summary:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Notation</th>
+<th style="text-align: left;">Meaning</th>
+<th style="text-align: left;">Effect on Image Size</th>
+<th style="text-align: left;">Purpose in MobileNet</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>s1</strong></td>
+<td style="text-align: left;">Stride 1</td>
+<td style="text-align: left;"><strong>Preserves Size</strong></td>
+<td style="text-align: left;">Learn richer features at the same scale.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>s2</strong></td>
+<td style="text-align: left;">Stride 2</td>
+<td style="text-align: left;"><strong>Halves Size</strong></td>
+<td style="text-align: left;">Downsample and reduce computational cost.</td>
+</tr>
+</tbody>
+</table>
+<p>This clever mix of <code>s1</code> and <code>s2</code> layers allows MobileNet to build up a deep understanding of an image while progressively and efficiently reducing its size.</p>
+</div>
+</div>
+</section>
+<section id="table-2-the-receipt---where-the-money-is-spent" class="level4">
+<h4 class="anchored" data-anchor-id="table-2-the-receipt---where-the-money-is-spent"><strong>Table 2: The Receipt - Where the Money is Spent</strong></h4>
+<p>This second table is the punchline for the entire architectural design. It answers the question: “In this new design, where do the computations and parameters actually live?” The results are stunning.</p>
+<p><a href="images/2025-09-02-mobilenetv1-reading-notes/paper-table-2.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-16"><img src="images/2025-09-02-mobilenetv1-reading-notes/paper-table-2.PNG" class="img-fluid"></a></p>
+<p>Let’s break down this “receipt”:</p>
+<ul>
+<li><strong><code>Conv 1 × 1</code> (Pointwise): The Workhorse</strong>
+<ul>
+<li>This layer accounts for a staggering <strong>94.86% of the computation</strong> and <strong>74.59% of the parameters</strong>. This is the masterful engineering trick we discussed earlier. MobileNet is designed to spend almost all of its time and resources on the <code>1x1</code> convolution, which is the single operation that can be executed most efficiently on modern hardware (via GEMM).</li>
+</ul></li>
+<li><strong><code>Conv DW 3 × 3</code> (Depthwise): The “Almost Free” Filter</strong>
+<ul>
+<li>In contrast, the spatial filtering part of the block is incredibly cheap. It accounts for a tiny <strong>3.06% of the computation</strong> and a negligible <strong>1.06% of the parameters</strong>. This is the entire justification for separating the convolution: the expensive part is isolated into this almost-free operation.</li>
+</ul></li>
+<li><strong><code>Fully Connected</code>: Heavy but Not Slow</strong>
+<ul>
+<li>The final classifier layer holds a significant chunk of the parameters (24.33%), but because it only runs once at the very end on a small vector, it consumes a trivial <strong>0.18% of the computation</strong>.</li>
+</ul></li>
+</ul>
+<p>These two tables, the blueprint and the receipt, provide the ultimate proof of concept. The MobileNet architecture isn’t just a clever idea; it’s a meticulously engineered system that successfully shifts the computational burden onto the most efficient operations possible, resulting in a network that is both powerful and incredibly fast.</p>
+</section>
+</section>
+</section>
+<section id="the-control-knobs-part-1-the-width-multiplier-for-thinner-models" class="level2">
+<h2 class="anchored" data-anchor-id="the-control-knobs-part-1-the-width-multiplier-for-thinner-models">The Control Knobs, Part 1: The Width Multiplier for Thinner Models</h2>
+<p>We’ve seen the brilliant architecture and the smart training strategy. But what truly makes MobileNets a game-changer for developers is its customizability. The paper now introduces the first of two simple yet powerful “control knobs” that allow you to create the perfect-sized model for any application.</p>
+<p>This first knob is called the <strong>width multiplier</strong>, and its job is to make the network “thinner.”</p>
+<div class="quarto-layout-panel" data-layout-ncol="2">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<p><a href="images/2025-09-02-mobilenetv1-reading-notes/paper-section-3.3-1.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-17"><img src="images/2025-09-02-mobilenetv1-reading-notes/paper-section-3.3-1.PNG" class="img-fluid"></a></p>
+</div>
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<p><a href="images/2025-09-02-mobilenetv1-reading-notes/paper-section-3.3-2.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-18"><img src="images/2025-09-02-mobilenetv1-reading-notes/paper-section-3.3-2.PNG" class="img-fluid"></a></p>
+</div>
+</div>
+</div>
+<section id="one-knob-to-rule-them-all" class="level3">
+<h3 class="anchored" data-anchor-id="one-knob-to-rule-them-all">One Knob to Rule Them All</h3>
+<p>The baseline MobileNet is already small and fast, but what if you need something <em>even smaller</em> and <em>even faster</em> for a particularly demanding task, like real-time augmented reality on a low-end phone?</p>
+<blockquote class="blockquote">
+<p><strong>(Page 4, Section 3.3, Para 1):</strong> “In order to construct these smaller and less computationally expensive models we introduce a very simple parameter α called width multiplier. The role of the width multiplier α is to thin a network uniformly at each layer.”</p>
+</blockquote>
+<p>The idea is incredibly simple and elegant. The width multiplier, represented by the Greek letter alpha (<strong>α</strong>), is a single number (between 0 and 1) that uniformly reduces the number of channels in every single layer of the network.</p>
+<p>For example, if you choose <strong>α = 0.5</strong>:</p>
+<ul>
+<li>A layer that originally had 64 channels will now have <code>0.5 * 64 = 32</code> channels.</li>
+<li>A layer that had 128 channels will now have <code>0.5 * 128 = 64</code> channels.</li>
+</ul>
+<p>You simply decide on a value for <code>α</code>, and the entire network is scaled down proportionally. This is a much more principled way to shrink a network than just randomly removing layers.</p>
+</section>
+<section id="the-power-of-quadratic-scaling" class="level3">
+<h3 class="anchored" data-anchor-id="the-power-of-quadratic-scaling">The Power of Quadratic Scaling</h3>
+<p>Here’s where things get really interesting. When you make the network half as “wide,” you might expect it to become twice as efficient. But the effect is much more dramatic. The paper reveals a crucial mathematical insight:</p>
+<blockquote class="blockquote">
+<p><strong>(Page 4, Section 3.3, Para 2):</strong> “Width multiplier has the effect of reducing computational cost and the number of parameters quadratically by roughly α².”</p>
+</blockquote>
+<p>This is the punchline. The cost doesn’t scale linearly; it scales <strong>quadratically (by α²)</strong>.</p>
+<p>Let’s see what that means in practice:</p>
+<ul>
+<li>If you set <strong>α = 0.75</strong>, the cost is reduced by <code>0.75² ≈ 0.56</code>. The model becomes almost <strong>twice as fast</strong>.</li>
+<li>If you set <strong>α = 0.5</strong>, the cost is reduced by <code>0.5² = 0.25</code>. The model becomes <strong>four times as fast</strong> and has four times fewer parameters.</li>
+<li>If you set <strong>α = 0.25</strong>, the cost is reduced by <code>0.25² ≈ 0.06</code>. The model becomes over <strong>16 times as fast</strong>.</li>
+</ul>
+<p>This quadratic scaling gives developers an incredibly powerful tool. With one simple number, you can generate a whole spectrum of models, from the full-sized, most accurate version (<code>α = 1.0</code>) down to tiny, lightning-fast versions, all while knowing that you’re shrinking the network in a smart, uniform way.</p>
+<p>It’s important to note, as the paper points out, that you use the width multiplier to define a new, smaller architecture that must then be <strong>trained from scratch</strong>. But now, let’s look at the second control knob, which works in a completely different but equally powerful way.</p>
+</section>
+</section>
+<section id="the-control-knobs-part-2-the-resolution-multiplier-for-faster-processing" class="level2">
+<h2 class="anchored" data-anchor-id="the-control-knobs-part-2-the-resolution-multiplier-for-faster-processing">The Control Knobs, Part 2: The Resolution Multiplier for Faster Processing</h2>
+<p>The width multiplier (<code>α</code>) gives us a powerful way to make a network thinner. But the MobileNet authors provide a second, complementary control knob that is even more intuitive: the <strong>resolution multiplier</strong>.</p>
+<div class="quarto-layout-panel" data-layout-ncol="2">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<p><a href="images/2025-09-02-mobilenetv1-reading-notes/paper-section-3.4-1.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-19"><img src="images/2025-09-02-mobilenetv1-reading-notes/paper-section-3.4-1.PNG" class="img-fluid"></a></p>
+</div>
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<p><a href="images/2025-09-02-mobilenetv1-reading-notes/paper-section-3.4-2.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-20"><img src="images/2025-09-02-mobilenetv1-reading-notes/paper-section-3.4-2.PNG" class="img-fluid"></a></p>
+</div>
+</div>
+</div>
+<p>The idea is incredibly simple: if you want the network to run faster, just feed it a smaller image!</p>
+<blockquote class="blockquote">
+<p><strong>(Page 4, Section 3.4, Para 1):</strong> “The second hyper-parameter to reduce the computational cost of a neural network is a resolution multiplier ρ. We apply this to the input image and the internal representation of every layer is subsequently reduced by the same multiplier.”</p>
+</blockquote>
+<p>The resolution multiplier, represented by the Greek letter rho (<strong>ρ</strong>), isn’t a number you set directly. Instead, you “implicitly” set it by choosing the input resolution for your images.</p>
+<ul>
+<li>The baseline resolution is <strong>224x224</strong> (<code>ρ = 1.0</code>).</li>
+<li>If you choose to use <strong>192x192</strong> images, you’ve implicitly set <code>ρ ≈ 0.857</code>.</li>
+<li>If you choose to use <strong>160x160</strong> images, you’ve implicitly set <code>ρ ≈ 0.714</code>.</li>
+</ul>
+<p>This size reduction at the input then propagates through the entire network, making every single feature map smaller and faster to process.</p>
+<section id="another-quadratic-win" class="level4">
+<h4 class="anchored" data-anchor-id="another-quadratic-win">Another Quadratic Win</h4>
+<p>Just like the width multiplier, the resolution multiplier has a powerful quadratic effect on the computational cost.</p>
+<blockquote class="blockquote">
+<p><strong>(Page 5, Section 3.4, Para 2):</strong> “Resolution multiplier has the effect of reducing computational cost by ρ².”</p>
+</blockquote>
+<p>This is because the computation is proportional to the number of pixels in the feature maps, which is <code>height × width</code>. When you reduce both the height and width by a factor of <code>ρ</code>, the total number of pixels is reduced by <code>ρ²</code>.</p>
+<ul>
+<li><strong>Example:</strong> If you switch from 224x224 images to 160x160 (<code>ρ ≈ 0.714</code>), you reduce the computational cost by a factor of <code>ρ² ≈ 0.51</code>. You’ve cut the work the network has to do in <strong>half</strong> just by giving it a smaller picture to look at.</li>
+</ul>
+</section>
+<section id="the-grand-finale-putting-it-all-together" class="level3">
+<h3 class="anchored" data-anchor-id="the-grand-finale-putting-it-all-together">The Grand Finale: Putting It All Together</h3>
+<p>The paper provides a brilliant summary in <strong>Table 3</strong>, showing the compounding effect of all these efficiency innovations on a single, typical layer from the middle of the network. This table is the ultimate “before and after” picture.</p>
+<p><a href="images/2025-09-02-mobilenetv1-reading-notes/paper-table-3.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-21"><img src="images/2025-09-02-mobilenetv1-reading-notes/paper-table-3.PNG" class="img-fluid"></a></p>
+<p>Let’s walk through it step-by-step, seeing how each modification slashes the cost:</p>
+<ol type="1">
+<li><strong>Baseline (Standard Convolution):</strong> We start with an old-school, standard 3x3 convolution. For this one layer, it costs a massive <strong>462 Million</strong> Mult-Adds and requires <strong>2.36 Million</strong> parameters.</li>
+<li><strong>Add Depthwise Separable Conv:</strong> We swap the standard convolution for the efficient MobileNet block. The cost plummets to <strong>52.3M</strong> Mult-Adds and <strong>0.27M</strong> parameters. That’s a nearly <strong>9x</strong> reduction in computation, right off the bat!</li>
+<li><strong>Add Width Multiplier (α = 0.75):</strong> Now, we make the layer “thinner.” The cost drops again to <strong>29.6M</strong> Mult-Adds, a further reduction of almost half, just as the <code>α²</code> rule predicted.</li>
+<li><strong>Add Resolution Multiplier (ρ = 0.714):</strong> Finally, we process a smaller feature map through this thinner layer. The cost is halved one more time, down to a mere <strong>15.1M</strong> Mult-Adds.</li>
+</ol>
+<p>The final result is staggering. A layer that would have cost <strong>462 Million</strong> operations in a traditional CNN now costs just <strong>15 Million</strong> in a scaled-down MobileNet. That’s a <strong>30-fold reduction in computation</strong>.</p>
+<p>This powerful combination—an efficient core block and two simple, intuitive control knobs—is what gives developers the unprecedented ability to design a network that perfectly fits the performance constraints of any device. With the theory now fully explained, the paper turns to the experiments to prove that these models aren’t just efficient, but also highly accurate.</p>
+</section>
+</section>
+<section id="the-experiments-part-1-putting-the-theory-to-the-test" class="level2">
+<h2 class="anchored" data-anchor-id="the-experiments-part-1-putting-the-theory-to-the-test">The Experiments, Part 1: Putting the Theory to the Test</h2>
+<p>The theory behind MobileNets is elegant, the math is compelling, but the ultimate question is always: <em>does it actually work?</em> And how well does it work compared to other approaches? In Section 4, the paper shifts from design to rigorous experimentation, providing the hard data to justify its core ideas.</p>
+<p>The first set of experiments in Section 4.1 is designed to answer two fundamental questions:</p>
+<ol type="1">
+<li>Is the depthwise separable convolution <em>really</em> a good trade-off?</li>
+<li>Is making a network “thinner” truly better than making it “shallower”?</li>
+</ol>
+<section id="justifying-the-secret-sauce-is-the-trade-off-worth-it" class="level3">
+<h3 class="anchored" data-anchor-id="justifying-the-secret-sauce-is-the-trade-off-worth-it">Justifying the Secret Sauce: Is the Trade-Off Worth It?</h3>
+<p>First, the authors need to prove that their core building block is a smart choice. Is the massive gain in efficiency worth the potential drop in accuracy? To find out, they compare two models: a “Conv MobileNet” built with expensive standard convolutions, and the real MobileNet built with their efficient blocks. The results in <strong>Table 4</strong> are a knockout.</p>
+<div class="quarto-layout-panel" data-layout-ncol="2">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<p><a href="images/2025-09-02-mobilenetv1-reading-notes/paper-section-4.1-1.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-22"><img src="images/2025-09-02-mobilenetv1-reading-notes/paper-section-4.1-1.PNG" class="img-fluid"></a></p>
+</div>
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<p><a href="images/2025-09-02-mobilenetv1-reading-notes/paper-table-4.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-23"><img src="images/2025-09-02-mobilenetv1-reading-notes/paper-table-4.PNG" class="img-fluid"></a></p>
+</div>
+</div>
+</div>
+<blockquote class="blockquote">
+<p><strong>(Page 5, Section 4.1, Para 1-2):</strong> “First we show results for MobileNet with depthwise separable convolutions compared to a model built with full convolutions. In Table 4 we see that using depthwise separable convolutions compared to full convolutions only reduces accuracy by 1% on ImageNet was saving tremendously on mult-adds and parameters.”</p>
+</blockquote>
+<p>Let’s break down that trade-off:</p>
+<ul>
+<li><strong>The Cost:</strong> They sacrificed a mere <strong>1.1%</strong> in ImageNet accuracy (71.7% -&gt; 70.6%).</li>
+<li><strong>The Reward:</strong> In return, they got a network that was <strong>~8.5 times faster</strong> (fewer Mult-Adds) and <strong>~7 times smaller</strong> (fewer Parameters).</li>
+</ul>
+<p>This is a phenomenal result. It’s like being offered a car that’s 99% as fast as a supercar but gets 8 times the gas mileage and costs 7 times less. It’s an overwhelmingly positive trade-off and the ultimate validation of the paper’s core premise.</p>
+<section id="a-smarter-way-to-shrink-thinner-vs.-shallower" class="level4">
+<h4 class="anchored" data-anchor-id="a-smarter-way-to-shrink-thinner-vs.-shallower"><strong>A Smarter Way to Shrink: Thinner vs.&nbsp;Shallower</strong></h4>
+<p>Next, the authors justify their choice of the “width multiplier.” If you have a fixed computational budget, what’s a better way to make a model smaller?</p>
+<ul>
+<li>Make it <strong>thinner</strong> by reducing the number of channels in every layer?</li>
+<li>Or make it <strong>shallower</strong> by removing entire layers from the network?</li>
+</ul>
+<p>To answer this, they create two models with a nearly identical computational budget: a “thinner” MobileNet (using <code>α = 0.75</code>) and a “shallower” MobileNet (with 5 layers removed from the middle).</p>
+<p><a href="images/2025-09-02-mobilenetv1-reading-notes/paper-section-4.1-2.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-24"><img src="images/2025-09-02-mobilenetv1-reading-notes/paper-section-4.1-2.PNG" class="img-fluid"></a></p>
+<blockquote class="blockquote">
+<p><strong>(Page 5, Section 4.1, Para 3):</strong> “Table 5 shows that at similar computation and number of parameters, that making MobileNets thinner is 3% better than making them shallower.”</p>
+</blockquote>
+<p>The results from <strong>Table 5</strong> were decisive. For the same computational cost, the <strong>thinner model was 3.1% more accurate</strong> than the shallower one.</p>
+<p><a href="images/2025-09-02-mobilenetv1-reading-notes/paper-table-5.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-25"><img src="images/2025-09-02-mobilenetv1-reading-notes/paper-table-5.PNG" class="img-fluid"></a></p>
+<p>This is a crucial design lesson. It suggests that <strong>maintaining the network’s depth is vital for its performance</strong>. It’s better to have many “thin” layers than a few “fat” ones. This experiment provides the perfect justification for using the width multiplier as the primary, principled way to scale down the MobileNet architecture.</p>
+<p>These two initial experiments are foundational. They prove that MobileNet’s core building block is a massive win and that the proposed method for scaling it (making it thinner) is the right approach.</p>
+</section>
+</section>
+</section>
+<section id="the-experiments-part-2-a-universe-of-efficient-models" class="level2">
+<h2 class="anchored" data-anchor-id="the-experiments-part-2-a-universe-of-efficient-models">The Experiments, Part 2: A Universe of Efficient Models</h2>
+<p>Having justified their core design choices, the authors now unleash the full power of their two “control knobs”—the width and resolution multipliers. This section demonstrates how these simple hyper-parameters create a rich ecosystem of 16 different models, allowing developers to find the perfect balance of speed, size, and accuracy for any conceivable task.</p>
+<section id="mapping-the-trade-offs-the-power-of-predictable-scaling" class="level3">
+<h3 class="anchored" data-anchor-id="mapping-the-trade-offs-the-power-of-predictable-scaling">Mapping the Trade-Offs: The Power of Predictable Scaling</h3>
+<p>First, the paper presents the results of applying each knob independently.</p>
+<div class="quarto-layout-panel" data-layout-ncol="2">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<p><a href="images/2025-09-02-mobilenetv1-reading-notes/paper-table-6.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-26"><img src="images/2025-09-02-mobilenetv1-reading-notes/paper-table-6.PNG" class="img-fluid"></a></p>
+</div>
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<p><a href="images/2025-09-02-mobilenetv1-reading-notes/paper-table-7.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-27"><img src="images/2025-09-02-mobilenetv1-reading-notes/paper-table-7.PNG" class="img-fluid"></a></p>
+</div>
+</div>
+</div>
+<ul>
+<li><p><strong>Table 6 (The Width Multiplier <code>α</code>):</strong> This table shows what happens as you make the network progressively “thinner” by decreasing <code>α</code> from 1.0 down to 0.25. The key finding is that the accuracy “drops off smoothly.” This is fantastic news. It means the trade-off is graceful and predictable. There are no sudden, catastrophic drops in performance, allowing a developer to confidently tune the knob to meet their latency budget.</p></li>
+<li><p><strong>Table 7 (The Resolution Multiplier <code>ρ</code>):</strong> This table shows the results of shrinking the input image size from 224x224 down to 128x128. The story is the same: accuracy “drops off smoothly across resolution.” Again, this provides a predictable and reliable way to gain speed.</p></li>
+</ul>
+<p>But the real magic happens when you combine them. <strong>Figure 4</strong> is the ultimate summary of the MobileNet family’s performance.</p>
+<p><a href="images/2025-09-02-mobilenetv1-reading-notes/paper-figure-4.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-28"><img src="images/2025-09-02-mobilenetv1-reading-notes/paper-figure-4.PNG" class="img-fluid"></a></p>
+<p>This single graph plots all 16 models, showing the relationship between their computational cost (Mult-Adds) and their accuracy. The key takeaway is the shape of the curve: on this plot with a logarithmic x-axis, the points form an almost <strong>perfectly straight line</strong>.</p>
+<p>This “log-linear” relationship is a developer’s dream. It means that for every <em>multiplicative</em> decrease in speed (e.g., making the model 10x faster), you get a predictable, <em>additive</em> decrease in accuracy (e.g., losing 15% accuracy). This turns the art of choosing a model into a science. You can look at this chart and say, “My phone has a budget of 100 Million Mult-Adds; I can expect to get about 63% accuracy.”</p>
+<p><strong>Figure 5</strong> tells the other half of the story, plotting accuracy against model size (number of parameters).</p>
+<p><a href="images/2025-09-02-mobilenetv1-reading-notes/paper-figure-5.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-29"><img src="images/2025-09-02-mobilenetv1-reading-notes/paper-figure-5.PNG" class="img-fluid"></a></p>
+<p>This chart shows that model size is determined only by the width multiplier <code>α</code>, creating distinct vertical clusters. Within each size budget, you can then use the resolution multiplier to further trade latency for accuracy. Together, these two figures provide a complete map for navigating the MobileNet universe.</p>
+<section id="the-main-event-mobilenet-vs.-the-world" class="level4">
+<h4 class="anchored" data-anchor-id="the-main-event-mobilenet-vs.-the-world"><strong>The Main Event: MobileNet vs.&nbsp;The World</strong></h4>
+<p>So, how do these new, efficient models stack up against the famous architectures of the day? The paper provides a head-to-head comparison in <strong>Table 8</strong> and <strong>Table 9</strong>.</p>
+<p><strong>Table 8</strong> compares the full-size baseline MobileNet to the heavyweights:</p>
+<p><a href="images/2025-09-02-mobilenetv1-reading-notes/paper-table-8.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-30"><img src="images/2025-09-02-mobilenetv1-reading-notes/paper-table-8.PNG" class="img-fluid"></a></p>
+<ul>
+<li><strong>vs.&nbsp;VGG16:</strong> MobileNet achieves nearly the same accuracy (70.6% vs.&nbsp;71.5%) while being <strong>32 times smaller</strong> and <strong>27 times faster</strong>. This is a revolutionary leap in efficiency.</li>
+<li><strong>vs.&nbsp;GoogLeNet:</strong> MobileNet is <strong>more accurate</strong>, <strong>smaller</strong>, and <strong>over 2.5 times faster</strong>. It’s a clean sweep.</li>
+</ul>
+<p>But what about the smaller MobileNet variants? <strong>Table 9</strong> compares a shrunk-down MobileNet (<code>α=0.5</code>, 160x160 resolution) to other models famous for their small size:</p>
+<p><a href="images/2025-09-02-mobilenetv1-reading-notes/paper-table-9.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-31"><img src="images/2025-09-02-mobilenetv1-reading-notes/paper-table-9.PNG" class="img-fluid"></a></p>
+<ul>
+<li><strong>vs.&nbsp;AlexNet:</strong> The small MobileNet is <strong>3% more accurate</strong> while being <strong>45 times smaller</strong> and <strong>9.4 times faster</strong>.</li>
+<li><strong>vs.&nbsp;SqueezeNet:</strong> SqueezeNet was a celebrated small model. Yet, the small MobileNet is <strong>nearly 3% more accurate</strong> at the <strong>same size</strong>, while being a staggering <strong>22 times faster</strong> in terms of computation.</li>
+</ul>
+<p>The conclusion from these tables is undeniable. The MobileNet family doesn’t just create a single good model; it establishes a new state-of-the-art across the <em>entire spectrum</em> of performance. Whether you need a full-size competitor to VGG or a tiny model to rival SqueezeNet, the MobileNet architecture provides a superior solution. It proved that efficiency and high performance were not mutually exclusive.</p>
+</section>
+</section>
+</section>
+<section id="beyond-classification-a-versatile-tool-for-the-real-world" class="level2">
+<h2 class="anchored" data-anchor-id="beyond-classification-a-versatile-tool-for-the-real-world">Beyond Classification: A Versatile Tool for the Real World</h2>
+<p>Having firmly established MobileNet’s dominance on the standard ImageNet benchmark, the paper spends the remainder of the experiments section (Sections 4.3 through 4.7) demonstrating its incredible versatility. The goal is to prove that MobileNet isn’t just a one-trick pony for classification; it’s a powerful and efficient “backbone” that can be adapted to a wide variety of real-world computer vision tasks.</p>
+<p>The authors put MobileNet to the test on a diverse set of challenges, and it excels in every single one. Here’s a quick summary of the highlights:</p>
+<ul>
+<li><p><strong>Fine-Grained Recognition (Stanford Dogs dataset):</strong> MobileNet proves it can handle the subtle and difficult task of distinguishing between 120 different breeds of dogs, achieving near state-of-the-art results with a fraction of the computational cost.</p></li>
+<li><p><strong>Large-Scale Geolocalization (PlaNet):</strong> When used as a drop-in replacement for the massive Inception V3 model in the PlaNet system (which determines where a photo was taken), MobileNet delivers nearly the same performance while being <strong>4 times smaller</strong> and <strong>10 times faster</strong>.</p></li>
+<li><p><strong>Face Attributes:</strong> Using a powerful technique called “knowledge distillation,” the authors show they can train a tiny MobileNet to mimic a huge, complex in-house face attribute model. The result is a model that performs just as well as the original but is up to <strong>100 times more efficient</strong>.</p></li>
+<li><p><strong>Object Detection (COCO dataset):</strong> When integrated into modern object detection systems like SSD and Faster R-CNN, MobileNet achieves comparable results to much larger backbones like VGG and Inception V2, but with a dramatic reduction in complexity and speed.</p></li>
+<li><p><strong>Face Embeddings (FaceNet):</strong> Finally, they show that a MobileNet-based model can be trained to generate high-quality facial recognition embeddings, rivaling the famous FaceNet model but in a package small enough for mobile deployment.</p></li>
+</ul>
+<p>The message from these experiments is loud and clear: <strong>MobileNet is a universally effective feature extractor.</strong> Its efficiency does not come at the cost of its ability to learn powerful and generalizable representations of the visual world.</p>
+</section>
+<section id="conclusion-the-legacy-of-mobilenet" class="level2">
+<h2 class="anchored" data-anchor-id="conclusion-the-legacy-of-mobilenet">Conclusion: The Legacy of MobileNet</h2>
+<p>The MobileNet paper is more than just a description of a clever architecture. It’s a masterclass in principled, practical, and impactful research. By starting from a simple yet powerful insight—that the two core jobs of a convolution can be separated—the authors created not just a single model, but an entire philosophy for designing efficient neural networks.</p>
+<p>Let’s recap the journey:</p>
+<ol type="1">
+<li><p><strong>The Core Idea:</strong> They replaced the expensive, monolithic standard convolution with a lightweight, two-part alternative called the <strong>depthwise separable convolution</strong>, achieving a nearly <strong>9x gain in efficiency</strong> with minimal loss in accuracy.</p></li>
+<li><p><strong>Smart Design:</strong> They built a clean, deep architecture that was not only theoretically efficient but also meticulously engineered to run at maximum speed on real hardware by concentrating its workload on highly optimized <code>1x1</code> convolutions.</p></li>
+<li><p><strong>Unprecedented Flexibility:</strong> They introduced two simple but powerful “control knobs”—the <strong>width and resolution multipliers</strong>—that allow any developer to easily generate a whole family of models, finding the perfect trade-off between speed, size, and accuracy for their specific needs.</p></li>
+<li><p><strong>Proven Performance:</strong> Through extensive experiments, they proved that MobileNets outperform their larger, more cumbersome predecessors and are a versatile tool that excels at a wide range of computer vision tasks, from object detection to facial recognition.</p></li>
+</ol>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/hassaanbinaslam\.github\.io\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<script src="https://utteranc.es/client.js" repo="hassaanbinaslam/myblog_utterances" issue-term="pathname" theme="github-light" crossorigin="anonymous" async="">
+</script>
+</div> <!-- /content -->
+<script>var lightboxQuarto = GLightbox({"closeEffect":"zoom","descPosition":"bottom","loop":false,"openEffect":"zoom","selector":".lightbox"});
+(function() {
+  let previousOnload = window.onload;
+  window.onload = () => {
+    if (previousOnload) {
+      previousOnload();
+    }
+    lightboxQuarto.on('slide_before_load', (data) => {
+      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+      const href = trigger.getAttribute('href');
+      if (href !== null) {
+        const imgEl = window.document.querySelector(`a[href="${href}"] img`);
+        if (imgEl !== null) {
+          const srcAttr = imgEl.getAttribute("src");
+          if (srcAttr && srcAttr.startsWith("data:")) {
+            slideConfig.href = srcAttr;
+          }
+        }
+      } 
+    });
+  
+    lightboxQuarto.on('slide_after_load', (data) => {
+      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(slideNode);
+      }
+    });
+  
+  };
+  
+})();
+          </script>
+
+
+
+
+</body></html>
