@@ -239,7 +239,7 @@ gtag('config', 'G-D1ST9BH6HX', { 'anonymize_ip': true});
 <h1>Introduction</h1>
 <p>The following diagram shows how a model is called using AWS serverless architecture. <br><br> <img src="images/2022-06-17-sagemaker-endpoint/serverless-architecture.png" class="img-fluid" alt="serverless-architecture"></p>
 <p>Starting from the client, an application calls the AWS Lambda Function URL and passes parameter values. The Lambda function parses the request and passes it to SageMaker model endpoint. This endpoint can be hosted on an EC2 instance or you have the option to make it serverless. Serverless endpoints behave similarly to Lambda functions. Once a request is received by the endpoint it will perform the prediction and return the predicted values to Lambda. The Lambda function then parses the returned values and sends the final response back to the client.</p>
-<p>To train a model using Amazon SageMaker you can follow my other post <a href="https://hassaanbinaslam.github.io/myblog/aws/ml/sagemaker/2022/06/08/sagemaker-training-overview.html">Demystifying Amazon SageMaker Training for scikit-learn Lovers</a>. There I have trained SageMaker Linear Learner model on Boston housing dataset.</p>
+<p>To train a model using Amazon SageMaker you can follow my other post <a href="https://hassaanbinaslam.github.io/aws/ml/sagemaker/2022/06/08/sagemaker-training-overview.html">Demystifying Amazon SageMaker Training for scikit-learn Lovers</a>. There I have trained SageMaker Linear Learner model on Boston housing dataset.</p>
 <p><code>Note that this post assumes that you have already trained a model and is available in SageMaker model repository.</code></p>
 </section>
 <section id="deploy-sagemaker-serverless-endpoint" class="level1">

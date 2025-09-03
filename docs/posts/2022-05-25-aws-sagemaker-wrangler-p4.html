@@ -206,11 +206,11 @@ gtag('config', 'G-D1ST9BH6HX', { 'anonymize_ip': true});
 <section id="about" class="level1">
 <h1>About</h1>
 <p>This is a detailed guide on using <strong>AWS SageMaker Data Wrangler</strong> service to prepare data for machine learning models. SageMaker Data Wrangler is a multipurpose tool with which you can * import data from multiple sources * explore data with visualizations * apply transformations * export data for ml training</p>
-<p>This guide is divided into five parts * <a href="https://hassaanbinaslam.github.io/myblog/aws/ml/sagemaker/2022/05/17/aws-sagemaker-wrangler-p1.html">Part 1: Prepare synthetic data and place it on multiple sources</a> * <a href="https://hassaanbinaslam.github.io/myblog/aws/ml/sagemaker/2022/05/23/aws-sagemaker-wrangler-p2.html">Part 2: Import data from multiple sources using Data Wrangler</a> * <a href="https://hassaanbinaslam.github.io/myblog/aws/ml/sagemaker/2022/05/24/aws-sagemaker-wrangler-p3.html">Part 3: Explore data with Data Wrangler visualizations</a> * <strong>Part 4: Preprocess data using Data Wrangler (You are here)</strong> * <a href="https://hassaanbinaslam.github.io/myblog/aws/ml/sagemaker/2022/05/26/aws-sagemaker-wrangler-p5.html">Part 5: Export data for ML training</a></p>
+<p>This guide is divided into five parts * <a href="https://hassaanbinaslam.github.io/aws/ml/sagemaker/2022/05/17/aws-sagemaker-wrangler-p1.html">Part 1: Prepare synthetic data and place it on multiple sources</a> * <a href="https://hassaanbinaslam.github.io/aws/ml/sagemaker/2022/05/23/aws-sagemaker-wrangler-p2.html">Part 2: Import data from multiple sources using Data Wrangler</a> * <a href="https://hassaanbinaslam.github.io/aws/ml/sagemaker/2022/05/24/aws-sagemaker-wrangler-p3.html">Part 3: Explore data with Data Wrangler visualizations</a> * <strong>Part 4: Preprocess data using Data Wrangler (You are here)</strong> * <a href="https://hassaanbinaslam.github.io/aws/ml/sagemaker/2022/05/26/aws-sagemaker-wrangler-p5.html">Part 5: Export data for ML training</a></p>
 </section>
 <section id="part-4-preprocess-data-using-data-wrangler" class="level1">
 <h1>Part 4: Preprocess data using Data Wrangler</h1>
-<p>We will continue from where we left in <a href="https://hassaanbinaslam.github.io/myblog/aws/ml/sagemaker/2022/05/24/aws-sagemaker-wrangler-p3.html">part-3</a>. Open <a href="https://github.com/hassaanbinaslam/myblog/blob/master/_notebooks/datasets/2022-05-23-aws-sagemaker-wrangler-p2/customer-churn-p3.flow">customer-churn.flow</a> file in AWS SageMaker Data Wrangler console. Once opened our flow will look like this</p>
+<p>We will continue from where we left in <a href="https://hassaanbinaslam.github.io/aws/ml/sagemaker/2022/05/24/aws-sagemaker-wrangler-p3.html">part-3</a>. Open <a href="https://github.com/hassaanbinaslam/myblog/blob/master/_notebooks/datasets/2022-05-23-aws-sagemaker-wrangler-p2/customer-churn-p3.flow">customer-churn.flow</a> file in AWS SageMaker Data Wrangler console. Once opened our flow will look like this</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="images/2022-05-25-aws-sagemaker-wrangler-p4/customer-churn.png" class="img-fluid figure-img"></p>
@@ -227,7 +227,7 @@ gtag('config', 'G-D1ST9BH6HX', { 'anonymize_ip': true});
 </ul>
 <section id="remove-redundant-columns" class="level2">
 <h2 class="anchored" data-anchor-id="remove-redundant-columns">Remove redundant columns</h2>
-<p>When we made joins between tables (see <a href="https://hassaanbinaslam.github.io/myblog/aws/ml/sagemaker/2022/05/23/aws-sagemaker-wrangler-p2.html">part-2</a>) it resulted in some redundant columns CustomerID_* . We will remove them first. For this click on plus sign beside 2nd Join, and select <strong>Add Transform</strong>. From the next transform UI clink <strong>Add Step</strong> and then search for transformer <strong>Manage Column</strong>. Inside Manage Columns transformer select</p>
+<p>When we made joins between tables (see <a href="https://hassaanbinaslam.github.io/aws/ml/sagemaker/2022/05/23/aws-sagemaker-wrangler-p2.html">part-2</a>) it resulted in some redundant columns CustomerID_* . We will remove them first. For this click on plus sign beside 2nd Join, and select <strong>Add Transform</strong>. From the next transform UI clink <strong>Add Step</strong> and then search for transformer <strong>Manage Column</strong>. Inside Manage Columns transformer select</p>
 <ul>
 <li>Transform = Drop Column</li>
 <li>Columns to drop = CustomerID_0, CustomerID_1</li>
@@ -236,7 +236,7 @@ gtag('config', 'G-D1ST9BH6HX', { 'anonymize_ip': true});
 </section>
 <section id="remove-features-with-low-predictive-power" class="level2">
 <h2 class="anchored" data-anchor-id="remove-features-with-low-predictive-power">Remove features with low predictive power</h2>
-<p>In <a href="https://hassaanbinaslam.github.io/myblog/aws/ml/sagemaker/2022/05/24/aws-sagemaker-wrangler-p3.html">part-3</a> we used Quick Model to get the predictive power of features. When we analyze features with low importance we find that <code>Phone</code> is one such feature that does not hold much information for the model. For a model, a phone number is just some random collection of numbers and does not hold any meaning. There are other features with low importance too but they still hold some information for the model. So let’s drop <code>Phone</code>. The steps will be same as in the last part.</p>
+<p>In <a href="https://hassaanbinaslam.github.io/aws/ml/sagemaker/2022/05/24/aws-sagemaker-wrangler-p3.html">part-3</a> we used Quick Model to get the predictive power of features. When we analyze features with low importance we find that <code>Phone</code> is one such feature that does not hold much information for the model. For a model, a phone number is just some random collection of numbers and does not hold any meaning. There are other features with low importance too but they still hold some information for the model. So let’s drop <code>Phone</code>. The steps will be same as in the last part.</p>
 </section>
 <section id="transform-feature-values-to-correct-format" class="level2">
 <h2 class="anchored" data-anchor-id="transform-feature-values-to-correct-format">Transform feature values to correct format</h2>
@@ -294,7 +294,7 @@ gtag('config', 'G-D1ST9BH6HX', { 'anonymize_ip': true});
 </section>
 <section id="evaluate-model-performance" class="level2">
 <h2 class="anchored" data-anchor-id="evaluate-model-performance">Evaluate model performance</h2>
-<p>We have done some key transformations. We can use Quick Model again to analyze the model performance at this point. We have done a similar analysis in <a href="https://hassaanbinaslam.github.io/myblog/aws/ml/sagemaker/2022/05/24/aws-sagemaker-wrangler-p3.html">part-3</a> so let’s do it again and compare the results. From the last transformation step, click plus sign and choose <strong>Add Analysis</strong></p>
+<p>We have done some key transformations. We can use Quick Model again to analyze the model performance at this point. We have done a similar analysis in <a href="https://hassaanbinaslam.github.io/aws/ml/sagemaker/2022/05/24/aws-sagemaker-wrangler-p3.html">part-3</a> so let’s do it again and compare the results. From the last transformation step, click plus sign and choose <strong>Add Analysis</strong></p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="images/2022-05-25-aws-sagemaker-wrangler-p4/quick_model_2.png" class="img-fluid figure-img"></p>
