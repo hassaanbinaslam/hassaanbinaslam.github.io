@@ -1,0 +1,1351 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.32">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="dcterms.date" content="2025-09-03">
+<meta name="description" content="A detailed, page-by-page breakdown of the MobileNetV2 paper, explaining how to build efficient neural networks for mobile and edge devices.">
+
+<title>MobileNetV2 Explained: A Deep Dive into Lightweight Neural Networks – Random Thoughts</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../images/favicon.ico" rel="icon">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-ec1a476101e3788554028e6f9c82f7c1.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="../site_libs/quarto-contrib/glightbox/glightbox.min.js"></script>
+<link href="../site_libs/quarto-contrib/glightbox/glightbox.min.css" rel="stylesheet">
+<link href="../site_libs/quarto-contrib/glightbox/lightbox.css" rel="stylesheet">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script async="" src="https://www.googletagmanager.com/gtag/js?id=G-D1ST9BH6HX"></script>
+
+<script type="text/javascript">
+
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-D1ST9BH6HX', { 'anonymize_ip': true});
+</script>
+
+
+<link rel="stylesheet" href="../styles.css">
+<meta property="og:title" content="MobileNetV1 Explained: A Deep Dive into Lightweight Neural Networks – Random Thoughts">
+<meta property="og:description" content="A detailed, page-by-page breakdown of the MobileNetV2 paper, explaining how to build efficient neural networks for mobile and edge devices.">
+<meta property="og:image" content="https://hassaanbinaslam.github.io/posts/images/2025-09-03-mobilenetv2-reading-notes.png">
+<meta property="og:site_name" content="Random Thoughts">
+<meta property="og:image:height" content="1024">
+<meta property="og:image:width" content="1024">
+<meta name="twitter:title" content="MobileNetV1 Explained: A Deep Dive into Lightweight Neural Networks – Random Thoughts">
+<meta name="twitter:description" content="A detailed, page-by-page breakdown of the MobileNetV2 paper, explaining how to build efficient neural networks for mobile and edge devices.">
+<meta name="twitter:image" content="https://hassaanbinaslam.github.io/posts/images/2025-09-03-mobilenetv2-reading-notes.png">
+<meta name="twitter:image-height" content="1024">
+<meta name="twitter:image-width" content="1024">
+<meta name="twitter:card" content="summary_large_image">
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">Random Thoughts</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://www.linkedin.com/in/hassaanbinaslam/"> <i class="bi bi-linkedin" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/hassaanbinaslam/"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://twitter.com/hassaanbinaslam"> <i class="bi bi-twitter" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#diving-into-the-abstract-section-abstract" id="toc-diving-into-the-abstract-section-abstract" class="nav-link active" data-scroll-target="#diving-into-the-abstract-section-abstract">Diving into the Abstract (Section: Abstract)</a>
+  <ul class="collapse">
+  <li><a href="#what-is-mobilenetv2" id="toc-what-is-mobilenetv2" class="nav-link" data-scroll-target="#what-is-mobilenetv2">What is MobileNetV2?</a></li>
+  <li><a href="#more-than-just-a-backbone" id="toc-more-than-just-a-backbone" class="nav-link" data-scroll-target="#more-than-just-a-backbone">More Than Just a Backbone</a></li>
+  <li><a href="#the-core-contribution-inverted-residuals-and-linear-bottlenecks" id="toc-the-core-contribution-inverted-residuals-and-linear-bottlenecks" class="nav-link" data-scroll-target="#the-core-contribution-inverted-residuals-and-linear-bottlenecks">The Core Contribution: Inverted Residuals and Linear Bottlenecks</a></li>
+  <li><a href="#a-framework-for-analysis" id="toc-a-framework-for-analysis" class="nav-link" data-scroll-target="#a-framework-for-analysis">A Framework for Analysis</a></li>
+  <li><a href="#putting-it-to-the-test" id="toc-putting-it-to-the-test" class="nav-link" data-scroll-target="#putting-it-to-the-test">Putting it to the Test</a></li>
+  </ul></li>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link" data-scroll-target="#introduction">1. Introduction</a>
+  <ul class="collapse">
+  <li><a href="#the-big-picture-accuracy-comes-at-a-cost-section-1-paragraphs-1-2" id="toc-the-big-picture-accuracy-comes-at-a-cost-section-1-paragraphs-1-2" class="nav-link" data-scroll-target="#the-big-picture-accuracy-comes-at-a-cost-section-1-paragraphs-1-2">The Big Picture: Accuracy Comes at a Cost (Section 1, Paragraphs 1-2)</a></li>
+  <li><a href="#the-promise-breaking-the-trade-off" id="toc-the-promise-breaking-the-trade-off" class="nav-link" data-scroll-target="#the-promise-breaking-the-trade-off">The Promise: Breaking the Trade-off</a></li>
+  <li><a href="#the-core-idea-the-inverted-residual-and-linear-bottleneck-module-section-1-paragraph-3" id="toc-the-core-idea-the-inverted-residual-and-linear-bottleneck-module-section-1-paragraph-3" class="nav-link" data-scroll-target="#the-core-idea-the-inverted-residual-and-linear-bottleneck-module-section-1-paragraph-3">The Core Idea: The Inverted Residual and Linear Bottleneck Module (Section 1, Paragraph 3)</a></li>
+  <li><a href="#why-this-design-is-so-good-for-mobile-section-1-paragraph-4" id="toc-why-this-design-is-so-good-for-mobile-section-1-paragraph-4" class="nav-link" data-scroll-target="#why-this-design-is-so-good-for-mobile-section-1-paragraph-4">Why This Design is So Good for Mobile (Section 1, Paragraph 4)</a></li>
+  </ul></li>
+  <li><a href="#related-work" id="toc-related-work" class="nav-link" data-scroll-target="#related-work">2. Related Work</a>
+  <ul class="collapse">
+  <li><a href="#the-overarching-goal-the-accuracyperformance-trade-off" id="toc-the-overarching-goal-the-accuracyperformance-trade-off" class="nav-link" data-scroll-target="#the-overarching-goal-the-accuracyperformance-trade-off">The Overarching Goal: The Accuracy/Performance Trade-off</a></li>
+  <li><a href="#philosophy-1-make-big-models-smaller" id="toc-philosophy-1-make-big-models-smaller" class="nav-link" data-scroll-target="#philosophy-1-make-big-models-smaller">Philosophy 1: Make Big Models Smaller</a></li>
+  <li><a href="#philosophy-2-design-efficient-building-blocks-from-the-start" id="toc-philosophy-2-design-efficient-building-blocks-from-the-start" class="nav-link" data-scroll-target="#philosophy-2-design-efficient-building-blocks-from-the-start">Philosophy 2: Design Efficient Building Blocks from the Start</a></li>
+  <li><a href="#philosophy-3-let-the-machines-do-the-designing-neural-architecture-search" id="toc-philosophy-3-let-the-machines-do-the-designing-neural-architecture-search" class="nav-link" data-scroll-target="#philosophy-3-let-the-machines-do-the-designing-neural-architecture-search">Philosophy 3: Let the Machines Do the Designing (Neural Architecture Search)</a></li>
+  <li><a href="#mobilenetv2s-philosophy-simplicity-and-intuition" id="toc-mobilenetv2s-philosophy-simplicity-and-intuition" class="nav-link" data-scroll-target="#mobilenetv2s-philosophy-simplicity-and-intuition">MobileNetV2’s Philosophy: Simplicity and Intuition</a></li>
+  <li><a href="#building-on-a-strong-foundation" id="toc-building-on-a-strong-foundation" class="nav-link" data-scroll-target="#building-on-a-strong-foundation">Building on a Strong Foundation</a></li>
+  </ul></li>
+  <li><a href="#preliminaries-discussion-and-intuition" id="toc-preliminaries-discussion-and-intuition" class="nav-link" data-scroll-target="#preliminaries-discussion-and-intuition">3. Preliminaries, discussion and intuition</a>
+  <ul class="collapse">
+  <li><a href="#depthwise-separable-convolutions" id="toc-depthwise-separable-convolutions" class="nav-link" data-scroll-target="#depthwise-separable-convolutions">3.1. Depthwise Separable Convolutions</a></li>
+  </ul></li>
+  <li><a href="#linear-bottlenecks" id="toc-linear-bottlenecks" class="nav-link" data-scroll-target="#linear-bottlenecks">3.2. Linear Bottlenecks</a>
+  <ul class="collapse">
+  <li><a href="#the-manifold-of-interest-hypothesis" id="toc-the-manifold-of-interest-hypothesis" class="nav-link" data-scroll-target="#the-manifold-of-interest-hypothesis">The “Manifold of Interest” Hypothesis</a></li>
+  <li><a href="#the-low-dimensional-subspace-assumption" id="toc-the-low-dimensional-subspace-assumption" class="nav-link" data-scroll-target="#the-low-dimensional-subspace-assumption">The Low-Dimensional Subspace Assumption</a></li>
+  <li><a href="#the-obvious-solution-and-its-hidden-flaw" id="toc-the-obvious-solution-and-its-hidden-flaw" class="nav-link" data-scroll-target="#the-obvious-solution-and-its-hidden-flaw">The “Obvious” Solution and Its Hidden Flaw</a></li>
+  <li><a href="#the-paradox-of-non-linearity-to-be-expressive-a-layer-must-destroy-information" id="toc-the-paradox-of-non-linearity-to-be-expressive-a-layer-must-destroy-information" class="nav-link" data-scroll-target="#the-paradox-of-non-linearity-to-be-expressive-a-layer-must-destroy-information">The Paradox of Non-Linearity: To Be Expressive, a Layer Must Destroy Information</a></li>
+  <li><a href="#the-solution-using-high-dimensions-as-a-safety-net" id="toc-the-solution-using-high-dimensions-as-a-safety-net" class="nav-link" data-scroll-target="#the-solution-using-high-dimensions-as-a-safety-net">The Solution: Using High Dimensions as a Safety Net</a></li>
+  <li><a href="#the-two-guiding-principles-of-mobilenetv2" id="toc-the-two-guiding-principles-of-mobilenetv2" class="nav-link" data-scroll-target="#the-two-guiding-principles-of-mobilenetv2">The Two Guiding Principles of MobileNetV2</a></li>
+  <li><a href="#the-design-prescription-linear-bottlenecks" id="toc-the-design-prescription-linear-bottlenecks" class="nav-link" data-scroll-target="#the-design-prescription-linear-bottlenecks">The Design Prescription: Linear Bottlenecks</a></li>
+  <li><a href="#visualizing-the-theory-the-spiral-experiment-figure-1" id="toc-visualizing-the-theory-the-spiral-experiment-figure-1" class="nav-link" data-scroll-target="#visualizing-the-theory-the-spiral-experiment-figure-1">Visualizing the Theory: The Spiral Experiment (Figure 1)</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">MobileNetV2 Explained: A Deep Dive into Lightweight Neural Networks</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">papers</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    A detailed, page-by-page breakdown of the MobileNetV2 paper, explaining how to build efficient neural networks for mobile and edge devices.
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">September 3, 2025</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p><img src="images/2025-09-03-mobilenetv2-reading-notes.png" class="img-fluid"></p>
+<p>The paper on our reading list is <strong>“MobileNetV2: Inverted Residuals and Linear Bottlenecks”</strong> by Sandler et al.&nbsp;from Google. This paper is a cornerstone in the world of efficient neural networks, and its ideas are found in countless models running on devices we use every day.</p>
+<p><a href="images/2025-09-03-mobilenetv2-reading-notes/paper-title.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-1"><img src="images/2025-09-03-mobilenetv2-reading-notes/paper-title.PNG" class="img-fluid"></a></p>
+<p>Let’s start where every paper starts: the Abstract.</p>
+<section id="diving-into-the-abstract-section-abstract" class="level2">
+<h2 class="anchored" data-anchor-id="diving-into-the-abstract-section-abstract">Diving into the Abstract (Section: Abstract)</h2>
+<p><a href="images/2025-09-03-mobilenetv2-reading-notes/paper-abstract.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-2"><img src="images/2025-09-03-mobilenetv2-reading-notes/paper-abstract.PNG" class="img-fluid"></a></p>
+<p>The abstract is the paper’s elevator pitch. It’s a super-condensed summary of the problem, the solution, and the results. Let’s unpack it sentence by sentence.</p>
+<section id="what-is-mobilenetv2" class="level3">
+<h3 class="anchored" data-anchor-id="what-is-mobilenetv2">What is MobileNetV2?</h3>
+<blockquote class="blockquote">
+<p><em>In this paper we describe a new mobile architecture, MobileNetV2, that improves the state of the art performance of mobile models on multiple tasks and benchmarks as well as across a spectrum of different model sizes.</em></p>
+</blockquote>
+<p>Right away, the authors state their main contribution: a new neural network architecture called <strong>MobileNetV2</strong>. The key takeaways here are:</p>
+<ul>
+<li><strong>“Mobile architecture”</strong>: This is designed specifically for resource-constrained devices like smartphones. Think efficiency, low latency, and a small memory footprint.</li>
+<li><strong>“Improves the state of the art”</strong>: It’s not just another model; it’s better than the existing mobile models at the time (like its predecessor, MobileNetV1).</li>
+<li><strong>“Multiple tasks”</strong>: It’s versatile. The paper will show its effectiveness on more than just image classification.</li>
+<li><strong>“Spectrum of different model sizes”</strong>: It’s not a single, fixed-size network. The architecture is scalable, meaning you can tune it to be smaller and faster (with a slight accuracy trade-off) or larger and more accurate, depending on your needs.</li>
+</ul>
+</section>
+<section id="more-than-just-a-backbone" class="level3">
+<h3 class="anchored" data-anchor-id="more-than-just-a-backbone">More Than Just a Backbone</h3>
+<blockquote class="blockquote">
+<p><em>We also describe efficient ways of applying these mobile models to object detection in a novel framework we call SSDLite. Additionally, we demonstrate how to build mobile semantic segmentation models through a reduced form of DeepLabv3 which we call Mobile DeepLabv3.</em></p>
+</blockquote>
+<p>This is important. The authors aren’t just presenting a theoretical architecture. They are demonstrating its practical utility. They’ve created specialized, efficient versions of popular models for other common computer vision tasks:</p>
+<ul>
+<li><strong>Object Detection</strong>: They introduce <strong>SSDLite</strong>, a mobile-friendly version of the Single Shot Detector (SSD) framework that uses MobileNetV2 as its backbone.</li>
+<li><strong>Semantic Segmentation</strong>: They introduce <strong>Mobile DeepLabv3</strong>, a lightweight version of the powerful DeepLabv3 model.</li>
+</ul>
+<p>This shows that MobileNetV2 is a strong “feature extractor” that can be successfully adapted for complex tasks beyond simple classification.</p>
+</section>
+<section id="the-core-contribution-inverted-residuals-and-linear-bottlenecks" class="level3">
+<h3 class="anchored" data-anchor-id="the-core-contribution-inverted-residuals-and-linear-bottlenecks">The Core Contribution: Inverted Residuals and Linear Bottlenecks</h3>
+<p>This next part is the technical heart of the paper.</p>
+<p><a href="images/2025-09-03-mobilenetv2-reading-notes/paper-abstract-2.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-3"><img src="images/2025-09-03-mobilenetv2-reading-notes/paper-abstract-2.PNG" class="img-fluid"></a></p>
+<p>Let’s break down these two key phrases:</p>
+<ol type="1">
+<li><p><strong>Inverted Residual Structure</strong>: If you’re familiar with ResNet, you know a “residual block” often takes a wide input (many channels), compresses it down to a “bottleneck” (fewer channels), processes it, and then expands it back out to be wide again. The shortcut connection happens between the wide layers. MobileNetV2 flips this on its head, hence “inverted.”</p>
+<ul>
+<li>It starts with a “thin” (low-channel) bottleneck layer.</li>
+<li>It <strong>expands</strong> it to a much wider layer.</li>
+<li>It processes the features in this wide layer using efficient “depthwise convolutions” (a key ingredient from MobileNetV1). This is where the non-linearity (like a ReLU activation) lives.</li>
+<li>It then projects it <strong>back down</strong> to a thin bottleneck layer.</li>
+<li>The shortcut connection is between the thin input and thin output bottleneck layers. The structure is <strong>thin -&gt; wide -&gt; thin</strong>.</li>
+</ul></li>
+<li><p><strong>Linear Bottlenecks</strong>: This is the second crucial insight. The authors claim that applying a non-linear activation function (like ReLU, which kills all negative values) to the thin bottleneck layers is harmful. Why? Because these layers are already low-dimensional. Using ReLU in such a compressed space can easily wipe out valuable information. To prevent this information loss, they simply <strong>remove the non-linearity</strong> from the bottleneck layers, making them “linear.”</p></li>
+</ol>
+<p>The abstract claims this unique design improves performance and that they’ll provide the intuition behind it.</p>
+</section>
+<section id="a-framework-for-analysis" class="level3">
+<h3 class="anchored" data-anchor-id="a-framework-for-analysis">A Framework for Analysis</h3>
+<p><a href="images/2025-09-03-mobilenetv2-reading-notes/paper-abstract-3.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-4"><img src="images/2025-09-03-mobilenetv2-reading-notes/paper-abstract-3.PNG" class="img-fluid"></a></p>
+<blockquote class="blockquote">
+<p><em>Finally, our approach allows decoupling of the input/output domains from the expressiveness of the transformation, which provides a convenient framework for further analysis.</em></p>
+</blockquote>
+<p>This is a more theoretical point. The “input/output domains” are the thin bottleneck layers, which can be seen as the “capacity” of the block. The “expressiveness of the transformation” is the wide expansion layer, where the complex processing happens. By separating these two, the architecture makes it easier to study and understand their individual roles.</p>
+</section>
+<section id="putting-it-to-the-test" class="level3">
+<h3 class="anchored" data-anchor-id="putting-it-to-the-test">Putting it to the Test</h3>
+<blockquote class="blockquote">
+<p><em>We measure our performance on ImageNet [1] classification, COCO object detection [2], VOC image segmentation [3]. We evaluate the trade-offs between accuracy, and number of operations measured by multiply-adds (MAdd), as well as actual latency, and the number of parameters.</em></p>
+</blockquote>
+<p>Finally, the authors state how they’ll prove their claims. They use standard, well-respected datasets and, importantly, they don’t just measure accuracy. They evaluate the model on metrics that matter for mobile applications:</p>
+<ul>
+<li><strong>MAdds</strong>: A measure of computational cost.</li>
+<li><strong>Latency</strong>: The actual time it takes to run on a real device.</li>
+<li><strong>Parameters</strong>: The size of the model in memory.</li>
+</ul>
+<p>This comprehensive evaluation is key to proving that MobileNetV2 is not just accurate, but genuinely efficient.</p>
+</section>
+</section>
+<section id="introduction" class="level2">
+<h2 class="anchored" data-anchor-id="introduction">1. Introduction</h2>
+<p>Now that we have the big picture from the abstract, let’s see how the authors frame the problem in more detail in the Introduction. The first couple of paragraphs set the stage for why a model like MobileNetV2 is necessary.</p>
+<section id="the-big-picture-accuracy-comes-at-a-cost-section-1-paragraphs-1-2" class="level3">
+<h3 class="anchored" data-anchor-id="the-big-picture-accuracy-comes-at-a-cost-section-1-paragraphs-1-2">The Big Picture: Accuracy Comes at a Cost (Section 1, Paragraphs 1-2)</h3>
+<p><a href="images/2025-09-03-mobilenetv2-reading-notes/paper-intro-1.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-5"><img src="images/2025-09-03-mobilenetv2-reading-notes/paper-intro-1.PNG" class="img-fluid"></a></p>
+<p>This first paragraph paints a familiar picture for anyone in the field of deep learning.</p>
+<ol type="1">
+<li><strong>The Success Story</strong>: Neural networks are incredibly powerful. Models like ResNet, VGGNet, and GoogLeNet have achieved amazing, sometimes “superhuman,” results on complex tasks.</li>
+<li><strong>The Catch</strong>: This success has a hidden price tag. To get that last bit of accuracy, these state-of-the-art (SOTA) models have become massive and computationally hungry. They require powerful GPUs, lots of RAM, and significant energy to run.</li>
+<li><strong>The Problem</strong>: This “cost” makes these giant models completely impractical for on-device applications. You can’t fit a 500MB model that needs a high-end GPU into a smartphone app, a smart camera, or a drone. The resources simply aren’t there.</li>
+</ol>
+<p>This establishes the central tension of the paper: the conflict between the <strong>quest for accuracy</strong> and the <strong>constraints of the real world</strong>.</p>
+</section>
+<section id="the-promise-breaking-the-trade-off" class="level3">
+<h3 class="anchored" data-anchor-id="the-promise-breaking-the-trade-off">The Promise: Breaking the Trade-off</h3>
+<p><a href="images/2025-09-03-mobilenetv2-reading-notes/paper-intro-2.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-6"><img src="images/2025-09-03-mobilenetv2-reading-notes/paper-intro-2.PNG" class="img-fluid"></a></p>
+<p>Having laid out the problem, the authors immediately present their solution and its core promise. This paragraph is a masterclass in stating a clear value proposition.</p>
+<p>They aren’t just creating another small model. They are aiming for the holy grail of efficient deep learning: <strong>reducing computational cost without sacrificing performance.</strong></p>
+<p>Let’s look at the key phrase: “…significantly decreasing the number of operations and memory needed <strong>while retaining the same accuracy</strong>.”</p>
+<p>This is the crucial part. It’s relatively easy to make a model smaller and faster if you’re willing to accept a big drop in accuracy (e.g., just remove half the layers). The challenge, and the claim made here, is that MobileNetV2’s architecture is fundamentally <em>smarter</em>. It’s designed to be efficient from the ground up, allowing it to maintain the accuracy of larger models while drastically cutting down on the computational and memory requirements.</p>
+<p>In essence, these first two paragraphs tell a simple story:</p>
+<ul>
+<li><strong>Problem</strong>: The best AI models are too big and slow for phones.</li>
+<li><strong>Solution</strong>: We’ve designed a new architecture, MobileNetV2, that is just as accurate but is small and fast enough to run on your phone.</li>
+</ul>
+<p>With the stage set, the paper will now need to deliver the technical details to back up this bold claim. Let’s keep reading.</p>
+</section>
+<section id="the-core-idea-the-inverted-residual-and-linear-bottleneck-module-section-1-paragraph-3" class="level3">
+<h3 class="anchored" data-anchor-id="the-core-idea-the-inverted-residual-and-linear-bottleneck-module-section-1-paragraph-3">The Core Idea: The Inverted Residual and Linear Bottleneck Module (Section 1, Paragraph 3)</h3>
+<p>After setting the stage, the authors waste no time in revealing their secret sauce. This paragraph is the most important one in the introduction, as it explains the novel building block of the entire architecture.</p>
+<p><a href="images/2025-09-03-mobilenetv2-reading-notes/paper-intro-3.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-7"><img src="images/2025-09-03-mobilenetv2-reading-notes/paper-intro-3.PNG" class="img-fluid"></a></p>
+<p>This paragraph succinctly describes the <strong>thin -&gt; wide -&gt; thin</strong> structure we touched on in the abstract. Let’s visualize the flow of data through this new “module”:</p>
+<ol type="1">
+<li><p><strong>Input: The Bottleneck.</strong> The block starts with a “low-dimensional compressed representation.” This means the input tensor has relatively few channels (e.g., 24). This is the “bottleneck.”</p></li>
+<li><p><strong>Step 1: Expand.</strong> The first operation is a 1x1 convolution that <em>expands</em> the number of channels. It takes the thin input and makes it much wider (e.g., expanding from 24 channels to 144 channels). This expansion step creates a high-dimensional space where the model can perform complex transformations.</p></li>
+<li><p><strong>Step 2: Filter.</strong> In this high-dimensional space, the model applies a “lightweight depthwise convolution.” This is the efficient filtering operation inherited from MobileNetV1 that processes each channel independently. This is where the main non-linear transformation (like ReLU6) happens.</p></li>
+<li><p><strong>Step 3: Project (Linearly).</strong> Finally, another 1x1 convolution projects the wide tensor back down to a low-dimensional bottleneck (e.g., from 144 channels back down to 24). The crucial innovation here is that this projection is <strong>linear</strong>. There is no ReLU or other non-linear activation function applied at the end. This is the “linear bottleneck” part of the name, and it’s designed to prevent information loss in the compressed representation.</p></li>
+</ol>
+<p>The authors also helpfully point out that this is not just a theoretical concept; you can find the code and use it yourself in the TensorFlow-Slim library.</p>
+</section>
+<section id="why-this-design-is-so-good-for-mobile-section-1-paragraph-4" class="level3">
+<h3 class="anchored" data-anchor-id="why-this-design-is-so-good-for-mobile-section-1-paragraph-4">Why This Design is So Good for Mobile (Section 1, Paragraph 4)</h3>
+<p>The final paragraph of the introduction explains the practical benefits of this specific design, highlighting why it’s more than just an architectural curiosity.</p>
+<p><a href="images/2025-09-03-mobilenetv2-reading-notes/paper-intro-4.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-8"><img src="images/2025-09-03-mobilenetv2-reading-notes/paper-intro-4.PNG" class="img-fluid"></a></p>
+<p>Let’s unpack the two key advantages mentioned here:</p>
+<p><strong>1. No Special Operations Needed</strong></p>
+<p>The new module is built entirely from standard, highly-optimized deep learning operations (1x1 convolutions, depthwise convolutions, additions). This is a huge practical advantage. It means MobileNetV2 can be implemented easily in any major framework (like TensorFlow or PyTorch) without needing custom code, and it can take full advantage of existing hardware acceleration.</p>
+<p><strong>2. The Memory Footprint Advantage</strong></p>
+<p>This is a more subtle but incredibly important point for mobile devices. The authors state the module allows them to avoid “fully materializing large intermediate tensors.”</p>
+<ul>
+<li><strong>What does this mean?</strong> The “large intermediate tensor” is the wide, expanded layer in the middle of the block. “Materializing” it means fully creating and storing that entire large tensor in memory before moving to the next step.</li>
+<li><strong>The trick:</strong> The structure of the inverted residual block is such that deep learning frameworks can be much smarter about memory management. They don’t have to hold that entire huge tensor in memory all at once. They can compute the output in parts, significantly reducing the peak memory usage during inference.</li>
+<li><strong>Why it matters:</strong> Mobile and embedded devices have very limited amounts of super-fast cache memory. Accessing the slower main RAM is a major bottleneck that costs time and battery power. By keeping the memory footprint low, the MobileNetV2 block is more likely to fit its computations within the fast cache, leading to significant real-world speedups and power savings.</li>
+</ul>
+<p>With the introduction complete, we have a clear understanding of the problem (SOTA models are too big), the proposed solution (a new block with an inverted residual and linear bottleneck structure), and the claimed benefits (high accuracy, low computational cost, and a uniquely low memory footprint).</p>
+<p>Next, we will look at the <strong>Related Work</strong> section to see how this work fits into the broader landscape of deep learning research.</p>
+</section>
+</section>
+<section id="related-work" class="level2">
+<h2 class="anchored" data-anchor-id="related-work">2. Related Work</h2>
+<p>This section situates MobileNetV2 within the broader field of efficient deep learning. The authors survey the different strategies researchers have used to tackle the fundamental challenge of balancing model accuracy with performance.</p>
+<div class="quarto-layout-panel" data-layout-ncol="2">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<p><a href="images/2025-09-03-mobilenetv2-reading-notes/paper-related-work-1.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-9"><img src="images/2025-09-03-mobilenetv2-reading-notes/paper-related-work-1.PNG" class="img-fluid"></a></p>
+</div>
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<p><a href="images/2025-09-03-mobilenetv2-reading-notes/paper-related-work-2.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-10"><img src="images/2025-09-03-mobilenetv2-reading-notes/paper-related-work-2.PNG" class="img-fluid"></a></p>
+</div>
+</div>
+</div>
+<section id="the-overarching-goal-the-accuracyperformance-trade-off" class="level3">
+<h3 class="anchored" data-anchor-id="the-overarching-goal-the-accuracyperformance-trade-off">The Overarching Goal: The Accuracy/Performance Trade-off</h3>
+<blockquote class="blockquote">
+<p><em>Tuning deep neural architectures to strike an optimal balance between accuracy and performance has been an area of active research for the last several years. Both manual architecture search and improvements in training algorithms, carried out by numerous teams has lead to dramatic improvements over early designs such as AlexNet [5], VGGNet [6], GoogLeNet [7] , and ResNet [8].</em></p>
+</blockquote>
+<p>The paragraph starts by restating the core problem: finding the “sweet spot” between a model that is smart (accurate) and a model that is fast and small (performant). They acknowledge that early progress was driven by brilliant researchers manually designing iconic architectures like AlexNet and ResNet. These models pushed the boundaries of accuracy but were generally not designed with efficiency as the top priority.</p>
+<p>The rest of the paragraph can be broken down into two main philosophies for achieving this balance.</p>
+</section>
+<section id="philosophy-1-make-big-models-smaller" class="level3">
+<h3 class="anchored" data-anchor-id="philosophy-1-make-big-models-smaller">Philosophy 1: Make Big Models Smaller</h3>
+<blockquote class="blockquote">
+<p><em>Recently there has been lots of progress in algorithmic architecture exploration included hyper-parameter optimization [9, 10, 11] as well as various methods of network pruning [12, 13, 14, 15, 16, 17] and connectivity learning [18, 19].</em></p>
+</blockquote>
+<p>This approach starts with a large, powerful model and then uses algorithms to make it smaller and more efficient. The authors list several techniques:</p>
+<ul>
+<li><strong>Hyper-parameter Optimization</strong>: This involves automatically finding the best settings (like learning rates, batch sizes, etc.) to train a model more effectively.</li>
+<li><strong>Network Pruning</strong>: This is a very intuitive idea. You train a large, over-parameterized network and then “prune” away the connections or filters that are least important, much like trimming a bonsai tree. The goal is to remove redundancy without hurting accuracy.</li>
+<li><strong>Connectivity Learning</strong>: This is a related idea where the model itself learns which connections are important during the training process.</li>
+</ul>
+<p>The common thread here is a process of <strong>reduction</strong>: starting big and algorithmically shrinking down.</p>
+</section>
+<section id="philosophy-2-design-efficient-building-blocks-from-the-start" class="level3">
+<h3 class="anchored" data-anchor-id="philosophy-2-design-efficient-building-blocks-from-the-start">Philosophy 2: Design Efficient Building Blocks from the Start</h3>
+<blockquote class="blockquote">
+<p><em>A substantial amount of work has also been dedicated to changing the connectivity structure of the internal convolutional blocks such as in ShuffleNet [20] or introducing sparsity [21] and others [22].</em></p>
+</blockquote>
+<p>This is a fundamentally different approach. Instead of shrinking a big model, the goal here is to invent new, more efficient <em>building blocks</em> from the ground up. If each block is inherently efficient, the entire network built from these blocks will also be efficient.</p>
+<p>The authors specifically call out <strong>ShuffleNet</strong> [20]. This is a very important reference because ShuffleNet was a direct competitor to MobileNetV2. It introduced clever techniques like <em>pointwise group convolutions</em> and <em>channel shuffling</em> to create a highly efficient architecture.</p>
+<p>By mentioning ShuffleNet, the authors are clearly positioning MobileNetV2 in this second camp. They are not presenting a new way to prune ResNet; they are proposing a brand new, fundamentally efficient convolutional block that they believe is superior to other designs like those found in ShuffleNet.</p>
+<p>In summary, this paragraph sets up the landscape of efficient network design and places MobileNetV2 squarely in the category of “novel, efficient block design,” setting the stage for a direct comparison with its peers.</p>
+<p><a href="images/2025-09-03-mobilenetv2-reading-notes/paper-related-work-3.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-11"><img src="images/2025-09-03-mobilenetv2-reading-notes/paper-related-work-3.PNG" class="img-fluid"></a></p>
+</section>
+<section id="philosophy-3-let-the-machines-do-the-designing-neural-architecture-search" class="level3">
+<h3 class="anchored" data-anchor-id="philosophy-3-let-the-machines-do-the-designing-neural-architecture-search">Philosophy 3: Let the Machines Do the Designing (Neural Architecture Search)</h3>
+<p>The authors now introduce a third, more recent, and very powerful approach to finding efficient networks.</p>
+<blockquote class="blockquote">
+<p><em>Recently, [23, 24, 25, 26], opened up a new direction of bringing optimization methods including genetic algorithms and reinforcement learning to architectural search. However one drawback is that the resulting networks end up very complex.</em></p>
+</blockquote>
+<p>This is a reference to the groundbreaking field of <strong>Neural Architecture Search (NAS)</strong>. The idea behind NAS is to automate the design of the neural network itself. Instead of a human researcher trying to invent the best building block, you create an algorithm that searches through millions of possible block designs to find the most optimal one for a given task. The papers referenced ([23] is the famous NASNet paper) use techniques like reinforcement learning to intelligently explore this vast search space.</p>
+<p>However, the authors point out a key trade-off. While NAS can produce incredibly high-performing networks (like NASNet), the resulting architectures are often bizarre and counter-intuitive. They can be a complex jumble of different convolutions and connections that work well but are very difficult for a human to understand, analyze, or modify.</p>
+</section>
+<section id="mobilenetv2s-philosophy-simplicity-and-intuition" class="level3">
+<h3 class="anchored" data-anchor-id="mobilenetv2s-philosophy-simplicity-and-intuition">MobileNetV2’s Philosophy: Simplicity and Intuition</h3>
+<p>This is where the authors draw a line in the sand and define their own approach in contrast to NAS.</p>
+<blockquote class="blockquote">
+<p><em>In this paper, we pursue the goal of developing better intuition about how neural networks operate and use that to guide the simplest possible network design. Our approach should be seen as complimentary to the one described in [23] and related work. In this vein our approach is similar to those taken by [20, 22] and allows to further improve the performance, while providing a glimpse on its internal operation.</em></p>
+</blockquote>
+<p>This is a powerful statement about their research philosophy.</p>
+<ul>
+<li><strong>Goal</strong>: They are not just trying to get a high score on a benchmark. They want to <em>understand</em> the principles of efficient network design. Their goal is to build a model based on clear, simple, and intuitive ideas.</li>
+<li><strong>Positioning</strong>: They wisely position their work as “complimentary” to NAS. They aren’t saying NAS is wrong, just that their “human intuition-driven” approach is another valid and valuable path to explore.</li>
+<li><strong>Alignment</strong>: They once again align themselves with the creators of models like ShuffleNet [20], who also focused on hand-crafting clever and efficient building blocks.</li>
+<li><strong>Benefit</strong>: A key benefit of their approach is interpretability. Because the design is based on simple principles, it provides a “glimpse on its internal operation,” helping the whole research community learn more about what makes these networks tick.</li>
+</ul>
+</section>
+<section id="building-on-a-strong-foundation" class="level3">
+<h3 class="anchored" data-anchor-id="building-on-a-strong-foundation">Building on a Strong Foundation</h3>
+<p>Finally, the authors state the direct lineage of their work.</p>
+<blockquote class="blockquote">
+<p><em>Our network design is based on MobileNetV1 [27]. It retains its simplicity and does not require any special operators while significantly improves its accuracy, achieving state of the art on multiple image classification and detection tasks for mobile applications.</em></p>
+</blockquote>
+<p>This is the punchline of the whole section. MobileNetV2 is not a radical departure from everything that came before. It is an <strong>evolution</strong> of the highly successful <strong>MobileNetV1</strong>.</p>
+<p>They took the core ideas that made MobileNetV1 great:</p>
+<ul>
+<li><strong>Simplicity</strong> of the overall architecture.</li>
+<li>Use of <strong>depthwise separable convolutions</strong> as the core efficient operation.</li>
+<li>No reliance on <strong>special operators</strong>, making it easy to deploy.</li>
+</ul>
+<p>And they improved upon it with their new inverted residual block, leading to a significant boost in accuracy that pushed it to the state-of-the-art for mobile models.</p>
+<p>With this context in place, we’re now ready to dive into the technical meat of the paper. The next section, “Preliminaries, discussion and intuition,” will break down the building blocks of MobileNetV2 in detail.</p>
+</section>
+</section>
+<section id="preliminaries-discussion-and-intuition" class="level2">
+<h2 class="anchored" data-anchor-id="preliminaries-discussion-and-intuition">3. Preliminaries, discussion and intuition</h2>
+<p>Alright, we’re moving into the technical core of the paper. This section lays the groundwork by explaining the key components and the intuition that led to the MobileNetV2 design.</p>
+<section id="depthwise-separable-convolutions" class="level3">
+<h3 class="anchored" data-anchor-id="depthwise-separable-convolutions">3.1. Depthwise Separable Convolutions</h3>
+<p><a href="images/2025-09-03-mobilenetv2-reading-notes/paper-section-3.1-1.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-12"><img src="images/2025-09-03-mobilenetv2-reading-notes/paper-section-3.1-1.PNG" class="img-fluid"></a></p>
+<p>Before we can understand the <em>new</em> contributions of MobileNetV2, we first need to grasp the foundational concept it’s built upon: <strong>Depthwise Separable Convolutions</strong>. This was the key innovation of its predecessor, MobileNetV1, and it’s still the workhorse here.</p>
+<blockquote class="blockquote">
+<p><em>Depthwise Separable Convolutions are a key building block for many efficient neural network architectures [27, 28, 20] and we use them in the present work as well. The basic idea is to replace a full convolutional operator with a factorized version that splits convolution into two separate layers…</em></p>
+</blockquote>
+<p>To understand why this is so clever, let’s first quickly recap what a <strong>standard convolution</strong> does.</p>
+<p>A standard convolution does two jobs at once:</p>
+<ol type="1">
+<li>It filters the data spatially (e.g., looking for edges or textures in a 3x3 neighborhood).</li>
+<li>It combines features across channels to create new representations (e.g., mixing the information from the red, green, and blue channels to detect the color orange).</li>
+</ol>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><a href="images/2025-09-03-mobilenetv2-reading-notes/conv_layer.png" class="lightbox" data-gallery="quarto-lightbox-gallery-13" title="Convolutional Layer Illustration"><img src="images/2025-09-03-mobilenetv2-reading-notes/conv_layer.png" class="img-fluid figure-img" alt="Convolutional Layer Illustration"></a></p>
+<figcaption>Convolutional Layer Illustration</figcaption>
+</figure>
+</div>
+<p><em>Image taken from <a href="https://medium.com/advanced-deep-learning/cnn-operation-with-2-kernels-resulting-in-2-feature-mapsunderstanding-the-convolutional-filter-c4aad26cf32">Medium post Understanding the Convolutional Filter Operation in CNN’s by Frederik vom Lehn</a></em></p>
+<p>Doing both of these things at the same time is computationally expensive. The brilliant idea behind Depthwise Separable Convolutions is to “factorize” or split these two jobs into two separate, much cheaper steps.</p>
+<section id="step-1-the-depthwise-convolution-spatial-filtering" class="level4">
+<h4 class="anchored" data-anchor-id="step-1-the-depthwise-convolution-spatial-filtering">Step 1: The Depthwise Convolution (Spatial Filtering)</h4>
+<blockquote class="blockquote">
+<p><em>The first layer is called a depthwise convolution, it performs lightweight filtering by applying a single convolutional filter per input channel.</em></p>
+</blockquote>
+<p>This first step handles only the spatial filtering. Instead of one big, complex filter that works across all channels, you have a set of small, lightweight filters. Crucially, you have exactly <strong>one</strong> filter for <strong>each</strong> input channel.</p>
+<p>Imagine your input has 3 channels (R, G, B). The depthwise convolution will have:</p>
+<ul>
+<li>One 3x3 filter that slides <em>only</em> over the Red channel.</li>
+<li>One 3x3 filter that slides <em>only</em> over the Green channel.</li>
+<li>One 3x3 filter that slides <em>only</em> over the Blue channel.</li>
+</ul>
+<p>At the end of this step, you’ve found spatial patterns (like edges) within each channel independently, but you haven’t mixed any information <em>between</em> the channels yet.</p>
+</section>
+<section id="step-2-the-pointwise-convolution-channel-mixing" class="level4">
+<h4 class="anchored" data-anchor-id="step-2-the-pointwise-convolution-channel-mixing">Step 2: The Pointwise Convolution (Channel Mixing)</h4>
+<blockquote class="blockquote">
+<p><em>The second layer is a 1 × 1 convolution, called a pointwise convolution, which is responsible for building new features through computing linear combinations of the input channels.</em></p>
+</blockquote>
+<p>Now that we have spatially-filtered channels, we need to mix them to create new, meaningful features. This is the job of the pointwise convolution.</p>
+<p>A “pointwise” convolution is simply a <strong>1x1 convolution</strong>. You can think of it as looking at a single pixel location and performing a weighted sum of all the values across the channels at that <em>one point</em>. This is an incredibly efficient way to compute “linear combinations” of the channels, allowing the network to learn how to best mix the filtered outputs from the depthwise step.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><a href="images/2025-09-03-mobilenetv2-reading-notes/depth-point-conv.jpg" class="lightbox" data-gallery="quarto-lightbox-gallery-14" title="Example of the convolution process using the depthwise separable convolution."><img src="images/2025-09-03-mobilenetv2-reading-notes/depth-point-conv.jpg" class="img-fluid figure-img" alt="Example of the convolution process using the depthwise separable convolution."></a></p>
+<figcaption>Example of the convolution process using the depthwise separable convolution.</figcaption>
+</figure>
+</div>
+<p><em>Image taken from paper <a href="https://www.aimspress.com/article/doi/10.3934/mbe.2022055?viewType=HTML">A lightweight double-channel depthwise separable convolutional neural network for multimodal fusion gait recognition</a></em></p>
+<p>By splitting the single, expensive standard convolution into two simpler steps—(1) filter each channel spatially, then (2) combine information across channels—we achieve a very similar expressive power with a tiny fraction of the computational cost and parameters. This factorization is the secret behind the efficiency of the entire MobileNet family.</p>
+</section>
+<section id="the-math-behind-the-magic-quantifying-the-efficiency-section-3.1-paragraphs-2-3" class="level4">
+<h4 class="anchored" data-anchor-id="the-math-behind-the-magic-quantifying-the-efficiency-section-3.1-paragraphs-2-3">The Math Behind the Magic: Quantifying the Efficiency (Section 3.1, Paragraphs 2-3)</h4>
+<p>We’ve talked conceptually about <em>how</em> depthwise separable convolutions work, but the real “aha!” moment comes when you look at the numbers. The authors now provide the formulas to prove just how significant the computational savings are.</p>
+<div class="quarto-layout-panel" data-layout-ncol="2">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<p><a href="images/2025-09-03-mobilenetv2-reading-notes/paper-section-3.1-2.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-15"><img src="images/2025-09-03-mobilenetv2-reading-notes/paper-section-3.1-2.PNG" class="img-fluid"></a></p>
+</div>
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<p><a href="images/2025-09-03-mobilenetv2-reading-notes/paper-section-3.1-3.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-16"><img src="images/2025-09-03-mobilenetv2-reading-notes/paper-section-3.1-3.PNG" class="img-fluid"></a></p>
+</div>
+</div>
+</div>
+</section>
+<section id="the-cost-of-a-standard-convolution" class="level4">
+<h4 class="anchored" data-anchor-id="the-cost-of-a-standard-convolution">The Cost of a Standard Convolution</h4>
+<p>First, let’s establish a baseline. How much does a regular, old-fashioned convolution cost?</p>
+<blockquote class="blockquote">
+<p><em>Standard convolution takes an h_i × w_i × d_i input tensor L_i, and applies convolutional kernel K ∈ R^(k×k×d_i×d_j) to produce an h_i × w_i × d_j output tensor L_j. Standard convolutional layers have the computational cost of h_i · w_i · d_i · d_j · k · k.</em></p>
+</blockquote>
+<p>Let’s decode that formula:</p>
+<ul>
+<li><code>h_i × w_i</code> is the spatial size of the input feature map (height and width).</li>
+<li><code>d_i</code> is the number of input channels (the depth).</li>
+<li><code>d_j</code> is the number of output channels you want to create.</li>
+<li><code>k × k</code> is the size of your convolutional kernel (e.g., 3x3).</li>
+</ul>
+<p>The total cost is the product of all these things (<code>h_i · w_i · d_i · d_j · k · k</code>). You can think of it like this: for each of the <code>d_j</code> output channels, you have a big <code>k × k × d_i</code> filter that you slide across all <code>h_i × w_i</code> positions of the input. It’s a massive number of multiplications.</p>
+</section>
+<section id="the-cost-of-a-depthwise-separable-convolution" class="level4">
+<h4 class="anchored" data-anchor-id="the-cost-of-a-depthwise-separable-convolution">The Cost of a Depthwise Separable Convolution</h4>
+<p>Now, let’s look at the cost of the more efficient, factorized approach.</p>
+<blockquote class="blockquote">
+<p><em>Depthwise separable convolutions are a drop-in replacement for standard convolutional layers. Empirically they work almost as well as regular convolutions but only cost: h_i · w_i · d_i(k² + d_j) (1) which is the sum of the depthwise and 1 × 1 pointwise convolutions.</em></p>
+</blockquote>
+<p>This formula looks a bit different, but it’s just the sum of the two steps we discussed:</p>
+<ol type="1">
+<li><strong>Depthwise Cost</strong>: <code>h_i · w_i · d_i · k²</code>
+<ul>
+<li>This is the cost of sliding <code>d_i</code> different <code>k x k</code> filters across the input map.</li>
+</ul></li>
+<li><strong>Pointwise Cost</strong>: <code>h_i · w_i · d_i · d_j</code>
+<ul>
+<li>This is the cost of the 1x1 convolution that mixes the <code>d_i</code> channels to produce <code>d_j</code> new channels.</li>
+</ul></li>
+</ol>
+<p>When you add them together and factor out the common terms, you get the formula <code>h_i · w_i · d_i(k² + d_j)</code>.</p>
+</section>
+<section id="the-payoff" class="level4">
+<h4 class="anchored" data-anchor-id="the-payoff">The Payoff</h4>
+<p>Now for the direct comparison. The whole point is that the second formula is <em>dramatically</em> smaller than the first.</p>
+<blockquote class="blockquote">
+<p><em>Effectively depthwise separable convolution reduces computation compared to traditional layers by almost a factor of k²… MobileNetV2 uses k = 3 (3 × 3 depthwise separable convolutions) so the computational cost is 8 to 9 times smaller than that of standard convolutions at only a small reduction in accuracy [27].</em></p>
+</blockquote>
+<p>The reduction factor is roughly <code>k²</code>. Why? In most deep networks, the number of channels (<code>d_j</code>) is much larger than the kernel size squared (<code>k²</code>, e.g., 9 for a 3x3 kernel). So, the cost of the standard convolution (<code>...· d_j · k²</code>) is dominated by multiplying those two large numbers. The separable convolution largely replaces that multiplication with an addition (<code>...· (d_j + k²)</code>), which is much cheaper.</p>
+<p>Let’s make this concrete with the paper’s example:</p>
+<ul>
+<li>The most common kernel size is <code>k=3</code>.</li>
+<li>This means <code>k² = 9</code>.</li>
+<li>Therefore, by switching from a standard 3x3 convolution to a depthwise separable 3x3 convolution, you are making the operation roughly <strong>9 times more computationally efficient!</strong></li>
+</ul>
+<p>This is an incredible win. The authors note that this massive reduction in cost comes with only a “small reduction in accuracy.” This is the fundamental trade-off that makes MobileNets possible: you sacrifice a tiny bit of model quality for a nearly 9x improvement in computational efficiency. That’s a deal you take every time when designing for mobile devices.</p>
+</section>
+</section>
+</section>
+<section id="linear-bottlenecks" class="level2">
+<h2 class="anchored" data-anchor-id="linear-bottlenecks">3.2. Linear Bottlenecks</h2>
+<p>Now we arrive at the second major concept of the paper and the one that is truly novel to MobileNetV2. This section provides the intuition for why the authors made one of their most crucial design choices: removing the non-linearity (ReLU) from the bottleneck layers. The argument is a bit theoretical, but the core idea is fascinating.</p>
+<p><a href="images/2025-09-03-mobilenetv2-reading-notes/paper-section-3.2-1.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-17"><img src="images/2025-09-03-mobilenetv2-reading-notes/paper-section-3.2-1.PNG" class="img-fluid"></a></p>
+<section id="the-manifold-of-interest-hypothesis" class="level3">
+<h3 class="anchored" data-anchor-id="the-manifold-of-interest-hypothesis">The “Manifold of Interest” Hypothesis</h3>
+<blockquote class="blockquote">
+<p><em>Consider a deep neural network consisting of n layers L_i each of which has an activation tensor of dimensions h_i × w_i × d_i. Throughout this section we will be discussing the basic properties of these activation tensors, which we will treat as containers of h_i × w_i “pixels” with d_i dimensions. Informally, for an input set of real images, we say that the set of layer activations (for any layer L_i) forms a “manifold of interest”.</em></p>
+</blockquote>
+<p>Let’s break this down.</p>
+<ul>
+<li>An “activation tensor” is just another name for the output feature map of a layer in the network. It is the output of a layer in the network. It’s a big block of numbers with a height, width, and depth (channels).</li>
+<li>The authors ask us to think of this tensor as a collection of <code>h_i × w_i</code> individual “pixels”. Each “pixel” is a vector of numbers with <code>d_i</code> dimensions (one value for each channel).</li>
+<li>Now, imagine you feed your network thousands of real-world images (cats, dogs, cars, etc.). For a specific layer <code>L_i</code> in the network, you collect all the activation “pixels” that are generated. This huge collection of vectors is what the authors call the <strong>“manifold of interest”</strong>.</li>
+</ul>
+<p>The key insight is that this collection of vectors is not just a random cloud of points in a <code>d_i</code>-dimensional space. It has structure. The activations corresponding to “cat ears” will be different from those for “car wheels,” but they will likely form coherent, lower-dimensional shapes or surfaces within the high-dimensional space. This structured shape is the “manifold.”</p>
+</section>
+<section id="the-low-dimensional-subspace-assumption" class="level3">
+<h3 class="anchored" data-anchor-id="the-low-dimensional-subspace-assumption">The Low-Dimensional Subspace Assumption</h3>
+<p>The next part is the crucial hypothesis that underpins the entire argument.</p>
+<blockquote class="blockquote">
+<p><em>It has been long assumed that manifolds of interest in neural networks could be embedded in low-dimensional subspaces. In other words, when we look at all individual d-channel pixels of a deep convolutional layer, the information encoded in those values actually lie in some manifold, which in turn is embeddable into a low-dimensional subspace.</em></p>
+</blockquote>
+<p>This is the big idea: even though a layer might have, say, 128 channels (<code>d_i=128</code>), the <em>actual information</em> contained in the “manifold of interest” doesn’t actually need all 128 dimensions to be represented. The interesting variations might only exist along, for example, 10 or 20 of those dimensions. The manifold has a lower “intrinsic dimensionality.”</p>
+<p>Think of a simple analogy: a long, thin, curved piece of paper (like a ribbon) floating in 3D space.</p>
+<ul>
+<li>The ambient space is 3-dimensional.</li>
+<li>But the paper itself is fundamentally a 2-dimensional surface. You only need two coordinates (length and width) to describe any point <em>on the paper</em>.</li>
+<li>The paper is a 2D manifold embedded in a 3D space.</li>
+</ul>
+<p>The authors are arguing that the activation data inside a neural network behaves similarly. The “manifold of interest” (the ribbon) lives inside the high-dimensional activation space (the 3D room), but it can be described and represented in a much lower-dimensional space without losing information.</p>
+<p>This assumption is the entire justification for using “bottleneck” layers in networks like ResNet and MobileNet. The purpose of a bottleneck is to project the data into this lower-dimensional subspace, do some processing, and then project it back out. This is efficient because you’re working in a compressed space.</p>
+<p>The question that MobileNetV2 tackles next is: <strong>what is the <em>wrong</em> way to operate in this compressed, low-dimensional space?</strong> And the answer to that will lead us directly to the concept of “linear bottlenecks.”</p>
+<div class="callout callout-style-default callout-tip callout-titled" title="Understanding Manifolds of Interest">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Understanding Manifolds of Interest
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-1" class="callout-1-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<section id="what-is-a-manifold" class="level4">
+<h4 class="anchored" data-anchor-id="what-is-a-manifold">What is a “Manifold”?</h4>
+<p>In simple terms, a manifold is a shape that <em>locally</em> looks like simple Euclidean space (like a flat plane), but <em>globally</em> can be curved or twisted.</p>
+<ul>
+<li><strong>Example 1: The Earth’s Surface.</strong> Locally, the ground beneath your feet looks flat (2D plane). Globally, the Earth is a sphere (a 2D manifold curved in 3D space).</li>
+<li><strong>Example 2: A Ribbon.</strong> A small patch of the ribbon is a flat 2D rectangle. Globally, it can be twisted and curved in 3D space.</li>
+</ul>
+<p>The key idea is that a manifold can have a much <strong>lower intrinsic dimension</strong> than the space it lives in. The Earth’s surface is 2D, but it exists in a 3D world.</p>
+</section>
+<section id="why-of-interest" class="level4">
+<h4 class="anchored" data-anchor-id="why-of-interest">Why “of Interest”?</h4>
+<p>This is the crucial part. The network isn’t interested in every possible combination of pixel values. It’s only interested in the combinations that correspond to <strong>real-world things</strong>.</p>
+<p>Imagine a layer with 128 channels. The total space of all possible activations is a 128-dimensional hypercube. A point chosen randomly from this space would be gibberish—it wouldn’t correspond to any meaningful feature.</p>
+<p>However, the activations that are generated when you show the network millions of real images (of cats, dogs, cars, etc.) will not fill this entire 128D hypercube. Instead, they will trace out very specific, structured, lower-dimensional shapes within it.</p>
+<ul>
+<li>There will be a “cat-ear” region of this shape.</li>
+<li>There will be a “car-wheel” region.</li>
+<li>There will be a “blade-of-grass” region.</li>
+</ul>
+<p>These regions are all connected and form a complex, curved surface—a manifold. This specific manifold, which represents all the features the network has learned about the real world, is the <strong>“manifold of interest”</strong>. It’s the only part of the vast activation space that actually matters for the task.</p>
+</section>
+<section id="whats-special-about-it-the-manifold-hypothesis" class="level4">
+<h4 class="anchored" data-anchor-id="whats-special-about-it-the-manifold-hypothesis">What’s Special About It? (The “Manifold Hypothesis”)</h4>
+<p>The special thing about the “manifold of interest” is that it’s assumed to be <strong>low-dimensional</strong>. This is often called the <strong>Manifold Hypothesis</strong> in machine learning. It’s the assumption that high-dimensional real-world data (like images) actually lies on a much lower-dimensional manifold embedded within that high-dimensional space.</p>
+<p><strong>Why is this a reasonable assumption?</strong></p>
+<p>Think about all possible 224x224 pixel images. The vast majority of them are just random static noise. The tiny, tiny fraction of images that actually look like something (a face, a tree, a house) all share immense statistical regularities and structure. They are not random. This structure is what confines them to a low-dimensional manifold.</p>
+<p>For example, in an image of a face, the position of the left eye pixel is highly correlated with the position of the right eye pixel. They aren’t independent. These constraints and correlations are what reduce the “degrees of freedom” or the “intrinsic dimension” of the data.</p>
+<p>This hypothesis is the entire justification for using bottleneck layers, which are designed to compress the feature map down into this low-dimensional “manifold of interest” to perform computations more efficiently.</p>
+</section>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled" title="Origin story of Manifolds">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Origin story of Manifolds
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-2" class="callout-2-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<section id="the-mathematical-roots-differential-geometry" class="level4">
+<h4 class="anchored" data-anchor-id="the-mathematical-roots-differential-geometry">1. The Mathematical Roots: Differential Geometry</h4>
+<p>The core term, <strong>“manifold,”</strong> is a foundational concept from a branch of mathematics called <strong>differential geometry</strong>. For over a century, mathematicians have used it to study curved spaces (like the surface of a sphere or a donut). The key idea is that even if a shape is globally curved, you can zoom in on any small patch and it looks flat, like a standard Euclidean plane. This allows mathematicians to use the tools of calculus on complex, curved surfaces.</p>
+</section>
+<section id="the-machine-learning-adoption-manifold-learning" class="level4">
+<h4 class="anchored" data-anchor-id="the-machine-learning-adoption-manifold-learning">2. The Machine Learning Adoption: “Manifold Learning”</h4>
+<p>In the late 1990s and early 2000s, machine learning researchers faced a huge problem called the <strong>“curse of dimensionality.”</strong> Real-world data like images has thousands or millions of dimensions (one for each pixel), making it computationally difficult to work with.</p>
+<p>Researchers hypothesized that even though the data lives in a high-dimensional space, the <em>meaningful</em> data points are not randomly scattered. They lie on a much lower-dimensional, smooth, curved surface—a manifold. This became known as the <strong>Manifold Hypothesis</strong>.</p>
+<p>This led to the creation of a whole subfield called <strong>Manifold Learning</strong>. Famous algorithms like <strong>Isomap</strong>, <strong>Locally Linear Embedding (LLE)</strong>, and later <strong>t-SNE</strong> were developed. Their entire purpose was to take high-dimensional data, discover the underlying low-dimensional manifold, and “unroll” it into a flat space, making it easier to visualize and classify.</p>
+<p><strong>So, the idea of data lying on a “manifold” became a central concept in machine learning for dimensionality reduction.</strong></p>
+</section>
+<section id="the-deep-learning-interpretation-representation-learning" class="level4">
+<h4 class="anchored" data-anchor-id="the-deep-learning-interpretation-representation-learning">3. The Deep Learning Interpretation: Representation Learning</h4>
+<p>When the deep learning revolution took off, researchers needed a theoretical framework to explain <em>why</em> deep networks were so powerful. They turned to the language of manifold learning.</p>
+<p>Pioneers like Yoshua Bengio, Yann LeCun, and Geoffrey Hinton began describing the function of a deep network in geometric terms:</p>
+<ul>
+<li>The input data (e.g., images of faces) lies on a complex, tangled, and twisted manifold. For example, the “face manifold” has variations for identity, pose, lighting, expression, etc.</li>
+<li>The job of each layer in a deep network is to <strong>learn a transformation that makes this manifold simpler.</strong></li>
+<li>Layer by layer, the network “untangles” the manifold. It might learn to “straighten out” the variations due to lighting in one layer, and then “flatten” the variations due to pose in another.</li>
+<li>The ultimate goal is to transform the data manifold so that the different classes (e.g., person A vs.&nbsp;person B) become <strong>linearly separable</strong>—meaning you can separate them with a simple plane.</li>
+</ul>
+<p>This geometric view became a very powerful way to understand <strong>representation learning</strong>.</p>
+</section>
+<section id="the-mobilenetv2-phrasing-manifold-of-interest" class="level4">
+<h4 class="anchored" data-anchor-id="the-mobilenetv2-phrasing-manifold-of-interest">4. The MobileNetV2 Phrasing: “Manifold of Interest”</h4>
+<p>The authors of MobileNetV2 are using this well-established language. By adding the phrase <strong>“of Interest,”</strong> they are being more specific and pragmatic.</p>
+<p>They are not talking about some abstract mathematical manifold. They are talking about the <em>specific manifold of feature activations</em> that a network, trained on a specific dataset (like ImageNet), has learned to represent. It is “of interest” because it is the only part of the vast activation space that contains the semantic features (edges, textures, object parts) relevant to the classification task.</p>
+</section>
+</div>
+</div>
+</div>
+</section>
+<section id="the-obvious-solution-and-its-hidden-flaw" class="level3">
+<h3 class="anchored" data-anchor-id="the-obvious-solution-and-its-hidden-flaw">The “Obvious” Solution and Its Hidden Flaw</h3>
+<p>Okay, we’ve established the core hypothesis: the “manifold of interest” inside a neural network is low-dimensional. So, what’s the most logical way to exploit this? The authors walk us through the most intuitive, first-glance solution.</p>
+<p><strong>Section 3.2, Paragraph 2</strong> <a href="images/2025-09-03-mobilenetv2-reading-notes/paper-section-3.2-2.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-18"><img src="images/2025-09-03-mobilenetv2-reading-notes/paper-section-3.2-2.PNG" class="img-fluid"></a></p>
+<section id="the-intuitive-approach-just-shrink-everything" class="level4">
+<h4 class="anchored" data-anchor-id="the-intuitive-approach-just-shrink-everything">The Intuitive Approach: Just Shrink Everything!</h4>
+<blockquote class="blockquote">
+<p><em>At a first glance, such a fact could then be captured and exploited by simply reducing the dimensionality of a layer thus reducing the dimensionality of the operating space. This has been successfully exploited by MobileNetV1 [27] to effectively trade off between computation and accuracy via a width multiplier parameter, and has been incorporated into efficient model designs of other networks as well [20].</em></p>
+</blockquote>
+<p>If the information doesn’t need all 128 channels, why use them? The most straightforward idea is to simply design networks with fewer channels to begin with.</p>
+<p>This isn’t just a theoretical idea; it’s exactly what <strong>MobileNetV1</strong> did with its <strong>“width multiplier”</strong>. The width multiplier is a hyperparameter (e.g., 1.0, 0.75, 0.5) that you can use to uniformly reduce the number of channels in every single layer of the network. A model with a width multiplier of 0.5 has half the channels (and is roughly 4x faster) than the baseline 1.0 model.</p>
+<blockquote class="blockquote">
+<p><em>Following that intuition, the width multiplier approach allows one to reduce the dimensionality of the activation space until the manifold of interest spans this entire space.</em></p>
+</blockquote>
+<p>This is the ideal goal of the width multiplier. Imagine our “manifold of interest” is a ribbon floating in a big box (the high-dimensional activation space). The width multiplier is like a dial that shrinks the box. The perfect setting is when the box is <em>just big enough</em> to contain the ribbon without squishing it. At this point, the manifold “spans the entire space,” and you have achieved maximum efficiency without losing information.</p>
+<p>It’s a beautiful, simple, and intuitive idea. But, as the authors point out, it has a critical flaw.</p>
+</section>
+<section id="the-intuition-breaks-down-the-problem-with-relu" class="level4">
+<h4 class="anchored" data-anchor-id="the-intuition-breaks-down-the-problem-with-relu">The Intuition Breaks Down: The Problem with ReLU</h4>
+<blockquote class="blockquote">
+<p><em>However, this intuition breaks down when we recall that deep convolutional neural networks actually have non-linear per coordinate transformations, such as ReLU.</em></p>
+</blockquote>
+<p>Here comes the twist. The simple “shrinking box” analogy is missing a crucial piece of the puzzle: every time we pass our data through a layer, we apply a non-linear activation function, most commonly <strong>ReLU</strong> (<code>f(x) = max(0, x)</code>).</p>
+<p>And ReLU, for all its benefits, has one very destructive property: <strong>it can kill information.</strong></p>
+<blockquote class="blockquote">
+<p><em>For example, ReLU applied to a line in 1D space produces a ‘ray’, where as in R^n space, it generally results in a piece-wise linear curve with n-joints.</em></p>
+</blockquote>
+<p>Let’s unpack this simple but powerful example:</p>
+<ul>
+<li>Imagine your data is just a simple line on a number graph, going from negative infinity to positive infinity.</li>
+<li>When you apply ReLU, every single negative value on that line gets mapped to the single point <strong>zero</strong>.</li>
+<li>The entire negative half of the line is collapsed. All information within that region is lost forever. You can no longer tell if the original input was -1, -10, or -500; the output is just 0. The line becomes a “ray” starting at zero.</li>
+</ul>
+<p>Now, scale this up to a high-dimensional feature map. ReLU is applied to every single number (coordinate) in the tensor. If a region of our precious “manifold of interest” happens to pass through a quadrant where some channels are negative, ReLU will collapse and deform that part of the manifold, squashing it onto the axes.</p>
+<p><strong>This is the central problem:</strong> The “obvious” strategy of making layers very thin (low-dimensional) is extremely dangerous. Why? Because in a low-dimensional space, there are fewer dimensions for the manifold to “escape” into. There’s a much higher probability that the ReLU function will completely collapse the manifold in some dimensions, leading to a catastrophic loss of information.</p>
+<p>This leads us to the core insight of MobileNetV2: <strong>If you are going to use low-dimensional “bottleneck” layers, you must be extremely careful not to destroy the information within them. And the primary agent of destruction is the non-linear activation function.</strong></p>
+</section>
+</section>
+<section id="the-paradox-of-non-linearity-to-be-expressive-a-layer-must-destroy-information" class="level3">
+<h3 class="anchored" data-anchor-id="the-paradox-of-non-linearity-to-be-expressive-a-layer-must-destroy-information">The Paradox of Non-Linearity: To Be Expressive, a Layer Must Destroy Information</h3>
+<p>We just established that ReLU can destroy information by collapsing parts of the input. Now, the authors present a deep and paradoxical insight: this information destruction isn’t just a side effect; it’s intrinsically linked to the very source of a deep network’s power.</p>
+<div class="quarto-layout-panel" data-layout-ncol="2">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<p><a href="images/2025-09-03-mobilenetv2-reading-notes/paper-section-3.2-3a.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-19"><img src="images/2025-09-03-mobilenetv2-reading-notes/paper-section-3.2-3a.PNG" class="img-fluid"></a></p>
+</div>
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<p><a href="images/2025-09-03-mobilenetv2-reading-notes/paper-section-3.2-3b.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-20"><img src="images/2025-09-03-mobilenetv2-reading-notes/paper-section-3.2-3b.PNG" class="img-fluid"></a></p>
+</div>
+</div>
+</div>
+<p>Let’s carefully unpack this crucial paragraph.</p>
+<blockquote class="blockquote">
+<p><em>It is easy to see that in general if a result of a layer transformation ReLU(Bx) has a non-zero volume S, the points mapped to interior S are obtained via a linear transformation B of the input, thus indicating that the part of the input space corresponding to the full dimensional output, is limited to a linear transformation. In other words, deep networks only have the power of a linear classifier on the non-zero volume part of the output domain.</em></p>
+</blockquote>
+<p>This is a dense statement. Let’s translate it into a step-by-step logical argument. The core of the argument revolves around the behavior of the <code>ReLU</code> function.</p>
+<p><strong>The Logic Explained:</strong></p>
+<ol type="1">
+<li><p><strong>The Setup</strong>: We are looking at a standard layer operation, <code>ReLU(Bx)</code>, where <code>x</code> is the input feature map and <code>B</code> is a linear transformation (like a convolution or fully-connected layer).</p></li>
+<li><p><strong>The Condition: “Non-Zero Volume”</strong>: Let’s assume that the output of this layer isn’t completely squashed into a lower-dimensional shape. It retains its full dimensionality, meaning it has a “non-zero volume.”</p></li>
+<li><p><strong>The Key Question</strong>: What does it take for an output point to be in the <strong>“interior”</strong> of this output volume?</p>
+<ul>
+<li>The “boundaries” or “edges” of the output shape are created by the <code>ReLU</code> function. Specifically, a boundary is formed whenever one of the output channels is exactly zero.</li>
+<li>Therefore, to be in the “interior”—away from all boundaries—an output point <code>y</code> must have <strong>all of its channels be strictly positive</strong>. (<code>y_i &gt; 0</code> for all channels <code>i</code>).</li>
+</ul></li>
+<li><p><strong>The “Aha!” Moment</strong>: What does the <code>ReLU</code> function do to a number that is already positive? <strong>Nothing!</strong> <code>ReLU(z) = z</code> if <code>z &gt; 0</code>.</p>
+<ul>
+<li>This means that for any input <code>x</code> that produces an output <code>y</code> in this “interior” region, the <code>ReLU</code> part of the operation was effectively an identity function. It didn’t do anything at all.</li>
+<li>For this part of the data, the transformation was simply <code>y = Bx</code>.</li>
+</ul></li>
+<li><p><strong>The Staggering Conclusion</strong>: The transformation <code>y = Bx</code> is purely <strong>linear</strong>. It can only rotate, scale, and stretch the input data. It cannot perform the complex folding, bending, and cutting that gives deep networks their incredible expressive power.</p></li>
+</ol>
+<p><strong>Putting It All Together: The Paradox</strong></p>
+<p>The authors have just shown us a profound paradox:</p>
+<ul>
+<li><strong>If a layer preserves the full volume of the input manifold</strong>, it can only do so by being a simple <strong>linear</strong> transformation. It adds no non-linear complexity.</li>
+<li><strong>All the non-linear “magic” of a deep network comes from the <code>ReLU</code> function actively cutting and folding the data manifold.</strong> This happens precisely at the boundaries where it sets some channels to zero.</li>
+</ul>
+<p>In other words, the expressive power of a deep network is inseparable from its capacity for information destruction. To learn a non-linear function, a layer <em>must</em> collapse parts of the input space.</p>
+<p>This explains why simply shrinking a layer (like in MobileNetV1) is so dangerous. A very thin layer has very little room to maneuver. When <code>ReLU</code> starts chopping away at the few dimensions it has, it’s very likely to cause irreparable damage to the “manifold of interest,” leading to a permanent loss of representational power.</p>
+<p>This single insight is the entire motivation for the inverted bottleneck structure of MobileNetV2, which we will see is designed to resolve this very paradox.</p>
+</section>
+<section id="the-solution-using-high-dimensions-as-a-safety-net" class="level3">
+<h3 class="anchored" data-anchor-id="the-solution-using-high-dimensions-as-a-safety-net">The Solution: Using High Dimensions as a Safety Net</h3>
+<p>So, we’re faced with a paradox: for a layer to be non-linear and powerful, it must use ReLU to cut and fold the data, which risks destroying the “manifold of interest.” But if it avoids this destruction, it remains linear and adds no expressive power. How can we get the best of both worlds? The authors provide the answer in this paragraph.</p>
+<p><a href="images/2025-09-03-mobilenetv2-reading-notes/paper-section-3.2-4.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-21"><img src="images/2025-09-03-mobilenetv2-reading-notes/paper-section-3.2-4.PNG" class="img-fluid"></a></p>
+<section id="information-is-redundant" class="level4">
+<h4 class="anchored" data-anchor-id="information-is-redundant">Information is Redundant</h4>
+<p>First, a simple but important observation:</p>
+<blockquote class="blockquote">
+<p><em>On the other hand, when ReLU collapses the channel, it inevitably loses information in </em>that channel<em>. However if we have lots of channels, and there is a structure in the activation manifold that information might still be preserved in the other channels.</em></p>
+</blockquote>
+<p>Think about a color photograph. It has three channels: Red, Green, and Blue. If you were to completely delete the Blue channel, you would lose all the “blue” information. However, you could still easily recognize the objects in the picture. Why? Because the structural information—the edges, shapes, and textures that define a “cat” or a “car”—is highly redundant and is also present in the Red and Green channels.</p>
+<p>The authors are arguing that the “manifold of interest” inside a network behaves similarly. The crucial information is often encoded redundantly across multiple channels. So, even if ReLU zeroes out a few channels, the core information can survive in the channels that remain.</p>
+</section>
+<section id="the-crucial-condition-for-survival" class="level4">
+<h4 class="anchored" data-anchor-id="the-crucial-condition-for-survival">The Crucial Condition for Survival</h4>
+<p>This information survival isn’t guaranteed. It only works under a very specific condition, which is the key insight of this entire section:</p>
+<blockquote class="blockquote">
+<p><em>In supplemental materials, we show that if the input manifold can be embedded into a significantly lower-dimensional subspace of the activation space then the ReLU transformation preserves the information while introducing the needed complexity into the set of expressible functions.</em></p>
+</blockquote>
+<p>This is the punchline. Let’s translate it with an analogy.</p>
+<p><strong>The Sculpture Analogy:</strong></p>
+<ul>
+<li>Imagine our precious <strong>“manifold of interest”</strong> is a complex <strong>3D sculpture</strong>.</li>
+<li>The <strong>“activation space”</strong> is the <strong>room</strong> the sculpture is in.</li>
+<li>The <strong><code>ReLU</code> operation</strong> is like a destructive process that <strong>flattens the room along one dimension</strong>, like shining a powerful light from one direction to cast a 2D shadow.</li>
+</ul>
+<p>Now, consider two scenarios:</p>
+<p><strong>Scenario 1: The Bottleneck (Low-Dimensional Space)</strong></p>
+<ul>
+<li>You place your 3D sculpture in a tiny 3D room. The sculpture nearly fills the entire room.</li>
+<li>Now, you apply the <code>ReLU</code> process and flatten the room into a 2D shadow.</li>
+<li>The result? You’ve completely lost one dimension of your sculpture. Its intricate 3D structure is irreparably damaged. You cannot reconstruct the sculpture from its shadow.</li>
+<li>This is what happens when you apply <code>ReLU</code> in a low-dimensional bottleneck layer. The manifold fills the space, so any information loss is catastrophic.</li>
+</ul>
+<p><strong>Scenario 2: The Expansion (High-Dimensional Space)</strong></p>
+<ul>
+<li>Now, you take your same 3D sculpture and place it in a massive <strong>100-dimensional room</strong>. Our 3D manifold is now embedded in a <em>significantly</em> higher-dimensional space.</li>
+<li>You apply the <code>ReLU</code> process and flatten the room along one of its 100 dimensions, projecting it into a 99-dimensional “shadow.”</li>
+<li>The result? The 3D structure of the sculpture is almost perfectly preserved! Losing one dimension out of 100 is insignificant. The core relationships and shape of the sculpture remain intact in the other 99 available dimensions.</li>
+</ul>
+<p>This is the brilliant insight! The way to safely apply the information-destroying <code>ReLU</code> is to first give your manifold <strong>plenty of extra dimensions to live in</strong>.</p>
+<p>By projecting the data into a high-dimensional space (the “expansion” layer in MobileNetV2), you create a safety net. In this expanded space, <code>ReLU</code> can do its job of cutting and folding (introducing non-linearity) by zeroing out some channels, but the risk of destroying the core structure of the “manifold of interest” is dramatically reduced because the information is safely preserved in the many other dimensions that remain.</p>
+</section>
+</section>
+<section id="the-two-guiding-principles-of-mobilenetv2" class="level3">
+<h3 class="anchored" data-anchor-id="the-two-guiding-principles-of-mobilenetv2">The Two Guiding Principles of MobileNetV2</h3>
+<p>After that deep dive into the geometry of information flow, the authors neatly summarize their entire argument into two core principles. These two statements are the “theses” of the paper and the direct justification for their design.</p>
+<div class="quarto-layout-panel" data-layout-ncol="2">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<p><a href="images/2025-09-03-mobilenetv2-reading-notes/paper-section-3.2-5a.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-22"><img src="images/2025-09-03-mobilenetv2-reading-notes/paper-section-3.2-5a.PNG" class="img-fluid"></a></p>
+</div>
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<p><a href="images/2025-09-03-mobilenetv2-reading-notes/paper-section-3.2-5b.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-23"><img src="images/2025-09-03-mobilenetv2-reading-notes/paper-section-3.2-5b.PNG" class="img-fluid"></a></p>
+</div>
+</div>
+</div>
+<blockquote class="blockquote">
+<p><em>To summarize, we have highlighted two properties that are indicative of the requirement that the manifold of interest should lie in a low-dimensional subspace of the higher-dimensional activation space:</em></p>
+</blockquote>
+<section id="principle-1-the-expressiveness-vs.-information-destruction-trade-off" class="level4">
+<h4 class="anchored" data-anchor-id="principle-1-the-expressiveness-vs.-information-destruction-trade-off">Principle 1: The Expressiveness vs.&nbsp;Information Destruction Trade-off</h4>
+<blockquote class="blockquote">
+<p><em>1. If the manifold of interest remains non-zero volume after ReLU transformation, it corresponds to a linear transformation.</em></p>
+</blockquote>
+<p>This is a restatement of the paradox we discussed. A layer can either be a simple, information-preserving linear transformation, OR it can be a complex, information-destroying non-linear one. You can’t have both at the same time. The only way to get expressive power is to accept that <code>ReLU</code> will collapse parts of the input.</p>
+</section>
+<section id="principle-2-the-high-dimensional-safety-net" class="level4">
+<h4 class="anchored" data-anchor-id="principle-2-the-high-dimensional-safety-net">Principle 2: The High-Dimensional Safety Net</h4>
+<blockquote class="blockquote">
+<p><em>2. ReLU is capable of preserving complete information about the input manifold, but only if the input manifold lies in a low-dimensional subspace of the input space.</em></p>
+</blockquote>
+<p>This is the solution to the paradox. We can safely let <code>ReLU</code> do its destructive work <em>if and only if</em> we first give our data a high-dimensional “safety net.” By projecting our low-dimensional manifold into a much higher-dimensional space, we ensure that even when <code>ReLU</code> collapses a few of those dimensions, the overall structure of our manifold remains intact in the many dimensions that are left over.</p>
+</section>
+</section>
+<section id="the-design-prescription-linear-bottlenecks" class="level3">
+<h3 class="anchored" data-anchor-id="the-design-prescription-linear-bottlenecks">The Design Prescription: Linear Bottlenecks</h3>
+<p>These two principles don’t just form a neat theory; they give the authors a clear, empirical “hint” for how to design a better network.</p>
+<blockquote class="blockquote">
+<p><em>These two insights provide us with an empirical hint for optimizing existing neural architectures: assuming the manifold of interest is low-dimensional we can capture this by inserting <strong>linear bottleneck layers</strong> into the convolutional blocks.</em></p>
+</blockquote>
+<p>This is the big reveal. The argument flows perfectly:</p>
+<ol type="1">
+<li>We know the important information (the manifold of interest) is low-dimensional.</li>
+<li>Therefore, it makes sense to represent it in a low-dimensional “bottleneck” layer to be efficient.</li>
+<li><strong>BUT</strong>, we also know that applying a non-linearity like <code>ReLU</code> in this confined, low-dimensional space is extremely dangerous and risks destroying the manifold.</li>
+<li><strong>THEREFORE</strong>, the logical conclusion is to make the bottleneck layers <strong>linear</strong>. We simply remove the <code>ReLU</code> from the bottleneck to protect our manifold from destruction.</li>
+</ol>
+<p>This is the birth of the <strong>“Linear Bottleneck.”</strong></p>
+<blockquote class="blockquote">
+<p><em>Experimental evidence suggests that using linear layers is crucial as it prevents non-linearities from destroying too much information. In Section 6, we show empirically that using non-linear layers in bottlenecks indeed hurts the performance by several percent, further validating our hypothesis³.</em></p>
+</blockquote>
+<p>The authors don’t just want us to take their word for it. They promise to prove it with experiments. Later in the paper, they will run an ablation study where they add <code>ReLU</code> back into the bottlenecks and show that, as their theory predicts, the model’s performance gets significantly worse.</p>
+<section id="the-expansion-ratio" class="level4">
+<h4 class="anchored" data-anchor-id="the-expansion-ratio">The Expansion Ratio</h4>
+<p>Finally, they give a name to the key parameter of their new block design.</p>
+<blockquote class="blockquote">
+<p><em>For the remainder of this paper we will be utilizing bottleneck convolutions. We will refer to the ratio between the size of the input bottleneck and the inner size as the <strong>expansion ratio</strong>.</em></p>
+</blockquote>
+<p>This is a simple but important definition. If a block takes a 16-channel bottleneck as input and expands it to a 96-channel intermediate layer before projecting it back down, the <strong>expansion ratio is 6</strong> (96 / 16 = 6). This ratio will be a key hyperparameter for controlling the trade-off between the model’s capacity and its computational cost.</p>
+<p>And with that, the theoretical foundation is complete. We now understand the <em>why</em> behind MobileNetV2’s design. The rest of the paper will focus on the <em>what</em> and the <em>how</em>: detailing the exact architecture and proving its effectiveness.</p>
+</section>
+</section>
+<section id="visualizing-the-theory-the-spiral-experiment-figure-1" class="level3">
+<h3 class="anchored" data-anchor-id="visualizing-the-theory-the-spiral-experiment-figure-1">Visualizing the Theory: The Spiral Experiment (Figure 1)</h3>
+<p>After all that dense theory, the authors provide a simple yet brilliant visualization in Figure 1 to help us build a concrete intuition for their main point: <strong>to safely apply ReLU, you must first expand your data into a higher dimension.</strong></p>
+<p><a href="images/2025-09-03-mobilenetv2-reading-notes/paper-fig-1.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-24"><img src="images/2025-09-03-mobilenetv2-reading-notes/paper-fig-1.PNG" class="img-fluid"></a></p>
+<p>Let’s break down what this figure is showing.</p>
+<section id="the-experiment-setup" class="level4">
+<h4 class="anchored" data-anchor-id="the-experiment-setup">The Experiment Setup</h4>
+<p>The experiment is designed to simulate what happens to a “manifold of interest” inside a network layer.</p>
+<ol type="1">
+<li><strong>The Manifold</strong>: The input is a simple 2D spiral. This is our toy “manifold of interest.” It’s a 1-dimensional line living in a 2D space.</li>
+<li><strong>The “Expansion”</strong>: The spiral is projected from its 2D space into a higher, <code>n</code>-dimensional space using a random transformation matrix <code>T</code>. This simulates the “expansion” part of the MobileNetV2 block.</li>
+<li><strong>The Non-Linearity</strong>: The <code>ReLU</code> function is applied to the data in this <code>n</code>-dimensional space. This is the critical, potentially destructive step.</li>
+<li><strong>The “Projection”</strong>: Finally, the data is projected back to the original 2D space using the inverse transformation <code>T⁻¹</code> so we can see what happened to it.</li>
+</ol>
+<p>The experiment is repeated for different values of <code>n</code>, the dimension of the intermediate “expansion” space.</p>
+</section>
+<section id="interpreting-the-results" class="level4">
+<h4 class="anchored" data-anchor-id="interpreting-the-results">Interpreting the Results</h4>
+<p>The results clearly show two distinct regimes:</p>
+<p><strong>Case 1: Low-Dimensional Expansion (n = 2, 3)</strong></p>
+<ul>
+<li><strong>What we see</strong>: When the expansion dimension <code>n</code> is very low (close to the manifold’s own dimension), the output is a disaster. The beautiful spiral structure is completely destroyed. Large segments of the spiral are “collapsed into each other,” squashed onto straight lines.</li>
+<li><strong>What it means</strong>: This is a visual confirmation of the theory. In a low-dimensional space, <code>ReLU</code> doesn’t have enough room to work without causing catastrophic information loss. It’s like our sculpture-in-a-tiny-room analogy; flattening the room destroys the sculpture. The transformation is not invertible; you could never get the original spiral back from these mangled outputs.</li>
+</ul>
+<p><strong>Case 2: High-Dimensional Expansion (n = 15, 30)</strong></p>
+<ul>
+<li><strong>What we see</strong>: As we increase the expansion dimension <code>n</code>, something amazing happens. The output spiral looks almost identical to the input! The information is almost perfectly preserved.</li>
+<li><strong>A Subtle, Important Difference</strong>: Although the <em>shape</em> is preserved, the transformation is now “highly non-convex.” This means that the <code>ReLU</code> has successfully introduced complex, non-linear folds and bends into the space, but it has done so without destroying the underlying structure of the manifold.</li>
+<li><strong>What it means</strong>: This is the “safety net” in action. By embedding the 2D spiral into a high-dimensional space (like 15D or 30D), we give <code>ReLU</code> the freedom to perform its non-linear magic without risking the integrity of our manifold. It’s our sculpture-in-a-huge-room analogy; flattening one dimension out of 30 doesn’t harm the 2D shape of the spiral. The transformation is complex, but it’s also invertible.</li>
+</ul>
+<p>This simple figure perfectly illustrates the core design principle of MobileNetV2: the <strong>expand -&gt; project</strong> structure, where non-linearities are only applied in the high-dimensional expanded space, is the key to creating a powerful <em>and</em> information-preserving building block.</p>
+
+
+</section>
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/hassaanbinaslam\.github\.io\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<script src="https://utteranc.es/client.js" repo="hassaanbinaslam/myblog_utterances" issue-term="pathname" theme="github-light" crossorigin="anonymous" async="">
+</script>
+</div> <!-- /content -->
+<script>var lightboxQuarto = GLightbox({"closeEffect":"zoom","descPosition":"bottom","loop":false,"openEffect":"zoom","selector":".lightbox"});
+(function() {
+  let previousOnload = window.onload;
+  window.onload = () => {
+    if (previousOnload) {
+      previousOnload();
+    }
+    lightboxQuarto.on('slide_before_load', (data) => {
+      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+      const href = trigger.getAttribute('href');
+      if (href !== null) {
+        const imgEl = window.document.querySelector(`a[href="${href}"] img`);
+        if (imgEl !== null) {
+          const srcAttr = imgEl.getAttribute("src");
+          if (srcAttr && srcAttr.startsWith("data:")) {
+            slideConfig.href = srcAttr;
+          }
+        }
+      } 
+    });
+  
+    lightboxQuarto.on('slide_after_load', (data) => {
+      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(slideNode);
+      }
+    });
+  
+  };
+  
+})();
+          </script>
+
+
+
+
+</body></html>
