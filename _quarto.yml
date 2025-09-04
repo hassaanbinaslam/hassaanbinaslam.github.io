@@ -5,6 +5,7 @@ project:
     - "BingSiteAuth.xml"
     - "google37432af36185f94d.html"
     - "robots.txt"
+    - "yandex_68b088d0ea7b0e2f.html"
 
 website:
   title: "Random Thoughts"
