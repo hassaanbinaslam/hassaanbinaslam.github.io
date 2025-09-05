@@ -84,13 +84,13 @@ gtag('config', 'G-D1ST9BH6HX', { 'anonymize_ip': true});
 
 
 <link rel="stylesheet" href="../styles.css">
-<meta property="og:title" content="MobileNetV1 Explained: A Deep Dive into Lightweight Neural Networks – Random Thoughts">
+<meta property="og:title" content="MobileNetV2 Explained: A Deep Dive into Lightweight Neural Networks – Random Thoughts">
 <meta property="og:description" content="A detailed, page-by-page breakdown of the MobileNetV2 paper, explaining how to build efficient neural networks for mobile and edge devices.">
 <meta property="og:image" content="https://hassaanbinaslam.github.io/posts/images/2025-09-03-mobilenetv2-reading-notes.png">
 <meta property="og:site_name" content="Random Thoughts">
 <meta property="og:image:height" content="1024">
 <meta property="og:image:width" content="1024">
-<meta name="twitter:title" content="MobileNetV1 Explained: A Deep Dive into Lightweight Neural Networks – Random Thoughts">
+<meta name="twitter:title" content="MobileNetV2 Explained: A Deep Dive into Lightweight Neural Networks – Random Thoughts">
 <meta name="twitter:description" content="A detailed, page-by-page breakdown of the MobileNetV2 paper, explaining how to build efficient neural networks for mobile and edge devices.">
 <meta name="twitter:image" content="https://hassaanbinaslam.github.io/posts/images/2025-09-03-mobilenetv2-reading-notes.png">
 <meta name="twitter:image-height" content="1024">
@@ -686,6 +686,73 @@ Origin story of Manifolds
 </div>
 </div>
 </div>
+<div class="callout callout-style-default callout-tip callout-titled" title="An example of representation learning in a Neural Network">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+An example of representation learning in a Neural Network
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-3" class="callout-3-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Imagine our task is <strong>facial recognition</strong>. Our input data is a collection of images of two people, Alice and Bob. The network’s job is to <strong>learn to separate images of Alice from images of Bob</strong>.</p>
+<section id="the-input-a-tangled-mess-of-a-manifold" class="level3">
+<h3 class="anchored" data-anchor-id="the-input-a-tangled-mess-of-a-manifold">The Input: A Tangled Mess of a Manifold</h3>
+<p>In the raw pixel space, the “face manifold” is a complete mess. It’s a high-dimensional, tangled-up surface where many different factors of variation are all mixed together.</p>
+<p>Consider four specific input images:</p>
+<ol type="1">
+<li><strong>Alice_Day.jpg</strong>: Alice in bright daylight, looking straight ahead.</li>
+<li><strong>Alice_Night.jpg</strong>: Alice in dim lighting, looking straight ahead.</li>
+<li><strong>Bob_Day.jpg</strong>: Bob in bright daylight, looking straight ahead.</li>
+<li><strong>Bob_Night.jpg</strong>: Bob in dim lighting, looking straight ahead.</li>
+</ol>
+<p>If we plot these four points in the high-dimensional pixel space, they might be arranged like this:</p>
+<pre><code>Alice_Day &lt;--- (close) ---&gt; Bob_Day
+    |                         |   
+ (far)                    (far)
+    |                         |   
+Alice_Night &lt;---(close) ---&gt; Bob_Night</code></pre>
+<p>Notice the problem:</p>
+<ul>
+<li>The distance between <code>Alice_Day</code> and <code>Bob_Day</code> is small (because the lighting is the same).</li>
+<li>The distance between <code>Alice_Day</code> and <code>Alice_Night</code> is large (because the lighting is very different).</li>
+</ul>
+<p>You <strong>cannot</strong> draw a simple line (or plane) to separate Alice’s pictures from Bob’s. The manifold is “tangled” by the variation in lighting.</p>
+</section>
+<section id="layer-by-layer-the-untangling-process" class="level3">
+<h3 class="anchored" data-anchor-id="layer-by-layer-the-untangling-process">Layer by Layer: The Untangling Process</h3>
+<p>The job of the deep network is to learn a series of transformations that gradually “untangle” this manifold.</p>
+<section id="layer-1-straightening-out-lighting-variations" class="level4">
+<h4 class="anchored" data-anchor-id="layer-1-straightening-out-lighting-variations">Layer 1: “Straightening out” Lighting Variations</h4>
+<p>The first few layers of a CNN typically learn to recognize low-level features like edges, gradients, and textures. Let’s say one of these early layers learns a set of filters that are <strong>invariant to absolute brightness</strong>. These filters might learn to detect the shape of a nose or the curve of an eye, regardless of whether it’s brightly lit or in shadow.</p>
+<p>After passing through this layer, the representation of our four points might be transformed. In this new, learned feature space, the points might look like this:</p>
+<pre><code>Alice_Day   &lt;---(far)---&gt;   Bob_Day
+   |                           |   
+(close)                     (close)
+   |                           |   
+Alice_Night &lt;---(far)---&gt;   Bob_Night</code></pre>
+<p><strong>What happened?</strong> The network has learned a transformation that “straightens out” or “flattens” the manifold along the axis of lighting variation. Now, the two images of Alice are close to each other, and the two images of Bob are close to each other. The distance between them is now dominated by the features that define their identity, not the lighting.</p>
+<p>However, the manifold might still be tangled by another factor, like <strong>pose</strong> (head turned left vs.&nbsp;right).</p>
+</section>
+<section id="a-later-layer-flattening-pose-variations" class="level4">
+<h4 class="anchored" data-anchor-id="a-later-layer-flattening-pose-variations">A Later Layer: “Flattening” Pose Variations</h4>
+<p>A deeper layer in the network might learn more abstract features. For example, it might learn a representation of a “canonical, forward-facing face.” It learns to recognize a nose as a nose, even if it’s seen from the side, and then represents it in a pose-independent way.</p>
+<p>After passing through this layer, the transformation might further untangle the manifold. It “flattens” the variations due to pose, so that an image of Alice looking left is now very close to the image of Alice looking right in this new feature space.</p>
+</section>
+</section>
+<section id="the-final-goal-linear-separability" class="level3">
+<h3 class="anchored" data-anchor-id="the-final-goal-linear-separability">The Final Goal: Linear Separability</h3>
+<p>After passing through many layers, each untangling the manifold along a different axis of variation (lighting, pose, expression, scale, etc.), the final representation of the data becomes very simple.</p>
+<p>In the ideal case, all the points corresponding to Alice will be clustered together in one region of the final feature space, and all the points corresponding to Bob will be in another.</p>
+<p><strong>Crucially, these two clusters will be linearly separable.</strong> This means you can now draw a simple hyperplane (a flat “wall”) between the two clusters to perfectly separate them. This is the job of the final classification layer (e.g., a softmax layer).</p>
+<p>So, the phrase <strong>“layer by layer, the network untangles the manifold”</strong> is a geometric metaphor for the process of representation learning. The network learns to discard irrelevant information (like lighting) and amplify relevant information (like identity) until the data is so well-organized that a simple linear classifier can solve the task.</p>
+</section>
+</div>
+</div>
+</div>
 </section>
 <section id="the-obvious-solution-and-its-hidden-flaw" class="level3">
 <h3 class="anchored" data-anchor-id="the-obvious-solution-and-its-hidden-flaw">The “Obvious” Solution and Its Hidden Flaw</h3>
@@ -765,14 +832,102 @@ Origin story of Manifolds
 <li><strong>If a layer preserves the full volume of the input manifold</strong>, it can only do so by being a simple <strong>linear</strong> transformation. It adds no non-linear complexity.</li>
 <li><strong>All the non-linear “magic” of a deep network comes from the <code>ReLU</code> function actively cutting and folding the data manifold.</strong> This happens precisely at the boundaries where it sets some channels to zero.</li>
 </ul>
-<p>In other words, the expressive power of a deep network is inseparable from its capacity for information destruction. To learn a non-linear function, a layer <em>must</em> collapse parts of the input space.</p>
+<p>In other words, non-linear power of a deep network—its ability to “fold the paper” into complex shapes—only exists at the boundaries it creates. These boundaries are the “creases” where ReLU is actively setting some channels to zero.</p>
+<p>This means:</p>
+<ul>
+<li><strong>Non-Linearity requires information loss</strong>. The act of folding the manifold (creating non-linearity) is precisely the act of setting some of its information to zero (collapsing dimensions).</li>
+<li><strong>Preserving information means staying linear</strong>. The only parts of the data that pass through the layer with their volume perfectly preserved are the parts that were subjected to a boring, linear transformation.</li>
+</ul>
 <p>This explains why simply shrinking a layer (like in MobileNetV1) is so dangerous. A very thin layer has very little room to maneuver. When <code>ReLU</code> starts chopping away at the few dimensions it has, it’s very likely to cause irreparable damage to the “manifold of interest,” leading to a permanent loss of representational power.</p>
 <p>This single insight is the entire motivation for the inverted bottleneck structure of MobileNetV2, which we will see is designed to resolve this very paradox.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+The Analogy: The “Stretchy, Folding Box”
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-4" class="callout-4-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Imagine a machine learning layer is a magic box that transforms a 2D piece of paper. The box has two internal stages:</p>
+<ol type="1">
+<li><p><strong>Stage B (The Stretcher):</strong> This is the linear part, <code>Bx</code>. It’s like a machine that can stretch, rotate, or skew the paper, but it <strong>always keeps straight lines straight</strong>. It cannot bend or fold the paper. This is a <strong>linear</strong> transformation.</p></li>
+<li><p><strong>Stage ReLU (The Folder):</strong> This is the non-linear part. This machine takes the paper from Stage B and does one simple, brutal thing: <strong>it folds the paper along the x-axis and y-axis.</strong> Any part of the paper that is in the bottom half (negative y) gets folded up onto the x-axis. Any part in the left half (negative x) gets folded over onto the y-axis. The entire 2nd, 3rd, and 4th quadrants are squashed onto the positive axes.</p></li>
+</ol>
+<p>The entire layer is the combination: <code>ReLU(Bx)</code>.</p>
+<section id="now-lets-analyze-the-output" class="level3">
+<h3 class="anchored" data-anchor-id="now-lets-analyze-the-output">Now, Let’s Analyze the Output</h3>
+<p>The output of our magic box will be a shape that <strong>only exists in the top-right (first) quadrant</strong>. Let’s call this output shape <code>S</code>.</p>
+<p>The paper makes a simple claim: “if a result… has a <strong>non-zero volume S</strong>…” * In our 2D analogy, “volume” just means “area.” So, this means our output shape <code>S</code> isn’t just a line or a point; it’s a real 2D shape that covers some area in the top-right quadrant.</p>
+<p>Now for the crucial part: “…the points mapped to <strong>interior S</strong>…”</p>
+<p>What is the <strong>“interior”</strong> of our output shape <code>S</code>?</p>
+<ul>
+<li>The <em>edges</em> (or boundaries) of <code>S</code> are the parts that lie on the x-axis or the y-axis. These are the places where the <code>ReLU</code> folder did its work.</li>
+<li>The <strong>“interior”</strong> of <code>S</code> is the part that is <strong>NOT</strong> on the edges. It’s the fleshy middle part of the shape, where every point has an x-coordinate <code>&gt; 0</code> and a y-coordinate <code>&gt; 0</code>.</li>
+</ul>
+<div class="quarto-layout-panel" data-layout-ncol="3">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 33.3%;justify-content: flex-start;">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><a href="images/2025-09-03-mobilenetv2-reading-notes/act-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-21" title="Stage A (Input)"><img src="images/2025-09-03-mobilenetv2-reading-notes/act-1.png" class="img-fluid figure-img" alt="Stage A (Input)"></a></p>
+<figcaption>Stage A (Input)</figcaption>
+</figure>
+</div>
+</div>
+<div class="quarto-layout-cell" style="flex-basis: 33.3%;justify-content: flex-start;">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><a href="images/2025-09-03-mobilenetv2-reading-notes/act-2.png" class="lightbox" data-gallery="quarto-lightbox-gallery-22" title="Stage B (The Stretcher)"><img src="images/2025-09-03-mobilenetv2-reading-notes/act-2.png" class="img-fluid figure-img" alt="Stage B (The Stretcher)"></a></p>
+<figcaption>Stage B (The Stretcher)</figcaption>
+</figure>
+</div>
+</div>
+<div class="quarto-layout-cell" style="flex-basis: 33.3%;justify-content: flex-start;">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><a href="images/2025-09-03-mobilenetv2-reading-notes/act-3.png" class="lightbox" data-gallery="quarto-lightbox-gallery-23" title="Stage ReLU (The Folder)"><img src="images/2025-09-03-mobilenetv2-reading-notes/act-3.png" class="img-fluid figure-img" alt="Stage ReLU (The Folder)"></a></p>
+<figcaption>Stage ReLU (The Folder)</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="the-aha-moment-what-did-relu-do-to-the-interior-points" class="level3">
+<h3 class="anchored" data-anchor-id="the-aha-moment-what-did-relu-do-to-the-interior-points">The “Aha!” Moment: What did ReLU do to the interior points?</h3>
+<p>Let’s pick a single point <code>p_out</code> from the <strong>interior</strong> of our final shape <code>S</code>. We know for a fact that both of its coordinates are positive.</p>
+<p>Now, let’s trace it backward through the <code>ReLU</code> folder. The <code>ReLU</code> folder takes an input <code>p_mid</code> and produces our output <code>p_out</code>.</p>
+<ul>
+<li>Since <code>p_out</code>’s x-coordinate is positive, the <code>ReLU</code> function didn’t change it. So, <code>p_mid</code>’s x-coordinate must be the same.</li>
+<li>Since <code>p_out</code>’s y-coordinate is positive, the <code>ReLU</code> function didn’t change it. So, <code>p_mid</code>’s y-coordinate must be the same.</li>
+</ul>
+<p><strong>Conclusion:</strong> For any point that ends up in the <em>interior</em> of the final shape, the <code>ReLU</code> folding stage <strong>did absolutely nothing!</strong> It was a complete pass-through.</p>
+<p>So, for this specific subset of the data, the entire transformation was just the work of the first stage, the <code>B</code> stretcher. The transformation was <code>p_out = B * p_in</code>. And we already know that <code>B</code> is a purely <strong>linear</strong> transformation.</p>
+</section>
+<section id="the-punchline-translating-back-to-the-paper" class="level3">
+<h3 class="anchored" data-anchor-id="the-punchline-translating-back-to-the-paper">The Punchline (Translating back to the paper)</h3>
+<p>This is the entire argument:</p>
+<ol type="1">
+<li>A deep network layer gets its power from non-linearity (the <code>ReLU</code> folder).</li>
+<li>This non-linearity works by collapsing data onto the axes (information loss).</li>
+<li>Any part of the data that <em>survives</em> this collapse with its dimensionality intact (the “interior” with “non-zero volume”) is, by definition, the part that the <code>ReLU</code> folder <strong>didn’t touch</strong>.</li>
+<li>Therefore, the transformation for this “surviving” part of the data was <strong>purely linear</strong>.</li>
+</ol>
+<p><strong>In other words: The parts of a network layer that are non-linear are precisely the parts that are destroying information. The parts that preserve information are forced to be linear.</strong></p>
+<p>This is why the authors conclude that in a low-dimensional bottleneck, where you can’t afford to lose any information, you must get rid of the <code>ReLU</code> and make the layer purely linear. You must remove the “folder” to protect your precious, un-squashed paper.</p>
+</section>
+</div>
+</div>
+</div>
 </section>
 <section id="the-solution-using-high-dimensions-as-a-safety-net" class="level3">
 <h3 class="anchored" data-anchor-id="the-solution-using-high-dimensions-as-a-safety-net">The Solution: Using High Dimensions as a Safety Net</h3>
 <p>So, we’re faced with a paradox: for a layer to be non-linear and powerful, it must use ReLU to cut and fold the data, which risks destroying the “manifold of interest.” But if it avoids this destruction, it remains linear and adds no expressive power. How can we get the best of both worlds? The authors provide the answer in this paragraph.</p>
-<p><a href="images/2025-09-03-mobilenetv2-reading-notes/paper-section-3.2-4.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-21"><img src="images/2025-09-03-mobilenetv2-reading-notes/paper-section-3.2-4.PNG" class="img-fluid"></a></p>
+<p><a href="images/2025-09-03-mobilenetv2-reading-notes/paper-section-3.2-4.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-24"><img src="images/2025-09-03-mobilenetv2-reading-notes/paper-section-3.2-4.PNG" class="img-fluid"></a></p>
 <section id="information-is-redundant" class="level4">
 <h4 class="anchored" data-anchor-id="information-is-redundant">Information is Redundant</h4>
 <p>First, a simple but important observation:</p>
@@ -819,10 +974,10 @@ Origin story of Manifolds
 <div class="quarto-layout-panel" data-layout-ncol="2">
 <div class="quarto-layout-row">
 <div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
-<p><a href="images/2025-09-03-mobilenetv2-reading-notes/paper-section-3.2-5a.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-22"><img src="images/2025-09-03-mobilenetv2-reading-notes/paper-section-3.2-5a.PNG" class="img-fluid"></a></p>
+<p><a href="images/2025-09-03-mobilenetv2-reading-notes/paper-section-3.2-5a.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-25"><img src="images/2025-09-03-mobilenetv2-reading-notes/paper-section-3.2-5a.PNG" class="img-fluid"></a></p>
 </div>
 <div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
-<p><a href="images/2025-09-03-mobilenetv2-reading-notes/paper-section-3.2-5b.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-23"><img src="images/2025-09-03-mobilenetv2-reading-notes/paper-section-3.2-5b.PNG" class="img-fluid"></a></p>
+<p><a href="images/2025-09-03-mobilenetv2-reading-notes/paper-section-3.2-5b.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-26"><img src="images/2025-09-03-mobilenetv2-reading-notes/paper-section-3.2-5b.PNG" class="img-fluid"></a></p>
 </div>
 </div>
 </div>
@@ -875,7 +1030,7 @@ Origin story of Manifolds
 <section id="visualizing-the-theory-the-spiral-experiment-figure-1" class="level3">
 <h3 class="anchored" data-anchor-id="visualizing-the-theory-the-spiral-experiment-figure-1">Visualizing the Theory: The Spiral Experiment (Figure 1)</h3>
 <p>After all that dense theory, the authors provide a simple yet brilliant visualization in Figure 1 to help us build a concrete intuition for their main point: <strong>to safely apply ReLU, you must first expand your data into a higher dimension.</strong></p>
-<p><a href="images/2025-09-03-mobilenetv2-reading-notes/paper-fig-1.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-24"><img src="images/2025-09-03-mobilenetv2-reading-notes/paper-fig-1.PNG" class="img-fluid"></a></p>
+<p><a href="images/2025-09-03-mobilenetv2-reading-notes/paper-fig-1.PNG" class="lightbox" data-gallery="quarto-lightbox-gallery-27"><img src="images/2025-09-03-mobilenetv2-reading-notes/paper-fig-1.PNG" class="img-fluid"></a></p>
 <p>Let’s break down what this figure is showing.</p>
 <section id="the-experiment-setup" class="level4">
 <h4 class="anchored" data-anchor-id="the-experiment-setup">The Experiment Setup</h4>
