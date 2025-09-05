@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.32">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="dcterms.date" content="2025-09-05">
+<meta name="description" content="A Python visualization that shows how a ReLU activation function transforms a 2D shape, demonstrating the geometric difference between linear and non-linear operations in a neural network.">
+
+<title>A Visual Guide to Linear vs.&nbsp;Non-Linear Transformations with ReLU – Random Thoughts</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../images/favicon.ico" rel="icon">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-ec1a476101e3788554028e6f9c82f7c1.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script async="" src="https://www.googletagmanager.com/gtag/js?id=G-D1ST9BH6HX"></script>
+
+<script type="text/javascript">
+
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-D1ST9BH6HX', { 'anonymize_ip': true});
+</script>
+
+
+<link rel="stylesheet" href="../styles.css">
+<meta property="og:title" content="A Visual Guide to Linear vs.&nbsp;Non-Linear Transformations with ReLU – Random Thoughts">
+<meta property="og:description" content="A Python visualization that shows how a ReLU activation function transforms a 2D shape, demonstrating the geometric difference between linear and non-linear operations in a neural network.">
+<meta property="og:image" content="https://hassaanbinaslam.github.io/posts/images/2025-09-05-linear-vs-non-linear-transformation-relu.jpeg">
+<meta property="og:site_name" content="Random Thoughts">
+<meta name="twitter:title" content="A Visual Guide to Linear vs.&nbsp;Non-Linear Transformations with ReLU – Random Thoughts">
+<meta name="twitter:description" content="A Python visualization that shows how a ReLU activation function transforms a 2D shape, demonstrating the geometric difference between linear and non-linear operations in a neural network.">
+<meta name="twitter:image" content="https://hassaanbinaslam.github.io/posts/images/2025-09-05-linear-vs-non-linear-transformation-relu.jpeg">
+<meta name="twitter:card" content="summary_large_image">
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">Random Thoughts</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://www.linkedin.com/in/hassaanbinaslam/"> <i class="bi bi-linkedin" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/hassaanbinaslam/"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://twitter.com/hassaanbinaslam"> <i class="bi bi-twitter" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a></li>
+  <li><a href="#step-1-creating-our-input-shape" id="toc-step-1-creating-our-input-shape" class="nav-link" data-scroll-target="#step-1-creating-our-input-shape">Step 1: Creating Our Input Shape</a></li>
+  <li><a href="#step-2-applying-a-linear-transformation" id="toc-step-2-applying-a-linear-transformation" class="nav-link" data-scroll-target="#step-2-applying-a-linear-transformation">Step 2: Applying a Linear Transformation</a></li>
+  <li><a href="#step-3-applying-the-relu-non-linearity" id="toc-step-3-applying-the-relu-non-linearity" class="nav-link" data-scroll-target="#step-3-applying-the-relu-non-linearity">Step 3: Applying the ReLU Non-Linearity</a></li>
+  <li><a href="#so-how-does-learning-happen-in-all-this" id="toc-so-how-does-learning-happen-in-all-this" class="nav-link" data-scroll-target="#so-how-does-learning-happen-in-all-this">So, How Does Learning Happen in All This?</a>
+  <ul class="collapse">
+  <li><a href="#step-1-the-linear-layer-learns-to-aim" id="toc-step-1-the-linear-layer-learns-to-aim" class="nav-link" data-scroll-target="#step-1-the-linear-layer-learns-to-aim">Step 1: The Linear Layer Learns to Aim</a></li>
+  <li><a href="#step-2-relu-acts-as-the-filter" id="toc-step-2-relu-acts-as-the-filter" class="nav-link" data-scroll-target="#step-2-relu-acts-as-the-filter">Step 2: ReLU Acts as the Filter</a></li>
+  <li><a href="#the-result-zooming-in-on-what-matters" id="toc-the-result-zooming-in-on-what-matters" class="nav-link" data-scroll-target="#the-result-zooming-in-on-what-matters">The Result: Zooming In on What Matters</a></li>
+  </ul></li>
+  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion">Conclusion</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">A Visual Guide to Linear vs.&nbsp;Non-Linear Transformations with ReLU</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">papers</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    A Python visualization that shows how a ReLU activation function transforms a 2D shape, demonstrating the geometric difference between linear and non-linear operations in a neural network.
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">September 5, 2025</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p><img src="images/2025-09-05-linear-vs-non-linear-transformation-relu.jpeg" class="img-fluid"></p>
+<section id="introduction" class="level2">
+<h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
+<p>In deep learning, the difference between a linear layer and a non-linear layer is everything. The former can only stretch and rotate data, while the latter gives a network its true expressive power. The key to this power is the ReLU activation function.</p>
+<p>This post provides a short, code-based visualization to make this concept crystal clear. Using a simple circle as our input data, we will demonstrate how a linear transformation preserves information, while the addition of ReLU creates complexity by strategically destroying it. Let’s see what that looks like.</p>
+<div class="callout callout-style-default callout-tip callout-titled" title="Get the code">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Get the code
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-1" class="callout-1-contents callout-collapse collapse show">
+<div class="callout-body-container callout-body">
+<p>All the code can be found in the GitHub repository : <a href="https://github.com/hassaanbinaslam/hassaanbinaslam.github.io/tree/main/posts/2025-09-05-linear-vs-non-linear-transformation-relu.ipynb">2025-09-05-linear-vs-non-linear-transformation-relu.ipynb</a>.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="step-1-creating-our-input-shape" class="level2">
+<h2 class="anchored" data-anchor-id="step-1-creating-our-input-shape">Step 1: Creating Our Input Shape</h2>
+<p>First, let’s create our input data—a simple “manifold.” A circle is a perfect choice because it’s a continuous shape that exists in all four quadrants of a 2D plane.</p>
+<p>We’ll use <code>NumPy</code> for the calculations and <code>Matplotlib</code> for plotting.</p>
+<div id="04e1dd9d" class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1"></a><span class="co"># 1. Import necessary libraries</span></span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-3"><a href="#cb1-3"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb1-4"><a href="#cb1-4"></a></span>
+<span id="cb1-5"><a href="#cb1-5"></a><span class="co"># 2. Generate angles for the circle</span></span>
+<span id="cb1-6"><a href="#cb1-6"></a><span class="co">#    To draw a circle, we need to calculate the (x, y) coordinates for a series of points along its circumference.</span></span>
+<span id="cb1-7"><a href="#cb1-7"></a><span class="co">#    np.linspace(start, stop, num) is a handy function that creates an array of evenly spaced numbers over a specified interval.</span></span>
+<span id="cb1-8"><a href="#cb1-8"></a><span class="co">#    - 'start' is 0 (0 radians).</span></span>
+<span id="cb1-9"><a href="#cb1-9"></a><span class="co">#    - 'stop' is 2 * np.pi (360 degrees in radians), which completes a full circle.</span></span>
+<span id="cb1-10"><a href="#cb1-10"></a><span class="co">#    - 'num' is 100, meaning we'll generate 100 points to make our circle look smooth.</span></span>
+<span id="cb1-11"><a href="#cb1-11"></a>theta <span class="op">=</span> np.linspace(<span class="dv">0</span>, <span class="dv">2</span> <span class="op">*</span> np.pi, <span class="dv">100</span>)</span>
+<span id="cb1-12"><a href="#cb1-12"></a></span>
+<span id="cb1-13"><a href="#cb1-13"></a><span class="co"># 3. Calculate the x and y coordinates</span></span>
+<span id="cb1-14"><a href="#cb1-14"></a><span class="co">#    Now we use basic trigonometry to get the coordinates. For a unit circle (radius=1):</span></span>
+<span id="cb1-15"><a href="#cb1-15"></a><span class="co">#    - The x-coordinate is the cosine of the angle.</span></span>
+<span id="cb1-16"><a href="#cb1-16"></a><span class="co">#    - The y-coordinate is the sine of the angle.</span></span>
+<span id="cb1-17"><a href="#cb1-17"></a><span class="co">#    np.vstack stacks arrays in sequence vertically (row wise).</span></span>
+<span id="cb1-18"><a href="#cb1-18"></a><span class="co">#    - We create one array for all the x-coordinates: np.cos(theta).</span></span>
+<span id="cb1-19"><a href="#cb1-19"></a><span class="co">#    - We create a second array for all the y-coordinates: np.sin(theta).</span></span>
+<span id="cb1-20"><a href="#cb1-20"></a><span class="co">#    - vstack combines them into a single 2x100 array, where the first row is 'x' and the second is 'y'.</span></span>
+<span id="cb1-21"><a href="#cb1-21"></a>circle <span class="op">=</span> np.vstack((np.cos(theta), np.sin(theta)))</span>
+<span id="cb1-22"><a href="#cb1-22"></a></span>
+<span id="cb1-23"><a href="#cb1-23"></a><span class="co"># 4. Plot the original circle for visualization</span></span>
+<span id="cb1-24"><a href="#cb1-24"></a><span class="co">#    This part is for drawing the graph so we can see our starting shape.</span></span>
+<span id="cb1-25"><a href="#cb1-25"></a></span>
+<span id="cb1-26"><a href="#cb1-26"></a><span class="co"># Create a figure and axes for the plot. figsize controls the overall size.</span></span>
+<span id="cb1-27"><a href="#cb1-27"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">4</span>, <span class="dv">4</span>)) <span class="co"># A 4x4 figure makes a nice square plot</span></span>
+<span id="cb1-28"><a href="#cb1-28"></a><span class="co"># The plot command takes the x-data and y-data.</span></span>
+<span id="cb1-29"><a href="#cb1-29"></a><span class="co"># - circle[0, :] selects the first row (all x-coordinates).</span></span>
+<span id="cb1-30"><a href="#cb1-30"></a><span class="co"># - circle[1, :] selects the second row (all y-coordinates).</span></span>
+<span id="cb1-31"><a href="#cb1-31"></a>plt.plot(circle[<span class="dv">0</span>, :], circle[<span class="dv">1</span>, :])</span>
+<span id="cb1-32"><a href="#cb1-32"></a>plt.title(<span class="st">"1. Original Manifold (A Circle)"</span>)</span>
+<span id="cb1-33"><a href="#cb1-33"></a><span class="co"># Add a grid for easier viewing.</span></span>
+<span id="cb1-34"><a href="#cb1-34"></a>plt.grid(<span class="va">True</span>)</span>
+<span id="cb1-35"><a href="#cb1-35"></a><span class="co"># This is a crucial line for plotting shapes. It forces the x and y axes to have the same scale.</span></span>
+<span id="cb1-36"><a href="#cb1-36"></a><span class="co"># Without this, our circle might look like an oval just because of the window shape.</span></span>
+<span id="cb1-37"><a href="#cb1-37"></a>plt.gca().set_aspect(<span class="st">'equal'</span>, adjustable<span class="op">=</span><span class="st">'box'</span>)</span>
+<span id="cb1-38"><a href="#cb1-38"></a></span>
+<span id="cb1-39"><a href="#cb1-39"></a><span class="co"># Display the final plot.</span></span>
+<span id="cb1-40"><a href="#cb1-40"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="2025-09-05-linear-vs-non-linear-transformation-relu_files/figure-html/cell-2-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="step-2-applying-a-linear-transformation" class="level2">
+<h2 class="anchored" data-anchor-id="step-2-applying-a-linear-transformation">Step 2: Applying a Linear Transformation</h2>
+<p>Next, we’ll apply a purely linear transformation. This is what a <code>Conv2D</code> or <code>Dense</code> layer does <em>before</em> the activation function. A linear transformation can rotate, scale, and shear the data, but it cannot bend or break it.</p>
+<div id="59a0d638" class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1"></a><span class="co"># 1. Define the transformation matrix B</span></span>
+<span id="cb2-2"><a href="#cb2-2"></a><span class="co">#    This is a 2x2 matrix that will define how our 2D circle gets transformed.</span></span>
+<span id="cb2-3"><a href="#cb2-3"></a><span class="co">#    - The diagonal elements (1.5, 1.5) will scale the circle, making it larger.</span></span>
+<span id="cb2-4"><a href="#cb2-4"></a><span class="co">#    - The off-diagonal elements (0.7, 0.7) will introduce "shear," which skews the circle, turning it into an ellipse.</span></span>
+<span id="cb2-5"><a href="#cb2-5"></a><span class="co">#    You can play with these numbers to see different effects!</span></span>
+<span id="cb2-6"><a href="#cb2-6"></a>B <span class="op">=</span> np.array([</span>
+<span id="cb2-7"><a href="#cb2-7"></a>    [<span class="fl">1.5</span>, <span class="fl">0.7</span>],</span>
+<span id="cb2-8"><a href="#cb2-8"></a>    [<span class="fl">0.7</span>, <span class="fl">1.5</span>]</span>
+<span id="cb2-9"><a href="#cb2-9"></a>])</span>
+<span id="cb2-10"><a href="#cb2-10"></a></span>
+<span id="cb2-11"><a href="#cb2-11"></a><span class="co"># 2. Apply the linear transformation</span></span>
+<span id="cb2-12"><a href="#cb2-12"></a><span class="co">#    Here's where the math happens. The '@' symbol in Python/NumPy is the</span></span>
+<span id="cb2-13"><a href="#cb2-13"></a><span class="co">#    operator for matrix multiplication.</span></span>
+<span id="cb2-14"><a href="#cb2-14"></a><span class="co">#    - Our matrix B is of shape (2, 2).</span></span>
+<span id="cb2-15"><a href="#cb2-15"></a><span class="co">#    - Our 'circle' data is of shape (2, 100), where we have 2 rows (x and y) and 100 points.</span></span>
+<span id="cb2-16"><a href="#cb2-16"></a><span class="co">#    - The matrix multiplication B @ circle performs the transformation on all 100 points at once.</span></span>
+<span id="cb2-17"><a href="#cb2-17"></a><span class="co">#    - The result, 'transformed_linear', will be a new (2, 100) array containing the coordinates of the new shape.</span></span>
+<span id="cb2-18"><a href="#cb2-18"></a>transformed_linear <span class="op">=</span> B <span class="op">@</span> circle</span>
+<span id="cb2-19"><a href="#cb2-19"></a></span>
+<span id="cb2-20"><a href="#cb2-20"></a><span class="co"># 3. Plot the result for visualization</span></span>
+<span id="cb2-21"><a href="#cb2-21"></a><span class="co">#    This part is just for drawing the graph so we can see what happened.</span></span>
+<span id="cb2-22"><a href="#cb2-22"></a></span>
+<span id="cb2-23"><a href="#cb2-23"></a><span class="co"># Create a figure to hold our plots, making it wide enough for a side-by-side comparison.</span></span>
+<span id="cb2-24"><a href="#cb2-24"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">12</span>, <span class="dv">4</span>))</span>
+<span id="cb2-25"><a href="#cb2-25"></a></span>
+<span id="cb2-26"><a href="#cb2-26"></a><span class="co"># Create the first subplot for the original circle</span></span>
+<span id="cb2-27"><a href="#cb2-27"></a>plt.subplot(<span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">1</span>)</span>
+<span id="cb2-28"><a href="#cb2-28"></a><span class="co"># Plot the x-coordinates (first row) against the y-coordinates (second row) of the original circle</span></span>
+<span id="cb2-29"><a href="#cb2-29"></a>plt.plot(circle[<span class="dv">0</span>, :], circle[<span class="dv">1</span>, :])</span>
+<span id="cb2-30"><a href="#cb2-30"></a>plt.title(<span class="st">"1. Original Manifold"</span>)</span>
+<span id="cb2-31"><a href="#cb2-31"></a>plt.grid(<span class="va">True</span>)</span>
+<span id="cb2-32"><a href="#cb2-32"></a><span class="co"># This important line ensures the x and y axes have the same scale, so the circle doesn't look like an ellipse due to plotting distortions.</span></span>
+<span id="cb2-33"><a href="#cb2-33"></a>plt.gca().set_aspect(<span class="st">'equal'</span>, adjustable<span class="op">=</span><span class="st">'box'</span>)</span>
+<span id="cb2-34"><a href="#cb2-34"></a></span>
+<span id="cb2-35"><a href="#cb2-35"></a><span class="co"># Create the second subplot for the transformed shape</span></span>
+<span id="cb2-36"><a href="#cb2-36"></a>plt.subplot(<span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">2</span>)</span>
+<span id="cb2-37"><a href="#cb2-37"></a><span class="co"># Plot the x and y coordinates of our new, transformed shape</span></span>
+<span id="cb2-38"><a href="#cb2-38"></a>plt.plot(transformed_linear[<span class="dv">0</span>, :], transformed_linear[<span class="dv">1</span>, :])</span>
+<span id="cb2-39"><a href="#cb2-39"></a>plt.title(<span class="st">"2. Linear Transform (Bx)"</span>)</span>
+<span id="cb2-40"><a href="#cb2-40"></a>plt.grid(<span class="va">True</span>)</span>
+<span id="cb2-41"><a href="#cb2-41"></a><span class="co"># Again, ensure the aspect ratio is equal to see the true shape.</span></span>
+<span id="cb2-42"><a href="#cb2-42"></a>plt.gca().set_aspect(<span class="st">'equal'</span>, adjustable<span class="op">=</span><span class="st">'box'</span>)</span>
+<span id="cb2-43"><a href="#cb2-43"></a></span>
+<span id="cb2-44"><a href="#cb2-44"></a><span class="co"># Display the final plot</span></span>
+<span id="cb2-45"><a href="#cb2-45"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="2025-09-05-linear-vs-non-linear-transformation-relu_files/figure-html/cell-3-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>Result:</strong> The circle has been stretched and skewed into an ellipse. Critically, it’s still a single, unbroken loop. This transformation is invertible; we could easily multiply by the inverse of <code>B</code> to get our original circle back. <strong>No information has been lost.</strong></p>
+</section>
+<section id="step-3-applying-the-relu-non-linearity" class="level2">
+<h2 class="anchored" data-anchor-id="step-3-applying-the-relu-non-linearity">Step 3: Applying the ReLU Non-Linearity</h2>
+<p>Now for the crucial part. We’ll take that same ellipse and apply the Rectified Linear Unit (<code>ReLU</code>) function to it. ReLU is defined as <code>f(z) = max(0, z)</code>, meaning it clips all negative values to zero.</p>
+<div id="806526b3" class="cell" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1"></a><span class="co"># 1. Apply the ReLU function</span></span>
+<span id="cb3-2"><a href="#cb3-2"></a><span class="co">#    We will use NumPy's `maximum` function, which is a perfect implementation of ReLU.</span></span>
+<span id="cb3-3"><a href="#cb3-3"></a><span class="co">#    It compares two arrays element-by-element and returns a new array containing the larger of the two values.</span></span>
+<span id="cb3-4"><a href="#cb3-4"></a><span class="co">#    - `transformed_linear` is our 2x100 array of ellipse coordinates from Step 2.</span></span>
+<span id="cb3-5"><a href="#cb3-5"></a><span class="co">#    - `0` is a single number. NumPy is smart enough to "broadcast" this 0,</span></span>
+<span id="cb3-6"><a href="#cb3-6"></a><span class="co">#      meaning it compares every element in `transformed_linear` with 0.</span></span>
+<span id="cb3-7"><a href="#cb3-7"></a><span class="co">#    - The result is a new 2x100 array, `transformed_nonlinear`, where any negative coordinate</span></span>
+<span id="cb3-8"><a href="#cb3-8"></a><span class="co">#      has been replaced by 0.</span></span>
+<span id="cb3-9"><a href="#cb3-9"></a>transformed_nonlinear <span class="op">=</span> np.maximum(<span class="dv">0</span>, transformed_linear)</span>
+<span id="cb3-10"><a href="#cb3-10"></a></span>
+<span id="cb3-11"><a href="#cb3-11"></a><span class="co"># 2. Plot all three shapes for a side-by-side comparison</span></span>
+<span id="cb3-12"><a href="#cb3-12"></a><span class="co">#    To really see the effect, we'll plot the original circle, the linear transformation,</span></span>
+<span id="cb3-13"><a href="#cb3-13"></a><span class="co">#    and the final non-linear transformation all in one figure.</span></span>
+<span id="cb3-14"><a href="#cb3-14"></a></span>
+<span id="cb3-15"><a href="#cb3-15"></a><span class="co"># Create a wide figure to hold three subplots.</span></span>
+<span id="cb3-16"><a href="#cb3-16"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">15</span>, <span class="dv">4</span>))</span>
+<span id="cb3-17"><a href="#cb3-17"></a></span>
+<span id="cb3-18"><a href="#cb3-18"></a><span class="co"># --- Subplot 1: The Original Circle ---</span></span>
+<span id="cb3-19"><a href="#cb3-19"></a>plt.subplot(<span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">1</span>)</span>
+<span id="cb3-20"><a href="#cb3-20"></a>plt.plot(circle[<span class="dv">0</span>, :], circle[<span class="dv">1</span>, :])</span>
+<span id="cb3-21"><a href="#cb3-21"></a>plt.title(<span class="st">"1. Original Manifold"</span>)</span>
+<span id="cb3-22"><a href="#cb3-22"></a><span class="co"># Add thin black lines for the x and y axes to make the quadrants clear.</span></span>
+<span id="cb3-23"><a href="#cb3-23"></a>plt.axhline(<span class="dv">0</span>, color<span class="op">=</span><span class="st">'black'</span>, lw<span class="op">=</span><span class="fl">0.5</span>)<span class="op">;</span> plt.axvline(<span class="dv">0</span>, color<span class="op">=</span><span class="st">'black'</span>, lw<span class="op">=</span><span class="fl">0.5</span>)</span>
+<span id="cb3-24"><a href="#cb3-24"></a>plt.grid(<span class="va">True</span>)</span>
+<span id="cb3-25"><a href="#cb3-25"></a>plt.gca().set_aspect(<span class="st">'equal'</span>, adjustable<span class="op">=</span><span class="st">'box'</span>)</span>
+<span id="cb3-26"><a href="#cb3-26"></a></span>
+<span id="cb3-27"><a href="#cb3-27"></a><span class="co"># --- Subplot 2: The Linear Transformation ---</span></span>
+<span id="cb3-28"><a href="#cb3-28"></a>plt.subplot(<span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">2</span>)</span>
+<span id="cb3-29"><a href="#cb3-29"></a>plt.plot(transformed_linear[<span class="dv">0</span>, :], transformed_linear[<span class="dv">1</span>, :])</span>
+<span id="cb3-30"><a href="#cb3-30"></a>plt.title(<span class="st">"2. Linear Transform (Bx)"</span>)</span>
+<span id="cb3-31"><a href="#cb3-31"></a>plt.axhline(<span class="dv">0</span>, color<span class="op">=</span><span class="st">'black'</span>, lw<span class="op">=</span><span class="fl">0.5</span>)<span class="op">;</span> plt.axvline(<span class="dv">0</span>, color<span class="op">=</span><span class="st">'black'</span>, lw<span class="op">=</span><span class="fl">0.5</span>)</span>
+<span id="cb3-32"><a href="#cb3-32"></a>plt.grid(<span class="va">True</span>)</span>
+<span id="cb3-33"><a href="#cb3-33"></a>plt.gca().set_aspect(<span class="st">'equal'</span>, adjustable<span class="op">=</span><span class="st">'box'</span>)</span>
+<span id="cb3-34"><a href="#cb3-34"></a></span>
+<span id="cb3-35"><a href="#cb3-35"></a><span class="co"># --- Subplot 3: The Non-Linear Transformation ---</span></span>
+<span id="cb3-36"><a href="#cb3-36"></a>plt.subplot(<span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">3</span>)</span>
+<span id="cb3-37"><a href="#cb3-37"></a>plt.plot(transformed_nonlinear[<span class="dv">0</span>, :], transformed_nonlinear[<span class="dv">1</span>, :])</span>
+<span id="cb3-38"><a href="#cb3-38"></a>plt.title(<span class="st">"3. Non-Linear Transform (ReLU(Bx))"</span>)</span>
+<span id="cb3-39"><a href="#cb3-39"></a>plt.axhline(<span class="dv">0</span>, color<span class="op">=</span><span class="st">'black'</span>, lw<span class="op">=</span><span class="fl">0.5</span>)<span class="op">;</span> plt.axvline(<span class="dv">0</span>, color<span class="op">=</span><span class="st">'black'</span>, lw<span class="op">=</span><span class="fl">0.5</span>)</span>
+<span id="cb3-40"><a href="#cb3-40"></a>plt.grid(<span class="va">True</span>)</span>
+<span id="cb3-41"><a href="#cb3-41"></a>plt.gca().set_aspect(<span class="st">'equal'</span>, adjustable<span class="op">=</span><span class="st">'box'</span>)</span>
+<span id="cb3-42"><a href="#cb3-42"></a></span>
+<span id="cb3-43"><a href="#cb3-43"></a><span class="co"># This command adjusts the spacing between plots to prevent titles from overlapping.</span></span>
+<span id="cb3-44"><a href="#cb3-44"></a>plt.tight_layout()</span>
+<span id="cb3-45"><a href="#cb3-45"></a><span class="co"># Display the final, comprehensive plot.</span></span>
+<span id="cb3-46"><a href="#cb3-46"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="2025-09-05-linear-vs-non-linear-transformation-relu_files/figure-html/cell-4-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>Result:</strong> The smooth ellipse has been “cut and folded.” Any part of the shape that was in the second, third, or fourth quadrants has been collapsed onto the positive axes or the origin. This transformation is <strong>not invertible</strong>. Looking at the final shape, you have no way of knowing what the original shape was. <strong>Information has been permanently destroyed.</strong></p>
+</section>
+<section id="so-how-does-learning-happen-in-all-this" class="level2">
+<h2 class="anchored" data-anchor-id="so-how-does-learning-happen-in-all-this">So, How Does Learning Happen in All This?</h2>
+<p>We’ve seen that <code>ReLU</code> is a fixed function that aggressively destroys information. This raises a profound question: if the network is constantly throwing information away, how can it possibly learn?</p>
+<p>The answer is that <strong>learning <em>is</em> the process of selectively destroying information.</strong> A neural network’s goal is not to preserve every detail of the input. Its goal is to transform the data into a new, simpler representation where the answer to a specific question becomes obvious. To do this, <strong>it must learn to discard irrelevant details</strong>.</p>
+<p>This is a collaborative dance between the two parts of the layer:</p>
+<section id="step-1-the-linear-layer-learns-to-aim" class="level3">
+<h3 class="anchored" data-anchor-id="step-1-the-linear-layer-learns-to-aim">Step 1: The Linear Layer Learns to Aim</h3>
+<p>The linear part of the layer (<code>Bx</code>) is where the actual learning happens. The weights of this transformation are adjusted during training via backpropagation. Its job is to <strong>aim</strong> the data.</p>
+<p>Imagine the <code>ReLU</code> function is a fixed cleaver that will chop off anything in the negative quadrants. The linear layer learns to perform the perfect rotation, stretching, and skewing of the input shape so that:</p>
+<ul>
+<li><strong>Relevant information</strong> (the signal) is carefully pushed into the first quadrant, where it will be safe from the <code>ReLU</code> cleaver.</li>
+<li><strong>Irrelevant information</strong> (the noise) is deliberately pushed into the second, third, and fourth quadrants, placing it directly in the “danger zone.”</li>
+</ul>
+<p>For a facial recognition task, the linear layer learns to rotate the data so that features defining a person’s identity are aimed at the safe zone, while variations like lighting, shadows, and slight head tilts are aimed at the chopping block.</p>
+</section>
+<section id="step-2-relu-acts-as-the-filter" class="level3">
+<h3 class="anchored" data-anchor-id="step-2-relu-acts-as-the-filter">Step 2: ReLU Acts as the Filter</h3>
+<p>The <code>ReLU</code> function is the non-learning, “dumb” part of the operation. It just executes its one simple rule: cut everything that isn’t in the first quadrant.</p>
+<p>Because the linear layer was so intelligent about aiming the data, this simple, fixed cut now becomes a highly sophisticated filtering operation. It cleanly removes the noise that the linear layer wanted to discard.</p>
+</section>
+<section id="the-result-zooming-in-on-what-matters" class="level3">
+<h3 class="anchored" data-anchor-id="the-result-zooming-in-on-what-matters">The Result: Zooming In on What Matters</h3>
+<p>The outcome of this two-step process is a new representation of the data that is much more useful for the next layer in the network. This way we zoom and amplify the useful information for the upcoming layers to work on.</p>
+<ul>
+<li><strong>Zoom:</strong> By throwing away the irrelevant noise, the network is effectively “zooming in” on the features that actually matter for the task.</li>
+<li><strong>Amplify:</strong> The signal-to-noise ratio of the data is now much higher. The important features are amplified <em>relative</em> to the noise, which has been removed.</li>
+</ul>
+<p>This makes the job for the next layer dramatically easier. It receives a pre-processed, cleaner representation, allowing it to focus on learning even more abstract patterns. This layer-by-layer process of aiming, cutting, and zooming is the very essence of how deep neural networks learn to understand the world.</p>
+</section>
+</section>
+<section id="conclusion" class="level2">
+<h2 class="anchored" data-anchor-id="conclusion">Conclusion</h2>
+<p>This simple experiment makes the theoretical concept tangible:</p>
+<ul>
+<li><strong>Linear transformations</strong> warp space but preserve the integrity and information of the data.</li>
+<li><strong>Non-linear transformations (like ReLU)</strong> create complexity and give neural networks their power, but this power comes directly from their ability to strategically “fold” space by destroying information.</li>
+</ul>
+<p>Understanding this trade-off is key to modern neural network design. It’s precisely why architectures like MobileNetV2 are so carefully designed, using non-linearities only in high-dimensional spaces where information loss is less catastrophic, while keeping their low-dimensional “bottlenecks” linear to protect the data.</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/hassaanbinaslam\.github\.io\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<script src="https://utteranc.es/client.js" repo="hassaanbinaslam/myblog_utterances" issue-term="pathname" theme="github-light" crossorigin="anonymous" async="">
+</script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
